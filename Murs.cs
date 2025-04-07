@@ -51,12 +51,6 @@ namespace PROJET_PIIA
     class Murs
     {
 
-        public bool contient(ElemMur e)
-        {
-            // TODO : vérifier si l'élément est dans l'espace
-            return true;
-        }
-
         List<Position> perimetre;
         List<Porte> portes;
         List<Fenetre> fenetres;
@@ -155,11 +149,6 @@ namespace PROJET_PIIA
                 if (value < 0) throw new ArgumentException("Largeur cannot be negative.");
                 largeur = value;
             }
-        }
-
-        public bool est_dans_mur(Murs MursCuisine)
-        {
-            return MursCuisine.contient(this);
         }
 
         //pourrait être utile pour débugguer
