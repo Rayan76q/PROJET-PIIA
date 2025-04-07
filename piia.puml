@@ -1,0 +1,78 @@
+@startuml PIIA
+
+
+class MainView<<Unique>>
+class ViewPlan 
+class Meuble 
+
+class ViewSidebar {
+    Barre de recherche
+    bouton filtre
+}
+
+ViewSidebar --> ViewFiltre
+class ViewFiltre
+
+Interface Observer
+class ViewLogin  {
+    zone texte identifiant
+    zone texte mdp
+    bouton connexion
+}
+MainView --> ViewConception
+MainView --> ViewLogin
+
+ViewConception --> ViewPlan
+ViewConception --> ViewSidebar
+ViewConception --> ViewToolbar
+
+class ViewCatalogue
+
+ViewSidebar --> ViewCatalogue
+
+ViewPlan ..|> Observer
+ViewCatalogue ..|> Observer
+
+
+class Model<<Unique>>
+MainView --> Model
+
+class UserConnecté {}
+Model --> UserConnecté
+
+enum categorie
+class Catalogue
+class Plan
+class Meuble {
+    float largeur
+    float hauteur
+    int nbvue
+}
+ViewPlan --> Plan : observe
+class Mur {
+    contour : List<Point> {ordered}
+    {ne pas croiser lignes}
+}
+' note above
+' Un Rect
+' au début
+' end note
+abstract class ElemMural {
+    float largeur
+    double position
+    {interpoler sur longeur mur ?}
+}
+Porte -u-|> ElemMural
+Fenetre -u-|> ElemMural
+
+Plan --> Mur
+Mur <--> "0..*" ElemMural
+Plan --> "0..*" Meuble
+Catalogue --> "0..*" Meuble
+Meuble --> "0..*" categorie
+
+Model --> Plan
+Model --> Catalogue
+
+
+@enduml
