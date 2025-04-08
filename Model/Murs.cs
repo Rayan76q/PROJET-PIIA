@@ -46,10 +46,7 @@
     class Murs {
 
         List<Position> perimetre;
-        List<Porte> portes;
-        List<Fenetre> fenetres;
-
-
+        List<ElemMur> elemsmuraux;
 
         public static bool checkMurs(List<Position> points) {
             for (int i = 0; i < points.Count - 1; i++) {
@@ -103,12 +100,11 @@
 
 
 
-        public Murs(List<Position> perimetre, List<Porte> portes, List<Fenetre> fenetres) {
+        public Murs(List<Position> perimetre) {
             if (checkMurs(perimetre))
                 throw new ArgumentOutOfRangeException("Les mures s'intersectent, impossible de générer la cuisine.");
             this.perimetre = perimetre;
-            this.portes = portes;
-            this.fenetres = fenetres;
+            this.elemsmuraux = new List<ElemMur>();
         }
 
         float GetPerimetreLength() {
@@ -184,5 +180,5 @@
 
     }
 
-    
+
 }
