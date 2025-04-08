@@ -37,18 +37,21 @@
         }
     }
 
-    class Murs {
+    class Murs
+    {
 
     List<Position> perimetre;
     List<Porte> portes;
     List<Fenetre> fenetres;
 
 
-
-        public static bool DoSegmentsIntersect(List<Position> points) {
-            for (int i = 0; i < points.Count - 1; i++) {
-                var p1 = points[i];
-                var q1 = points[i + 1];
+        
+            public static bool checkMurs(List<Position> points)
+            {
+                for (int i = 0; i < points.Count - 1; i++)
+                {
+                    var p1 = points[i];
+                    var q1 = points[i + 1];
 
                 for (int j = i + 2; j < points.Count - 1; j++) {
                     if (i == j - 1) continue; // Skip adjacent segments
@@ -166,12 +169,30 @@
             Position last = perimetre.Last();
             return new Position(last.X, last.Y);
         }
+
+
+        public List<(Position, Position)> GetSegments()
+        {
+            var segments = new List<(Position, Position)>();
+            for (int i = 0; i < perimetre.Count; i++)
+            {
+                segments.Add((perimetre[i], perimetre[(i + 1) % perimetre.Count]));
+            }
+            return segments;
+        }
+
+
+
+
     }
 
-    abstract class ElemMur {
+    abstract class ElemMur
+    {
         static protected int idCounter = 0;
-        protected int id = idCounter;
-
+        protected int _id = idCounter;
+        public int Id {
+            get { return _id; }
+        }
 
         protected float distPos;
         public float DistPos {
@@ -191,8 +212,9 @@
             }
         }
 
-
-        public virtual void afficher() {
+        
+        public virtual void afficher()
+        {
             Console.WriteLine("ID : " + id);
             Console.WriteLine("Position : " + distPos);
             Console.WriteLine("Largeur : " + largeur);
@@ -200,8 +222,10 @@
         }
     }
 
-    class Porte : ElemMur {
-        public Porte(float position, float largeur) {
+    class Porte : ElemMur
+    {
+        public Porte(float position, float largeur)
+        {
             this.DistPos = position;
             this.Largeur = largeur;
             idCounter++;
@@ -215,8 +239,10 @@
     }
 
 
-    class Fenetre : ElemMur {
-        public Fenetre(float position, float largeur) {
+    class Fenetre : ElemMur
+    {
+        public Fenetre(float position, float largeur)
+        {
             this.DistPos = position;
             this.Largeur = largeur;
             idCounter++;
