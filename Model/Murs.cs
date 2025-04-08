@@ -1,4 +1,4 @@
-﻿namespace PROJET_PIIA {
+﻿namespace PROJET_PIIA.Model {
     class Position {
         private float x;
         public float X {
@@ -9,43 +9,46 @@
             }
         }
 
-    private float y;
-    public float Y {
-        get { return y; }
-        set {
-            if (value < 0) throw new ArgumentException("Y cannot be negative.");
-            y = value;
+        private float y;
+        public float Y {
+            get { return y; }
+            set {
+                if (value < 0) throw new ArgumentException("Y cannot be negative.");
+                y = value;
+            }
         }
-    }
 
         public Position(float x, float y) {
-            this.X = x;
-            this.Y = y;
+            X = x;
+            Y = y;
         }
 
         public (float, float) calculerVecteur(Position p) {
-            return (p.x - this.x, p.y - this.y);
+            return (p.x - x, p.y - y);
         }
 
         public float distance(Position p) {
-            (float dx, float dy) = this.calculerVecteur(p);
+            (float dx, float dy) = calculerVecteur(p);
             return (float)Math.Sqrt(dx * dx + dy * dy);
         }
 
         public bool is_valid() {
-            return (x >= 0 && y >= 0);
+            return x >= 0 && y >= 0;
+        }
+
+        public Position RotatePoint((float, float) origin, float angleRad) {
+            float x = origin.Item1 + X * (float)Math.Cos(angleRad) - Y * (float)Math.Sin(angleRad);
+            float y = origin.Item2 + X * (float)Math.Sin(angleRad) + Y * (float)Math.Cos(angleRad);
+            return new Position(x, y);
         }
     }
 
     class Murs {
 
-    List<Position> perimetre;
-    List<Porte> portes;
-    List<Fenetre> fenetres;
+        List<Position> perimetre;
+        List<ElemMur> elemsmuraux;
 
-
-
-        public static bool DoSegmentsIntersect(List<Position> points) {
+        public static bool checkMurs(List<Position> points) {
             for (int i = 0; i < points.Count - 1; i++) {
                 var p1 = points[i];
                 var q1 = points[i + 1];
@@ -63,7 +66,7 @@
             return false;
         }
 
-        private static bool SegmentsIntersect(Position p1, Position q1, Position p2, Position q2) {
+        public static bool SegmentsIntersect(Position p1, Position q1, Position p2, Position q2) {
             int o1 = Orientation(p1, q1, p2);
             int o2 = Orientation(p1, q1, q2);
             int o3 = Orientation(p2, q2, p1);
@@ -85,7 +88,7 @@
         private static int Orientation(Position p, Position q, Position r) {
             float val = (q.Y - p.Y) * (r.X - q.X) - (q.X - p.X) * (r.Y - q.Y);
             if (Math.Abs(val) < 1e-6) return 0;  // Colinear
-            return (val > 0) ? 1 : 2;           // Clockwise or Counterclockwise
+            return val > 0 ? 1 : 2;           // Clockwise or Counterclockwise
         }
 
         private static bool OnSegment(Position p, Position q, Position r) {
@@ -97,12 +100,11 @@
 
 
 
-        public Murs(List<Position> perimetre, List<Porte> portes, List<Fenetre> fenetres) {
-            if (DoSegmentsIntersect(perimetre))
+        public Murs(List<Position> perimetre) {
+            if (checkMurs(perimetre))
                 throw new ArgumentOutOfRangeException("Les mures s'intersectent, impossible de générer la cuisine.");
             this.perimetre = perimetre;
-            this.portes = portes;
-            this.fenetres = fenetres;
+            this.elemsmuraux = new List<ElemMur>();
         }
 
         float GetPerimetreLength() {
@@ -139,11 +141,11 @@
                     return (i, t);
                 }
 
-            current += segmentLength;
-        }
+                current += segmentLength;
+            }
 
-        return (perimetre.Count - 1, 0);
-    }
+            return (perimetre.Count - 1, 0);
+        }
 
         /// renvoit la vraie position d'un point
         public Position GetPositionForOffset(float offset) {
@@ -166,66 +168,17 @@
             Position last = perimetre.Last();
             return new Position(last.X, last.Y);
         }
-    }
-
-    abstract class ElemMur {
-        static protected int idCounter = 0;
-        protected int id = idCounter;
 
 
-        protected float distPos;
-        public float DistPos {
-            get { return distPos; }
-            set {
-                if (value < 0) throw new ArgumentException("Distance cannot be negative.");
-                distPos = value;
+        public List<(Position, Position)> GetSegments() {
+            var segments = new List<(Position, Position)>();
+            for (int i = 0; i < perimetre.Count; i++) {
+                segments.Add((perimetre[i], perimetre[(i + 1) % perimetre.Count]));
             }
+            return segments;
         }
 
-        protected float largeur;
-        public float Largeur {
-            get { return largeur; }
-            set {
-                if (value < 0) throw new ArgumentException("Largeur cannot be negative.");
-                largeur = value;
-            }
-        }
-
-
-        public virtual void afficher() {
-            Console.WriteLine("ID : " + id);
-            Console.WriteLine("Position : " + distPos);
-            Console.WriteLine("Largeur : " + largeur);
-
-        }
-    }
-
-    class Porte : ElemMur {
-        public Porte(float position, float largeur) {
-            this.DistPos = position;
-            this.Largeur = largeur;
-            idCounter++;
-        }
-
-
-        public override void afficher() {
-            Console.WriteLine("Porte:");
-            base.afficher();
-        }
     }
 
 
-    class Fenetre : ElemMur {
-        public Fenetre(float position, float largeur) {
-            this.DistPos = position;
-            this.Largeur = largeur;
-            idCounter++;
-        }
-
-
-        public override void afficher() {
-            Console.WriteLine("Fenetre:");
-            base.afficher();
-        }
-    }
 }
