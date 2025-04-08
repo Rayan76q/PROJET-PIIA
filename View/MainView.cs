@@ -1,11 +1,24 @@
-﻿namespace PROJET_PIIA
+﻿using System;
+using System.Windows.Forms;
+
+
+namespace PROJET_PIIA
 {
+<<<<<<< HEAD:Vue.Designer.cs
     partial class Vue
+=======
+    partial class MainView : Form
+>>>>>>> f061d541e0775e5d313314651cc5170ad3858330:View/MainView.cs
     {
         /// <summary>
         ///  Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
+
+        public MainView()
+        {
+            InitializeComponent();
+        }
 
         /// <summary>
         ///  Clean up any resources being used.
