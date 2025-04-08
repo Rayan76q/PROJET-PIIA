@@ -51,6 +51,13 @@ namespace PROJET_PIIA
         {
             return (x >= 0 && y >= 0);
         }
+
+        public Position RotatePoint((float, float) origin, float angleRad)
+        {
+            float x = origin.Item1 + X * (float)Math.Cos(angleRad) - Y * (float)Math.Sin(angleRad);
+            float y = origin.Item2 + X * (float)Math.Sin(angleRad) + Y * (float)Math.Cos(angleRad);
+            return new Position(x, y);
+        }
     }
 
     class Murs
@@ -62,7 +69,7 @@ namespace PROJET_PIIA
 
 
         
-            public static bool DoSegmentsIntersect(List<Position> points)
+            public static bool checkMurs(List<Position> points)
             {
                 for (int i = 0; i < points.Count - 1; i++)
                 {
@@ -83,7 +90,7 @@ namespace PROJET_PIIA
                 return false;
             }
 
-            private static bool SegmentsIntersect(Position p1, Position q1, Position p2, Position q2)
+            public static bool SegmentsIntersect(Position p1, Position q1, Position p2, Position q2)
             {
                 int o1 = Orientation(p1, q1, p2);
                 int o2 = Orientation(p1, q1, q2);
@@ -122,7 +129,7 @@ namespace PROJET_PIIA
 
         public Murs(List<Position> perimetre, List<Porte> portes, List<Fenetre> fenetres)
         {
-            if (DoSegmentsIntersect(perimetre))
+            if (checkMurs(perimetre))
                 throw new ArgumentOutOfRangeException("Les mures s'intersectent, impossible de générer la cuisine.");
             this.perimetre = perimetre;
             this.portes = portes;
@@ -199,6 +206,18 @@ namespace PROJET_PIIA
             Position last = perimetre.Last();
             return new Position(last.X, last.Y);
         }
+
+
+        public List<(Position, Position)> GetSegments()
+        {
+            var segments = new List<(Position, Position)>();
+            for (int i = 0; i < perimetre.Count; i++)
+            {
+                segments.Add((perimetre[i], perimetre[(i + 1) % perimetre.Count]));
+            }
+            return segments;
+        }
+
     }
 
     abstract class ElemMur

@@ -91,11 +91,15 @@ namespace PROJET_PIIA
             set => _isMural = value;
         }
 
-        private Position _position;
+        private Position? _position;
         public Position? Position
         {
             get => _position;
-            set => _position = value.is_valid() ? value : _position; 
+            set 
+            {
+                if (value != null && value.is_valid())
+                    _position = value;
+            }
         }
 
         private (float, float) _dimensions;
@@ -123,11 +127,77 @@ namespace PROJET_PIIA
             Prix = prix;
             Description = description;
             Image = image;
-            IsMural = false;
-            Position = null;
+            IsMural = mural;
+            Position = null;  //pas encore placé dans le plan
             Dimensions = dim;
             Orientation = (0,0);
         }
+
+
+        public bool ChevaucheMur(Murs murs)
+        {
+            if (Position == null)
+                return false; // pas encore placé
+
+            Position meublePos = Position;
+            float largeur = Dimensions.Item1;
+            float hauteur = Dimensions.Item2;
+
+            
+            float angleRad = (float)Math.Atan2(Orientation.Item2, Orientation.Item1);
+
+            
+            List<Position> corners = new List<Position>();
+            corners.Add(meublePos.RotatePoint((0, 0) , angleRad));
+            corners.Add(meublePos.RotatePoint((largeur, 0), angleRad));
+            corners.Add(meublePos.RotatePoint((largeur, hauteur), angleRad));
+            corners.Add(meublePos.RotatePoint((0, hauteur), angleRad));
+
+            
+            var meubleSegments = new List<(Position, Position)>
+            {
+                (corners[0], corners[1]),
+                (corners[1], corners[2]),
+                (corners[2], corners[3]),
+                (corners[3], corners[0])
+            };
+
+            
+            var mursSegments = murs.GetSegments();
+
+           
+            foreach (var segMeuble in meubleSegments)
+            {
+                foreach (var segMur in mursSegments)
+                {
+                    if (Murs.SegmentsIntersect(segMeuble.Item1, segMeuble.Item2, segMur.Item1, segMur.Item2))
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+
+        public bool chevaucheMeuble(Meuble autre)
+        {
+            if (this.Position == null || autre.Position == null)
+                return false; // au moins un meuble n'est pas placé
+
+            var (x1, y1) = (this.Position.X, this.Position.Y);
+            var (w1, h1) = this.Dimensions;
+
+            var (x2, y2) = (autre.Position.X, autre.Position.Y);
+            var (w2, h2) = autre.Dimensions;
+
+            bool overlapX = x1 < x2 + w2 && x1 + w1 > x2;
+            bool overlapY = y1 < y2 + h2 && y1 + h1 > y2;
+
+            return overlapX && overlapY;
+        }
+
+
+
     }
 
 

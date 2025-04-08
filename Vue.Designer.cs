@@ -1,6 +1,6 @@
 ﻿namespace PROJET_PIIA
 {
-    partial class Form1
+    partial class Vue
     {
         /// <summary>
         ///  Required designer variable.
