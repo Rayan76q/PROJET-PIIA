@@ -1,17 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PROJET_PIIA
-{
+﻿namespace PROJET_PIIA {
 
     using System.ComponentModel.DataAnnotations;
     using System.Reflection;
 
-    public enum Categorie
-    {
+    public enum Categorie {
         [Display(Name = "Plomberie")]
         Plomberie,
 
@@ -34,80 +26,69 @@ namespace PROJET_PIIA
         PlanDeTravail
     }
 
-    public static class EnumExtensions
-    {
-        public static string GetDisplayName(this Enum value)
-        {
+    public static class EnumExtensions {
+        public static string GetDisplayName(this Enum value) {
             var field = value.GetType().GetField(value.ToString());
             var attribute = field?.GetCustomAttribute<DisplayAttribute>();
 
             return attribute?.Name ?? value.ToString();
         }
-        
+
     }
 
 
-    class Meuble
-    {
-       
+    class Meuble {
+
         private bool IsValidPositive(float value) => value > 0;
         private bool IsNonEmpty(string value) => !string.IsNullOrEmpty(value);
 
         private string _nom;
-        public string Nom
-        {
+        public string Nom {
             get => _nom;
-            set => _nom = IsNonEmpty(value) ? value : _nom; 
+            set => _nom = IsNonEmpty(value) ? value : _nom;
         }
 
         private Categorie _type;
         public Categorie Type => _type;
 
         private float _prix;
-        public float Prix
-        {
+        public float Prix {
             get => _prix;
-            set => _prix = IsValidPositive(value) ? value : _prix; 
+            set => _prix = IsValidPositive(value) ? value : _prix;
         }
 
         private string _description;
-        public string Description
-        {
+        public string Description {
             get => _description;
-            set => _description = value; 
+            set => _description = value;
         }
 
         private string _image;
-        public string Image
-        {
+        public string Image {
             get => _image;
-            set => _image = value; 
+            set => _image = value;
         }
 
         private bool _isMural;
-        public bool IsMural
-        {
+        public bool IsMural {
             get => _isMural;
             set => _isMural = value;
         }
 
         private Position _position;
-        public Position? Position
-        {
+        public Position? Position {
             get => _position;
-            set => _position = value.is_valid() ? value : _position; 
+            set => _position = value.is_valid() ? value : _position;
         }
 
         private (float, float) _dimensions;
-        public (float, float) Dimensions
-        {
+        public (float, float) Dimensions {
             get => _dimensions;
             set => _dimensions = IsValidPositive(value.Item1) && IsValidPositive(value.Item2) ? value : _dimensions;
         }
 
         private (float, float) _orientation;
-        public (float, float) Orientation
-        {
+        public (float, float) Orientation {
             get => _orientation;
             set => _orientation = IsValidPositive(value.Item1) && IsValidPositive(value.Item2) ? value : _orientation;
         }
@@ -116,8 +97,7 @@ namespace PROJET_PIIA
 
 
 
-        public Meuble(string nom, Categorie type, float prix, string description, string image, bool mural, (float, float) dim)
-        {
+        public Meuble(string nom, Categorie type, float prix, string description, string image, bool mural, (float, float) dim) {
             Nom = nom;
             _type = type;
             Prix = prix;
@@ -126,21 +106,19 @@ namespace PROJET_PIIA
             IsMural = false;
             Position = null;
             Dimensions = dim;
-            Orientation = (0,0);
+            Orientation = (0, 0);
         }
     }
 
 
-    class Catalogue
-    {
+    class Catalogue {
         public Dictionary<Categorie, List<Meuble>> CategoryToMeubles { get; set; }
 
-        public Catalogue()
-        {
-    
+        public Catalogue() {
+
             CategoryToMeubles = new Dictionary<Categorie, List<Meuble>>();
 
-          
+
         }
     }
 }
