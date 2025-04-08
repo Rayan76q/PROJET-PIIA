@@ -46,6 +46,11 @@ namespace PROJET_PIIA
             (float dx, float dy) = this.calculerVecteur(p);
             return (float)Math.Sqrt(dx * dx + dy * dy);
         }
+
+        public bool is_valid()
+        {
+            return (x >= 0 && y >= 0);
+        }
     }
 
     class Murs
@@ -54,6 +59,75 @@ namespace PROJET_PIIA
         List<Position> perimetre;
         List<Porte> portes;
         List<Fenetre> fenetres;
+
+
+        
+            public static bool DoSegmentsIntersect(List<Position> points)
+            {
+                for (int i = 0; i < points.Count - 1; i++)
+                {
+                    var p1 = points[i];
+                    var q1 = points[i + 1];
+
+                    for (int j = i + 2; j < points.Count - 1; j++)
+                    {
+                        if (i == j - 1) continue; // Skip adjacent segments
+
+                        var p2 = points[j];
+                        var q2 = points[j + 1];
+
+                        if (SegmentsIntersect(p1, q1, p2, q2))
+                            return true;
+                    }
+                }
+                return false;
+            }
+
+            private static bool SegmentsIntersect(Position p1, Position q1, Position p2, Position q2)
+            {
+                int o1 = Orientation(p1, q1, p2);
+                int o2 = Orientation(p1, q1, q2);
+                int o3 = Orientation(p2, q2, p1);
+                int o4 = Orientation(p2, q2, q1);
+
+                // General case
+                if (o1 != o2 && o3 != o4)
+                    return true;
+
+                // Special cases
+                if (o1 == 0 && OnSegment(p1, p2, q1)) return true;
+                if (o2 == 0 && OnSegment(p1, q2, q1)) return true;
+                if (o3 == 0 && OnSegment(p2, p1, q2)) return true;
+                if (o4 == 0 && OnSegment(p2, q1, q2)) return true;
+
+                return false;
+            }
+
+            private static int Orientation(Position p, Position q, Position r)
+            {
+                float val = (q.Y - p.Y) * (r.X - q.X) - (q.X - p.X) * (r.Y - q.Y);
+                if (Math.Abs(val) < 1e-6) return 0;  // Colinear
+                return (val > 0) ? 1 : 2;           // Clockwise or Counterclockwise
+            }
+
+            private static bool OnSegment(Position p, Position q, Position r)
+            {
+                return q.X <= Math.Max(p.X, r.X) && q.X >= Math.Min(p.X, r.X) &&
+                       q.Y <= Math.Max(p.Y, r.Y) && q.Y >= Math.Min(p.Y, r.Y);
+            }
+        
+
+
+
+
+        public Murs(List<Position> perimetre, List<Porte> portes, List<Fenetre> fenetres)
+        {
+            if (DoSegmentsIntersect(perimetre))
+                throw new ArgumentOutOfRangeException("Les mures s'intersectent, impossible de générer la cuisine.");
+            this.perimetre = perimetre;
+            this.portes = portes;
+            this.fenetres = fenetres;
+        }
 
         float GetPerimetreLength()
         {
@@ -129,6 +203,10 @@ namespace PROJET_PIIA
 
     abstract class ElemMur
     {
+        static protected int idCounter = 0;
+        protected int id = idCounter;
+
+
         protected float distPos;
         public float DistPos
         {
@@ -151,9 +229,10 @@ namespace PROJET_PIIA
             }
         }
 
-        //pourrait être utile pour débugguer
-        public void afficher()
+        
+        public virtual void afficher()
         {
+            Console.WriteLine("ID : " + id);
             Console.WriteLine("Position : " + distPos);
             Console.WriteLine("Largeur : " + largeur);
             
@@ -166,6 +245,14 @@ namespace PROJET_PIIA
         {
             this.DistPos = position;
             this.Largeur = largeur;
+            idCounter++;
+        }
+
+   
+        public override void afficher()
+        {
+            Console.WriteLine("Porte:");
+            base.afficher();
         }
     }
 
@@ -176,6 +263,14 @@ namespace PROJET_PIIA
         {
             this.DistPos = position;
             this.Largeur = largeur;
+            idCounter++;
+        }
+
+
+        public override void afficher()
+        {
+            Console.WriteLine("Fenetre:");
+            base.afficher();
         }
     }
 }
