@@ -1,11 +1,20 @@
-﻿namespace PROJET_PIIA
+﻿using System;
+using System.Windows.Forms;
+
+
+namespace PROJET_PIIA
 {
-    partial class Form1
+    partial class MainView : Form
     {
         /// <summary>
         ///  Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
+
+        public MainView()
+        {
+            InitializeComponent();
+        }
 
         /// <summary>
         ///  Clean up any resources being used.
