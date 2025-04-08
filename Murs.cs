@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PROJET_PIIA
 {
-    class Position
+    public class Position
     {
         private float x;
         public float X
@@ -60,13 +60,15 @@ namespace PROJET_PIIA
         }
     }
 
-    class Murs
+    public class Murs
     {
 
         List<Position> perimetre;
         List<Porte> portes;
         List<Fenetre> fenetres;
 
+
+        public List<Position> getPerimetre() { return perimetre; }
 
         
             public static bool checkMurs(List<Position> points)
@@ -218,13 +220,41 @@ namespace PROJET_PIIA
             return segments;
         }
 
+        public void allongerSegment(Position start, Position end, float distance) {
+            int startIndex = perimetre.IndexOf(start);
+            int endIndex = perimetre.IndexOf(end);
+
+            if (startIndex == -1 || endIndex == -1 || Math.Abs(startIndex - endIndex) != 1 && Math.Abs(startIndex - endIndex) != perimetre.Count - 1) {
+                throw new ArgumentException("Les positions spécifiées ne sont pas adjacentes.");
+            }
+
+            var (dx, dy) = start.calculerVecteur(end);
+            float longueur = start.distance(end);
+
+            if (longueur > 0) {
+                float ux = dx / longueur;
+                float uy = dy / longueur;
+
+                Position newStart = new Position(start.X - ux * distance, start.Y - uy * distance);
+                Position newEnd = new Position(end.X + ux * distance, end.Y + uy * distance);
+
+                perimetre[startIndex] = newStart;
+                perimetre[endIndex] = newEnd;
+            }
+        }
+
+
+
+
     }
 
-    abstract class ElemMur
+    abstract public class ElemMur
     {
         static protected int idCounter = 0;
-        protected int id = idCounter;
-
+        protected int _id = idCounter;
+        public int Id {
+            get { return _id; }
+        }
 
         protected float distPos;
         public float DistPos
@@ -251,14 +281,14 @@ namespace PROJET_PIIA
         
         public virtual void afficher()
         {
-            Console.WriteLine("ID : " + id);
+            Console.WriteLine("ID : " + _id);
             Console.WriteLine("Position : " + distPos);
             Console.WriteLine("Largeur : " + largeur);
             
         }
     }
 
-    class Porte : ElemMur
+    public class Porte : ElemMur
     {
         public Porte(float position, float largeur)
         {
@@ -276,7 +306,7 @@ namespace PROJET_PIIA
     }
 
 
-    class Fenetre : ElemMur
+    public class Fenetre : ElemMur
     {
         public Fenetre(float position, float largeur)
         {
