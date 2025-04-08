@@ -48,6 +48,10 @@
         List<Position> perimetre;
         List<ElemMur> elemsmuraux;
 
+        public List<Position> Perimetre {
+            get => perimetre;
+        }
+
         public static bool checkMurs(List<Position> points) {
             for (int i = 0; i < points.Count - 1; i++) {
                 var p1 = points[i];

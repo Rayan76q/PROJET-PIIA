@@ -177,6 +177,22 @@ namespace PROJET_PIIA.Model {
             return overlapX && overlapY;
         }
 
+        public void deplacer(Position nouvellePos) {
+            if (nouvellePos.is_valid()) {
+                Position = nouvellePos;
+            } else {
+                throw new ArgumentException("La nouvelle position n'est pas valide.");
+            }
+        }
+
+        public void tourner(float angle) {
+            if (angle >= 0 && angle <= 360) {
+                float angleRad = (float)(angle * Math.PI / 180);
+                Orientation = ((float)Math.Cos(angleRad), (float)Math.Sin(angleRad));
+            } else {
+                throw new ArgumentException("L'angle doit être entre 0 et 360 degrés.");
+            }
+        }
 
 
     }

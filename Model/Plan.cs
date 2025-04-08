@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PROJET_PIIA
+namespace PROJET_PIIA.Model
 {
-    public class Plan
+    class Plan
     {
         private static int _idCounter = 0;
 
@@ -19,8 +19,8 @@ namespace PROJET_PIIA
         List<Meuble> meubles;
 
 
-        public Plan(Murs murs, string nom) {
-            if (Murs.checkMurs(murs.getPerimetre())){
+        Plan(Murs murs, string nom) {
+            if (Murs.checkMurs(murs.Perimetre)){
                 this.murs = murs;
                 meubles = new List<Meuble>();
                 _idCounter++;
@@ -47,7 +47,7 @@ namespace PROJET_PIIA
                 Position old_pos = meuble.Position;
                 meuble.Position = position;
 
-                if (!meuble.ChevaucheMur(this.murs)) {
+                if (!meuble.ChevaucheMur(murs)) {
 
                     foreach (Meuble other in meubles) {
                         if (other != meuble && meuble.chevaucheMeuble(other)) {

@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PROJET_PIIA.Model {
+﻿namespace PROJET_PIIA.Model {
     abstract class ElemMur {
         static protected int idCounter = 0;
-        protected int id = idCounter;
-
+        public readonly int Id;
 
         protected float distPos;
         public float DistPos {
-            get { return distPos; }
+            get => distPos;
             set {
                 if (value < 0) throw new ArgumentException("Distance cannot be negative.");
                 distPos = value;
@@ -21,29 +14,30 @@ namespace PROJET_PIIA.Model {
 
         protected float largeur;
         public float Largeur {
-            get { return largeur; }
+            get => largeur;
             set {
                 if (value < 0) throw new ArgumentException("Largeur cannot be negative.");
                 largeur = value;
             }
         }
 
+        // ElemMur constructor
+        protected ElemMur(float position, float largeur) {
+            DistPos = position;
+            Largeur = largeur;
+            Id = idCounter++;
+        }
 
         public virtual void afficher() {
-            Console.WriteLine("ID : " + id);
-            Console.WriteLine("Position : " + distPos);
-            Console.WriteLine("Largeur : " + largeur);
-
+            Console.WriteLine("ID : " + Id);
+            Console.WriteLine("Position : " + DistPos);
+            Console.WriteLine("Largeur : " + Largeur);
         }
     }
 
     class Porte : ElemMur {
-        public Porte(float position, float largeur) {
-            DistPos = position;
-            Largeur = largeur;
-            idCounter++;
-        }
-
+        public Porte(float position, float largeur)
+            : base(position, largeur) { }
 
         public override void afficher() {
             Console.WriteLine("Porte:");
@@ -51,14 +45,9 @@ namespace PROJET_PIIA.Model {
         }
     }
 
-
     class Fenetre : ElemMur {
-        public Fenetre(float position, float largeur) {
-            DistPos = position;
-            Largeur = largeur;
-            idCounter++;
-        }
-
+        public Fenetre(float position, float largeur)
+            : base(position, largeur) { }
 
         public override void afficher() {
             Console.WriteLine("Fenetre:");
