@@ -24,7 +24,7 @@ namespace PROJET_PIIA.Model
 
 
         private string _name;
-        public required string Name {
+        public string Name {
             get => _name;
             set {
                 if (!nomDispo(value))
@@ -37,7 +37,7 @@ namespace PROJET_PIIA.Model
 
 
         private string _password;
-        public required string Password {
+        public string Password {
             get => _password;
             set {
                 if (string.IsNullOrEmpty(value))
@@ -72,6 +72,14 @@ namespace PROJET_PIIA.Model
             get => _avatar;
         }
 
+
+        private bool _connected;
+        public bool Connected {
+            get => _connected;
+            set => _connected = value;
+        }
+
+
         public void changeAvatar(string avatar) {
             if (string.IsNullOrEmpty(avatar))
                 _avatar = DEFAULT_AVATAR;
@@ -80,16 +88,19 @@ namespace PROJET_PIIA.Model
 
 
         public Compte(string name, string password) {
+            
             if (string.IsNullOrEmpty(name))
                 throw new ArgumentException("Name cannot be null or empty.");
             if (string.IsNullOrEmpty(password))
                 throw new ArgumentException("Password cannot be null or empty.");
+
             Id = _idCounter++;
-            Name = string.IsNullOrEmpty(name) ? "Compte " + Id : name;
+            Name = name;
             Password = password;
             _plans = new List<Plan>();
-            _avatar = DEFAULT_AVATAR;
+            _avatar = DEFAULT_AVATAR; 
             comptes.Add(Id, this);
+            Connected = false;
         }
 
 

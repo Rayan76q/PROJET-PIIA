@@ -37,9 +37,19 @@
         }
 
         public Position RotatePoint((float, float) origin, float angleRad) {
-            float x = origin.Item1 + X * (float)Math.Cos(angleRad) - Y * (float)Math.Sin(angleRad);
-            float y = origin.Item2 + X * (float)Math.Sin(angleRad) + Y * (float)Math.Cos(angleRad);
-            return new Position(x, y);
+            
+            float translatedX = X - origin.Item1;
+            float translatedY = Y - origin.Item2;
+
+            
+            float rotatedX = translatedX * (float)Math.Cos(angleRad) - translatedY * (float)Math.Sin(angleRad);
+            float rotatedY = translatedX * (float)Math.Sin(angleRad) + translatedY * (float)Math.Cos(angleRad);
+
+            
+            float finalX = rotatedX + origin.Item1;
+            float finalY = rotatedY + origin.Item2;
+
+            return new Position(finalX, finalY);
         }
     }
 
@@ -105,6 +115,9 @@
 
 
         public Murs(List<Position> perimetre) {
+            if(perimetre.Count < 3)
+                throw new ArgumentOutOfRangeException("Le périmètre doit contenir au moins 3 points.");
+
             if (checkMurs(perimetre))
                 throw new ArgumentOutOfRangeException("Les mures s'intersectent, impossible de générer la cuisine.");
             this.perimetre = perimetre;
@@ -122,8 +135,8 @@
         }
 
         /// Renvoie l'indice du segment où la porte est placée et la position normalisée (t) de la porte dans ce segment.
-        public (int segmentIndex, float t) GetSegmentForPorte(ElemMur porte) {
-            float globalOffset = porte.DistPos;
+        public (int segmentIndex, float t) GetSegmentForElem(ElemMur e) {
+            float globalOffset = e.DistPos;
             float current = 0;
             for (int i = 0; i < perimetre.Count; i++) {
                 Position a = perimetre[i];
@@ -134,13 +147,13 @@
                     // position localisée de la porte sur le segment
                     float localOffset = globalOffset - current;
                     float t = localOffset / segmentLength;
-                    float endOffset = globalOffset + porte.Largeur; // bout de la porte
+                    float endOffset = globalOffset + e.Largeur; // bout de la porte/fenetre
 
                     // si la porte dépasse la fin du segment
                     if (endOffset > current + segmentLength) {
                         // Si oui, on ajuste la position de la porte pour la mettre à la fin du segment
-                        globalOffset = current + segmentLength - porte.Largeur;
-                        t = (segmentLength - porte.Largeur) / segmentLength;
+                        globalOffset = current + segmentLength - e.Largeur;
+                        t = (segmentLength - e.Largeur) / segmentLength;
                     }
                     return (i, t);
                 }
@@ -180,6 +193,14 @@
                 segments.Add((perimetre[i], perimetre[(i + 1) % perimetre.Count]));
             }
             return segments;
+        }
+
+        public void addElemMur(ElemMur e) {
+            elemsmuraux.Add(e);
+        }
+
+        public void supprimeElemMur(ElemMur e) {
+            elemsmuraux.Remove(e);
         }
 
     }

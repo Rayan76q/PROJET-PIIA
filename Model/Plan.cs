@@ -14,6 +14,7 @@ namespace PROJET_PIIA.Model
         public int Id {
             get { return _id; }
         }
+
         string nom;
         Murs murs;
         List<Meuble> meubles;
