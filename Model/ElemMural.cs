@@ -21,17 +21,14 @@
             }
         }
 
-        // ElemMur constructor
         protected ElemMur(float position, float largeur) {
             DistPos = position;
             Largeur = largeur;
             Id = idCounter++;
         }
 
-        public virtual void afficher() {
-            Console.WriteLine("ID : " + Id);
-            Console.WriteLine("Position : " + DistPos);
-            Console.WriteLine("Largeur : " + Largeur);
+        public override string ToString() {
+            return $"ID: {Id}, Position: {DistPos}, Largeur: {Largeur}";
         }
     }
 
@@ -39,9 +36,8 @@
         public Porte(float position, float largeur)
             : base(position, largeur) { }
 
-        public override void afficher() {
-            Console.WriteLine("Porte:");
-            base.afficher();
+        public override string ToString() {
+            return $"Porte → {base.ToString()}";
         }
     }
 
@@ -49,9 +45,9 @@
         public Fenetre(float position, float largeur)
             : base(position, largeur) { }
 
-        public override void afficher() {
-            Console.WriteLine("Fenetre:");
-            base.afficher();
+        public override string ToString() {
+            return $"Fenetre → {base.ToString()}";
         }
     }
+
 }

@@ -104,13 +104,14 @@ namespace PROJET_PIIA.Model
         }
 
 
+        public override string ToString() {
+            var plansStr = Plans.Count > 0
+                ? string.Join(", ", Plans.Select(p => p.ToString()))
+                : "Aucun plan";
 
-
-
-
-
-
-
+            return $"Compte [ID: {Id}, Nom: {Name}, Connecté: {Connected}, " +
+                   $"Avatar: {Avatar}, Plans: [{plansStr}]]";
+        }
 
     }
 }

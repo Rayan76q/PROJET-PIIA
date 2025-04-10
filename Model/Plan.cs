@@ -86,8 +86,26 @@ namespace PROJET_PIIA.Model
             }
         }
 
+        public override string ToString() {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"Plan ID: {Id}");
+            sb.AppendLine($"Nom: {nom}");
+            sb.AppendLine("Murs: ");
+            sb.AppendLine(murs.ToString());  // Assuming Murs has a ToString method
 
-        
+            sb.AppendLine("Meubles: ");
+            if (meubles.Count == 0) {
+                sb.AppendLine("  Aucun meuble");
+            } else {
+                foreach (var meuble in meubles) {
+                    sb.AppendLine($"  - {meuble.ToString()}");
+                }
+            }
+
+            return sb.ToString();
+        }
+
+
 
     }
 }

@@ -51,12 +51,19 @@
 
             return new Position(finalX, finalY);
         }
+
+        public override string ToString() {
+            return $"({X:0.##}, {Y:0.##})";
+        }
+
     }
 
     class Murs {
 
-        List<Position> perimetre;
+        private List<Position> perimetre;
         List<ElemMur> elemsmuraux;
+
+
 
         public List<Position> Perimetre {
             get => perimetre;
@@ -135,7 +142,7 @@
         }
 
         /// Renvoie l'indice du segment où la porte est placée et la position normalisée (t) de la porte dans ce segment.
-        public (int segmentIndex, float t) GetSegmentForElem(ElemMur e) {
+        public (int segmentIndex, float t) getSegmentForElem(ElemMur e) {
             float globalOffset = e.DistPos;
             float current = 0;
             for (int i = 0; i < perimetre.Count; i++) {
@@ -196,12 +203,44 @@
         }
 
         public void addElemMur(ElemMur e) {
-            elemsmuraux.Add(e);
+            (int, float) pos = getSegmentForElem(e);
+
+            if (pos == (perimetre.Count - 1, 0)) {  //check si le dernier segment peut accueillir l'elem
+                if (perimetre.Last().distance(perimetre[0]) <= e.Largeur) {
+                    throw new ArgumentException("La porte ou la fenêtre ne peut pas être placée car trop large.");
+                } else {
+                    elemsmuraux.Add(e);
+                }
+            } 
+            else {
+                elemsmuraux.Add(e);
+            }
+
+
         }
 
         public void supprimeElemMur(ElemMur e) {
             elemsmuraux.Remove(e);
         }
+
+
+        public override string ToString() {
+            string pointsStr = string.Join(", ", perimetre.Select(p => p.ToString()));
+
+            string segmentsStr = string.Join("\n  ", GetSegments()
+                .Select((seg, i) => $"Segment {i}: {seg.Item1} -> {seg.Item2}"));
+
+            string elemsStr = elemsmuraux.Count > 0
+                ? string.Join("\n  ", elemsmuraux.Select((e, i) => $"{i}: {e}"))
+                : "Aucun élément mural.";
+
+            return $"MURS DEBUG:\n" +
+                   $"- Périmètre ({perimetre.Count} points): [{pointsStr}]\n" +
+                   $"- Segments:\n  {segmentsStr}\n" +
+                   $"- Éléments muraux ({elemsmuraux.Count}):\n  {elemsStr}";
+        }
+
+
 
     }
 

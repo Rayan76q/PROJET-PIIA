@@ -194,6 +194,15 @@ namespace PROJET_PIIA.Model {
             }
         }
 
+        public override string ToString() {
+            return $"Meuble [Nom: {Nom}, Type: {Type.GetDisplayName()}, Prix: {Prix}€," +
+                   $" Description: {Description}, Image: {Image}, " +
+                   $"Mural: {IsMural}, Position: {Position}, " +
+                   $"Dimensions: ({Dimensions.Item1}x{Dimensions.Item2}), " +
+                   $"Orientation: ({Orientation.Item1}, {Orientation.Item2})]";
+        }
+
+
 
     }
 
@@ -204,8 +213,39 @@ namespace PROJET_PIIA.Model {
         public Catalogue() {
 
             CategoryToMeubles = new Dictionary<Categorie, List<Meuble>>();
-
-
         }
+
+        public void addMeuble(Meuble meuble) {
+            if (meuble == null)
+                throw new ArgumentNullException(nameof(meuble), "Le meuble ne peut pas être nul.");
+            if (!CategoryToMeubles.ContainsKey(meuble.Type)) {
+                CategoryToMeubles[meuble.Type] = new List<Meuble>();
+            }
+            CategoryToMeubles[meuble.Type].Add(meuble);
+        }
+
+        public void supprimeMeuble(Meuble meuble) {
+            if (meuble == null)
+                throw new ArgumentNullException(nameof(meuble), "Le meuble ne peut pas être nul.");
+            if (CategoryToMeubles.ContainsKey(meuble.Type)) {
+                CategoryToMeubles[meuble.Type].Remove(meuble);
+            }
+        }
+        public override string ToString() {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("Catalogue des Meubles:");
+
+            foreach (var categorie in CategoryToMeubles) {
+                sb.AppendLine($"Catégorie: {categorie.Key.GetDisplayName()}");
+                foreach (var meuble in categorie.Value) {
+                    sb.AppendLine($"  - {meuble.ToString()}");
+                }
+            }
+
+            return sb.ToString();
+        }
+
+
+
     }
 }

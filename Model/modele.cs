@@ -1,4 +1,6 @@
-﻿namespace PROJET_PIIA.Model {
+﻿using System.Text;
+
+namespace PROJET_PIIA.Model {
     class Modele {
         private Catalogue _cat;
         public Catalogue cat {
@@ -46,5 +48,29 @@
         public Modele(Catalogue c) {
             _cat = c;
         }
+
+        public override string ToString() {
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendLine("Modèle:");
+            sb.AppendLine($"Catalogue: {cat.ToString()}");
+
+            if (planActuel != null) {
+                sb.AppendLine($"Plan Actuel: {planActuel.ToString()}");
+            } else {
+                sb.AppendLine("Aucun plan actuel sélectionné.");
+            }
+
+            if (compteActuel != null) {
+                sb.AppendLine($"Compte Actuel: {compteActuel.ToString()}");
+            } else {
+                sb.AppendLine("Aucun compte connecté.");
+            }
+
+            return sb.ToString();
+        }
+
+
+
     }
 }
