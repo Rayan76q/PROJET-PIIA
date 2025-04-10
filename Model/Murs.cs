@@ -154,6 +154,8 @@
                     // position localisée de la porte sur le segment
                     float localOffset = globalOffset - current;
                     float t = localOffset / segmentLength;
+                    if(t > 1)
+                        throw new ArgumentException("L'element est trop large pour le Mur qui est censé l'abriter.");
                     float endOffset = globalOffset + e.Largeur; // bout de la porte/fenetre
 
                     // si la porte dépasse la fin du segment
