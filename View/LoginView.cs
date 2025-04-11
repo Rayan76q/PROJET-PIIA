@@ -25,39 +25,72 @@ namespace PROJET_PIIA.View {
         }
 
         private void InitializeComponent() {
-            panel2 = new Panel();
+            panel = new Panel();
+            errorText = new Label();
+            boxPanel = new Panel();
             txtUsername = new TextBox();
             textPassword = new TextBox();
+            label3 = new Label();
+            registerButton = new Button();
+            label2 = new Label();
+            connectButton = new Button();
+            forgotPasswordText = new Button();
             label1 = new Label();
-            button1 = new Button();
-            button2 = new Button();
-            panel2.SuspendLayout();
+            panel.SuspendLayout();
+            boxPanel.SuspendLayout();
             SuspendLayout();
             // 
-            // panel2
+            // panel
             // 
-            panel2.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            panel2.BackColor = SystemColors.ActiveBorder;
-            panel2.Controls.Add(button2);
-            panel2.Controls.Add(button1);
-            panel2.Controls.Add(label1);
-            panel2.Controls.Add(textPassword);
-            panel2.Controls.Add(txtUsername);
-            panel2.Location = new Point(12, 12);
-            panel2.Name = "panel2";
-            panel2.Size = new Size(637, 583);
-            panel2.TabIndex = 1;
-            panel2.Paint += panel2_Paint;
+            panel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            panel.BackColor = SystemColors.ActiveBorder;
+            panel.Controls.Add(errorText);
+            panel.Controls.Add(boxPanel);
+            panel.Controls.Add(label3);
+            panel.Controls.Add(registerButton);
+            panel.Controls.Add(label2);
+            panel.Controls.Add(connectButton);
+            panel.Controls.Add(forgotPasswordText);
+            panel.Controls.Add(label1);
+            panel.Location = new Point(12, 12);
+            panel.Name = "panel";
+            panel.Size = new Size(823, 552);
+            panel.TabIndex = 1;
+            panel.Paint += panel2_Paint;
+            // 
+            // errorText
+            // 
+            errorText.Anchor = AnchorStyles.None;
+            errorText.AutoSize = true;
+            errorText.ForeColor = Color.Firebrick;
+            errorText.Location = new Point(279, 250);
+            errorText.Name = "errorText";
+            errorText.Size = new Size(242, 15);
+            errorText.TabIndex = 9;
+            errorText.Text = "Nom d'utilisateur ou mot de passe incorrect.";
+            errorText.Visible = false;
+            // 
+            // boxPanel
+            // 
+            boxPanel.Anchor = AnchorStyles.None;
+            boxPanel.BackColor = Color.DimGray;
+            boxPanel.Controls.Add(txtUsername);
+            boxPanel.Controls.Add(textPassword);
+            boxPanel.Location = new Point(274, 268);
+            boxPanel.Name = "boxPanel";
+            boxPanel.Size = new Size(258, 84);
+            boxPanel.TabIndex = 8;
+            boxPanel.Paint += panel1_Paint;
             // 
             // txtUsername
             // 
             txtUsername.Anchor = AnchorStyles.None;
             txtUsername.Cursor = Cursors.IBeam;
-            txtUsername.Font = new Font("Castellar", 9F, FontStyle.Italic, GraphicsUnit.Point, 0);
-            txtUsername.Location = new Point(182, 279);
+            txtUsername.Font = new Font("Segoe UI", 9.75F, FontStyle.Italic);
+            txtUsername.Location = new Point(8, 9);
             txtUsername.Name = "txtUsername";
             txtUsername.PlaceholderText = "Username";
-            txtUsername.Size = new Size(239, 22);
+            txtUsername.Size = new Size(239, 25);
             txtUsername.TabIndex = 0;
             txtUsername.TextChanged += textBox1_TextChanged_2;
             // 
@@ -65,62 +98,102 @@ namespace PROJET_PIIA.View {
             // 
             textPassword.Anchor = AnchorStyles.None;
             textPassword.Cursor = Cursors.IBeam;
-            textPassword.Font = new Font("Castellar", 9F, FontStyle.Italic, GraphicsUnit.Point, 0);
-            textPassword.Location = new Point(182, 340);
+            textPassword.Font = new Font("Segoe UI", 9.75F, FontStyle.Italic);
+            textPassword.Location = new Point(8, 52);
             textPassword.Name = "textPassword";
             textPassword.PasswordChar = '*';
             textPassword.PlaceholderText = "Password";
-            textPassword.Size = new Size(239, 22);
+            textPassword.Size = new Size(239, 25);
             textPassword.TabIndex = 1;
+            textPassword.TextChanged += textPassword_TextChanged;
+            // 
+            // label3
+            // 
+            label3.Anchor = AnchorStyles.None;
+            label3.AutoSize = true;
+            label3.Location = new Point(274, 474);
+            label3.Name = "label3";
+            label3.Size = new Size(157, 15);
+            label3.TabIndex = 7;
+            label3.Text = "Vous n'avez pas de compte ?";
+            // 
+            // registerButton
+            // 
+            registerButton.Anchor = AnchorStyles.None;
+            registerButton.BackColor = Color.FromArgb(0, 0, 0, 0);
+            registerButton.Cursor = Cursors.Hand;
+            registerButton.FlatAppearance.BorderSize = 0;
+            registerButton.FlatStyle = FlatStyle.Flat;
+            registerButton.Font = new Font("Segoe UI", 9F, FontStyle.Italic | FontStyle.Underline, GraphicsUnit.Point, 0);
+            registerButton.Location = new Point(428, 469);
+            registerButton.Name = "registerButton";
+            registerButton.Size = new Size(61, 24);
+            registerButton.TabIndex = 6;
+            registerButton.Text = "S'inscrire";
+            registerButton.UseVisualStyleBackColor = false;
+            // 
+            // label2
+            // 
+            label2.Anchor = AnchorStyles.None;
+            label2.AutoSize = true;
+            label2.Font = new Font("Segoe UI", 21.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label2.Location = new Point(275, 162);
+            label2.Name = "label2";
+            label2.Size = new Size(180, 40);
+            label2.TabIndex = 5;
+            label2.Text = "Se connecter";
+            // 
+            // connectButton
+            // 
+            connectButton.Anchor = AnchorStyles.None;
+            connectButton.BackColor = SystemColors.ActiveCaption;
+            connectButton.Cursor = Cursors.Hand;
+            connectButton.FlatStyle = FlatStyle.Flat;
+            connectButton.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            connectButton.Location = new Point(275, 422);
+            connectButton.Name = "connectButton";
+            connectButton.Size = new Size(177, 32);
+            connectButton.TabIndex = 4;
+            connectButton.Text = "Se connecter";
+            connectButton.UseVisualStyleBackColor = false;
+            connectButton.Click += button2_Click_1;
+            // 
+            // forgotPasswordText
+            // 
+            forgotPasswordText.Anchor = AnchorStyles.None;
+            forgotPasswordText.BackColor = Color.FromArgb(0, 0, 0, 0);
+            forgotPasswordText.Cursor = Cursors.Hand;
+            forgotPasswordText.FlatAppearance.BorderSize = 0;
+            forgotPasswordText.FlatStyle = FlatStyle.Flat;
+            forgotPasswordText.Font = new Font("Segoe UI", 9F, FontStyle.Italic | FontStyle.Underline, GraphicsUnit.Point, 0);
+            forgotPasswordText.Location = new Point(282, 358);
+            forgotPasswordText.Name = "forgotPasswordText";
+            forgotPasswordText.Size = new Size(121, 24);
+            forgotPasswordText.TabIndex = 3;
+            forgotPasswordText.Text = "Mot de passe oublié";
+            forgotPasswordText.UseVisualStyleBackColor = false;
             // 
             // label1
             // 
             label1.Anchor = AnchorStyles.None;
             label1.AutoSize = true;
-            label1.Font = new Font("Castellar", 48F, FontStyle.Italic, GraphicsUnit.Point, 0);
-            label1.Location = new Point(172, 147);
+            label1.Font = new Font("Haettenschweiler", 72F, FontStyle.Italic, GraphicsUnit.Point, 0);
+            label1.Location = new Point(259, 61);
             label1.Name = "label1";
-            label1.Size = new Size(263, 77);
+            label1.Size = new Size(283, 101);
             label1.TabIndex = 2;
-            label1.Text = "Login";
+            label1.Text = "PlanCha!";
             label1.Click += label1_Click;
-            // 
-            // button1
-            // 
-            button1.Anchor = AnchorStyles.None;
-            button1.BackColor = Color.FromArgb(0, 0, 0, 0);
-            button1.Cursor = Cursors.Hand;
-            button1.FlatStyle = FlatStyle.Flat;
-            button1.Font = new Font("Segoe UI", 9F, FontStyle.Italic | FontStyle.Underline, GraphicsUnit.Point, 0);
-            button1.Location = new Point(195, 368);
-            button1.Name = "button1";
-            button1.Size = new Size(121, 24);
-            button1.TabIndex = 3;
-            button1.Text = "Mot de passe oublié";
-            button1.UseVisualStyleBackColor = false;
-            // 
-            // button2
-            // 
-            button2.Anchor = AnchorStyles.None;
-            button2.BackColor = SystemColors.ActiveCaption;
-            button2.Cursor = Cursors.Hand;
-            button2.FlatStyle = FlatStyle.Flat;
-            button2.Font = new Font("Castellar", 12F, FontStyle.Bold | FontStyle.Italic, GraphicsUnit.Point, 0);
-            button2.Location = new Point(182, 437);
-            button2.Name = "button2";
-            button2.Size = new Size(177, 32);
-            button2.TabIndex = 4;
-            button2.Text = "Se connecter";
-            button2.UseVisualStyleBackColor = false;
-            button2.Click += button2_Click_1;
             // 
             // LoginView
             // 
-            ClientSize = new Size(661, 607);
-            Controls.Add(panel2);
+            ClientSize = new Size(847, 576);
+            Controls.Add(panel);
             Name = "LoginView";
-            panel2.ResumeLayout(false);
-            panel2.PerformLayout();
+            panel.ResumeLayout(false);
+            panel.PerformLayout();
+            boxPanel.ResumeLayout(false);
+            boxPanel.PerformLayout();
             ResumeLayout(false);
         }
 
@@ -152,11 +225,24 @@ namespace PROJET_PIIA.View {
 
         }
 
-        private Panel panel2;
+        private Panel panel;
         private TextBox textPassword;
         private TextBox txtUsername;
         private Label label1;
-        private Button button2;
-        private Button button1;
+        private Button connectButton;
+        private Label label2;
+        private Button registerButton;
+        private Panel boxPanel;
+        private Label label3;
+        private Label errorText;
+        private Button forgotPasswordText;
+
+        private void textPassword_TextChanged(object sender, EventArgs e) {
+
+        }
+
+        private void panel1_Paint(object sender, PaintEventArgs e) {
+
+        }
     }
 }
