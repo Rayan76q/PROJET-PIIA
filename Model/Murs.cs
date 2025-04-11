@@ -1,5 +1,5 @@
-﻿namespace PROJET_PIIA.Model {
-    class Position {
+﻿namespace PROJET_PIIA.Modele {
+    public class Position {
         private float x;
         public float X {
             get { return x; }
@@ -58,7 +58,7 @@
 
     }
 
-    class Murs {
+    public class Murs {
 
         private List<Position> perimetre;
         List<ElemMur> elemsmuraux;

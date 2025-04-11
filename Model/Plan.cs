@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PROJET_PIIA.Model
+namespace PROJET_PIIA.Modele
 {
-    class Plan
+    public class Plan
     {
         private static int _idCounter = 0;
 
@@ -18,9 +18,13 @@ namespace PROJET_PIIA.Model
         string nom;
         Murs murs;
         List<Meuble> meubles;
+        public Murs Murs {
+            get => murs;
+            set => murs = value;
+        }
 
 
-        Plan(Murs murs, string nom) {
+        public Plan(Murs murs, string nom) {
             if (Murs.checkMurs(murs.Perimetre)){
                 this.murs = murs;
                 meubles = new List<Meuble>();
@@ -104,6 +108,8 @@ namespace PROJET_PIIA.Model
             
             return sb.ToString();
         }
+
+
 
 
 
