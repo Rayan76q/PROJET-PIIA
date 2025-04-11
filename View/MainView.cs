@@ -2,15 +2,18 @@
 using System.Windows.Forms;
 
 
+
 namespace PROJET_PIIA {
     partial class MainView : Form {
-        /// <summary>
-        ///  Required designer variable.
-        /// </summary>
+
         private System.ComponentModel.IContainer components = null;
+        private PlanView planView;
 
         public MainView() {
             InitializeComponent();
+
+            planView = new PlanView();
+            splitContainer1.Panel2.Controls.Add(planView);
         }
 
         /// <summary>
@@ -32,16 +35,16 @@ namespace PROJET_PIIA {
         /// </summary>
         private void InitializeComponent() {
             splitContainer1 = new SplitContainer();
+            label1 = new Label();
+            labelsurface = new Label();
+            rotate = new Button();
+            zoombar = new TrackBar();
+            showgrid = new Button();
             button3 = new Button();
             Redo = new Button();
             Undo = new Button();
             toggleButton = new Button();
             fontDialog1 = new FontDialog();
-            showgrid = new Button();
-            zoombar = new TrackBar();
-            rotate = new Button();
-            labelsurface = new Label();
-            label1 = new Label();
             toolStrip1 = new ToolStrip();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel2.SuspendLayout();
@@ -75,6 +78,50 @@ namespace PROJET_PIIA {
             splitContainer1.SplitterDistance = 245;
             splitContainer1.TabIndex = 1;
             splitContainer1.TabStop = false;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(606, 38);
+            label1.Name = "label1";
+            label1.Size = new Size(45, 20);
+            label1.TabIndex = 8;
+            label1.Text = "utile :";
+            // 
+            // labelsurface
+            // 
+            labelsurface.AutoSize = true;
+            labelsurface.Location = new Point(606, 18);
+            labelsurface.Name = "labelsurface";
+            labelsurface.Size = new Size(82, 20);
+            labelsurface.TabIndex = 7;
+            labelsurface.Text = "Superficie :";
+            labelsurface.Click += labelsurface_Click;
+            // 
+            // rotate
+            // 
+            rotate.Location = new Point(673, 263);
+            rotate.Name = "rotate";
+            rotate.Size = new Size(50, 50);
+            rotate.TabIndex = 6;
+            rotate.Text = "button1";
+            rotate.UseVisualStyleBackColor = true;
+            // 
+            // zoombar
+            // 
+            zoombar.Location = new Point(3, 325);
+            zoombar.Name = "zoombar";
+            zoombar.Size = new Size(150, 56);
+            zoombar.TabIndex = 5;
+            // 
+            // showgrid
+            // 
+            showgrid.Location = new Point(673, 319);
+            showgrid.Name = "showgrid";
+            showgrid.Size = new Size(50, 50);
+            showgrid.TabIndex = 4;
+            showgrid.Text = "button4";
+            showgrid.UseVisualStyleBackColor = true;
             // 
             // button3
             // 
@@ -114,50 +161,6 @@ namespace PROJET_PIIA {
             toggleButton.Text = ">";
             toggleButton.UseVisualStyleBackColor = true;
             toggleButton.Click += button1_Click;
-            // 
-            // showgrid
-            // 
-            showgrid.Location = new Point(673, 319);
-            showgrid.Name = "showgrid";
-            showgrid.Size = new Size(50, 50);
-            showgrid.TabIndex = 4;
-            showgrid.Text = "button4";
-            showgrid.UseVisualStyleBackColor = true;
-            // 
-            // zoombar
-            // 
-            zoombar.Location = new Point(3, 325);
-            zoombar.Name = "zoombar";
-            zoombar.Size = new Size(150, 56);
-            zoombar.TabIndex = 5;
-            // 
-            // rotate
-            // 
-            rotate.Location = new Point(673, 263);
-            rotate.Name = "rotate";
-            rotate.Size = new Size(50, 50);
-            rotate.TabIndex = 6;
-            rotate.Text = "button1";
-            rotate.UseVisualStyleBackColor = true;
-            // 
-            // labelsurface
-            // 
-            labelsurface.AutoSize = true;
-            labelsurface.Location = new Point(606, 18);
-            labelsurface.Name = "labelsurface";
-            labelsurface.Size = new Size(82, 20);
-            labelsurface.TabIndex = 7;
-            labelsurface.Text = "Superficie :";
-            labelsurface.Click += labelsurface_Click;
-            // 
-            // label1
-            // 
-            label1.AutoSize = true;
-            label1.Location = new Point(606, 38);
-            label1.Name = "label1";
-            label1.Size = new Size(45, 20);
-            label1.TabIndex = 8;
-            label1.Text = "utile :";
             // 
             // toolStrip1
             // 

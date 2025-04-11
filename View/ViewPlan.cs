@@ -9,6 +9,7 @@ public partial class PlanView : UserControl {
     private List<(Point Start, Point End)> _lignes = new();
     private Point? _currentStart = null; // point de départ d'une ligne en cours
     private Point _mousePosition;
+    private PlanMode _mode = PlanMode.Deplacement;
 
 
     public PlanView() {
@@ -100,11 +101,31 @@ public partial class PlanView : UserControl {
         if (_currentStart != null) {
             g.DrawLine(Pens.Red, PlanToScreen(_currentStart.Value), _mousePosition);
         }
+
+        List<Point> points = new List<Point>();
+        points.Add(new Point(300, 150)); // sommet haut
+        points.Add(new Point(320, 200));
+        points.Add(new Point(370, 200));
+        points.Add(new Point(330, 230));
+        points.Add(new Point(350, 280));
+        points.Add(new Point(300, 250)); // centre bas
+        points.Add(new Point(250, 280));
+        points.Add(new Point(270, 230));
+        points.Add(new Point(230, 200));
+        points.Add(new Point(280, 200));
+        if (points.Count > 1) {
+            for (int i = 0; i < points.Count - 1; i++) {
+                g.DrawLine(Pens.Blue, PlanToScreen(points[i]), PlanToScreen(points[i + 1]));
+            }
+            // Fermer le polygone
+            g.DrawLine(Pens.Blue, PlanToScreen(points.Last()), PlanToScreen(points.First()));
+        }
+
     }
     private Point PlanToScreen(Point p) => new Point(p.X + _offset.X, p.Y + _offset.Y);
     private Point ScreenToPlan(Point p) => new Point(p.X - _offset.X, p.Y - _offset.Y);
 
-    private PlanMode _mode = PlanMode.Deplacement;
+    
 
     public void SetMode(PlanMode mode) {
         _mode = mode;
