@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Accessibility;
 
-namespace PROJET_PIIA.Model
+namespace PROJET_PIIA.Modele
 {
-    class Compte
+    public class Compte
     {
         private static string DEFAULT_AVATAR = "";
         private static int _idCounter = 0; 

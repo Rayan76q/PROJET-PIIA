@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PROJET_PIIA.Model {
+namespace PROJET_PIIA.Modele {
 
     using System.ComponentModel.DataAnnotations;
     using System.Reflection;
@@ -43,7 +43,7 @@ namespace PROJET_PIIA.Model {
     }
 
 
-    class Meuble {
+    public class Meuble {
 
         private bool IsValidPositive(float value) => value > 0;
         private bool IsNonEmpty(string value) => !string.IsNullOrEmpty(value);
@@ -207,7 +207,7 @@ namespace PROJET_PIIA.Model {
     }
 
 
-    class Catalogue {
+    public class Catalogue {
         public Dictionary<Categorie, List<Meuble>> CategoryToMeubles { get; set; }
 
         public Catalogue() {

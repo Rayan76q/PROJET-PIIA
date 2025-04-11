@@ -1,5 +1,5 @@
-﻿namespace PROJET_PIIA.Model {
-    abstract class ElemMur {
+﻿namespace PROJET_PIIA.Modele {
+    abstract public class ElemMur {
         static protected int idCounter = 0;
         public readonly int Id;
 

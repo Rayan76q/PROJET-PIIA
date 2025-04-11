@@ -1,7 +1,7 @@
 ﻿using System.Text;
 
-namespace PROJET_PIIA.Model {
-    class Modele {
+namespace PROJET_PIIA.Modele {
+    public class Modele {
         private Catalogue _cat;
         public Catalogue cat {
             get => _cat;
@@ -44,9 +44,16 @@ namespace PROJET_PIIA.Model {
             throw new ArgumentException("Nom d'utilisateur ou mot de passe incorrect.");
         }
 
-        
-        public Modele(Catalogue c) {
-            _cat = c;
+       public  void creerPlan(Murs m, string nom) {
+            Plan plan = new Plan(m, nom);
+            planActuel = plan;
+        }
+
+
+        public Modele() {
+            _cat = new Catalogue();
+           this.planActuel = new Plan(new Murs(new List<Position> ()), "Untitled 1");
+           this.compteActuel = null;
         }
 
         public override string ToString() {
