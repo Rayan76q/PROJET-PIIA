@@ -101,7 +101,7 @@ namespace PROJET_PIIA.Model
                     sb.AppendLine($"  - {meuble.ToString()}");
                 }
             }
-
+            
             return sb.ToString();
         }
 
