@@ -1,5 +1,8 @@
 ﻿
 
+using PROJET_PIIA;
+using PROJET_PIIA.Modele;
+
 public partial class PlanView : UserControl {
 
     private Point _offset = new Point(0, 0);       // Décalage du plan
@@ -11,8 +14,10 @@ public partial class PlanView : UserControl {
     private Point _mousePosition;
     private PlanMode _mode = PlanMode.Deplacement;
 
+    private Controleur ctr;
 
-    public PlanView() {
+
+    public PlanView(Controleur ctr) {
         this.DoubleBuffered = true;
         this.Dock = DockStyle.Fill;
 
@@ -20,6 +25,9 @@ public partial class PlanView : UserControl {
         this.MouseDown += PlanView_MouseDown;
         this.MouseMove += PlanView_MouseMove;
         this.MouseUp += PlanView_MouseUp;
+
+        this.ctr = ctr;
+        this.Invalidate();
     }
 
 
@@ -85,13 +93,13 @@ public partial class PlanView : UserControl {
 
         var offset = _offset;
 
-        // Mur
+        /*// Mur
         g.DrawRectangle(Pens.Black, offset.X + 10, offset.Y + 10, 300, 200);
 
         // Meuble
         g.FillRectangle(Brushes.LightGray, offset.X + 50, offset.Y + 50, 60, 40);
         g.DrawRectangle(Pens.Black, offset.X + 50, offset.Y + 50, 60, 40);
-
+*/
         // Lignes existantes
         foreach (var ligne in _lignes) {
             g.DrawLine(Pens.Blue, PlanToScreen(ligne.Start), PlanToScreen(ligne.End));
@@ -102,17 +110,9 @@ public partial class PlanView : UserControl {
             g.DrawLine(Pens.Red, PlanToScreen(_currentStart.Value), _mousePosition);
         }
 
-        List<Point> points = new List<Point>();
-        points.Add(new Point(300, 150)); // sommet haut
-        points.Add(new Point(320, 200));
-        points.Add(new Point(370, 200));
-        points.Add(new Point(330, 230));
-        points.Add(new Point(350, 280));
-        points.Add(new Point(300, 250)); // centre bas
-        points.Add(new Point(250, 280));
-        points.Add(new Point(270, 230));
-        points.Add(new Point(230, 200));
-        points.Add(new Point(280, 200));
+
+
+        List<Point> points = ctr.modele.planActuel.Murs.Perimetre;
         if (points.Count > 1) {
             for (int i = 0; i < points.Count - 1; i++) {
                 g.DrawLine(Pens.Blue, PlanToScreen(points[i]), PlanToScreen(points[i + 1]));

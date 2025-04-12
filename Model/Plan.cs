@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
+using PROJET_PIIA.Model;
 
-namespace PROJET_PIIA.Modele
-{
-    public class Plan
-    {
+namespace PROJET_PIIA.Modele {
+    public class Plan {
         private static int _idCounter = 0;
 
         private int _id = _idCounter;
@@ -25,31 +20,30 @@ namespace PROJET_PIIA.Modele
 
 
         public Plan(Murs murs, string nom) {
-            if (Murs.checkMurs(murs.Perimetre)){
-                this.murs = murs;
-                meubles = new List<Meuble>();
-                _idCounter++;
+            //if (Murs.checkMurs(murs.Perimetre)){
+            this.murs = murs;
+            meubles = new List<Meuble>();
+            _idCounter++;
 
-                if (nom != null) this.nom = nom;
-                else this.nom = "Plan N°" + _idCounter;
+            if (nom != null) this.nom = nom;
+            else this.nom = "Plan N°" + _idCounter;
 
-            } else {
-                throw new ArgumentException("Les murs s'interesectent, impossible de créer le plan.");
-            }
+            //} else {
+            //    throw new ArgumentException("Les murs s'interesectent, impossible de créer le plan.");
+            //}
         }
 
 
 
-        public void placerMeuble(Meuble meuble, Position position) {
+        public void placerMeuble(Meuble meuble, Point position) {
             //place un meuble qui a été ajouté au plan
             bool placing = false;
 
             if (!meubles.Contains(meuble)) {
                 meubles.Add(meuble);
                 placing = true;
-            }
-            else {
-                Position old_pos = meuble.Position;
+            } else {
+                Point old_pos = meuble.Position.Value;
                 meuble.Position = position;
 
                 if (!meuble.ChevaucheMur(murs)) {
@@ -57,7 +51,7 @@ namespace PROJET_PIIA.Modele
                     foreach (Meuble other in meubles) {
                         if (other != meuble && meuble.chevaucheMeuble(other)) {
                             meuble.Position = old_pos; // Revert to old position
-                            if(placing) {
+                            if (placing) {
                                 meubles.Remove(meuble); // Remove if it was just added
                             }
                             throw new ArgumentException("Le meuble ne peut pas être déplacé à cette position car il chevauche un autre meuble.");
@@ -65,11 +59,10 @@ namespace PROJET_PIIA.Modele
                     }
                     return;
 
-                } 
-                else {
+                } else {
                     throw new ArgumentException("Le meuble ne peut pas être déplacé à cette position car il chevauche un mur.");
                 }
-            } 
+            }
         }
 
 
@@ -105,7 +98,7 @@ namespace PROJET_PIIA.Modele
                     sb.AppendLine($"  - {meuble.ToString()}");
                 }
             }
-            
+
             return sb.ToString();
         }
 

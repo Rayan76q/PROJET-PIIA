@@ -1,75 +1,47 @@
 ﻿namespace PROJET_PIIA.Modele {
-    public class Position {
-        private float x;
-        public float X {
-            get { return x; }
-            set {
-                if (value < 0) throw new ArgumentException("X cannot be negative.");
-                x = value;
-            }
-        }
 
-        private float y;
-        public float Y {
-            get { return y; }
-            set {
-                if (value < 0) throw new ArgumentException("Y cannot be negative.");
-                y = value;
-            }
-        }
-
-        public Position(float x, float y) {
-            X = x;
-            Y = y;
-        }
-
-        public (float, float) calculerVecteur(Position p) {
-            return (p.x - x, p.y - y);
-        }
-
-        public float distance(Position p) {
-            (float dx, float dy) = calculerVecteur(p);
+    public static class GeometrieUtils {
+        public static float distance(Point p1, Point p2) {
+            (float dx, float dy) = (p1.X - p2.X, p1.Y - p2.Y);
             return (float)Math.Sqrt(dx * dx + dy * dy);
         }
 
-        public bool is_valid() {
-            return x >= 0 && y >= 0;
+        public static bool is_valid(Point p) {
+          
+            // Exemple de validité : coordonnées finies
+            return !float.IsNaN(p.X) && !float.IsNaN(p.Y)
+                && !float.IsInfinity(p.X) && !float.IsInfinity(p.Y);
         }
 
-        public Position RotatePoint((float, float) origin, float angleRad) {
-            
-            float translatedX = X - origin.Item1;
-            float translatedY = Y - origin.Item2;
+        public static Point RotatePoint(Point p, (float, float) origin, float angleRad) {
 
-            
+            float translatedX = p.X - origin.Item1;
+            float translatedY = p.Y - origin.Item2;
+
+
             float rotatedX = translatedX * (float)Math.Cos(angleRad) - translatedY * (float)Math.Sin(angleRad);
             float rotatedY = translatedX * (float)Math.Sin(angleRad) + translatedY * (float)Math.Cos(angleRad);
 
-            
+
             float finalX = rotatedX + origin.Item1;
             float finalY = rotatedY + origin.Item2;
 
-            return new Position(finalX, finalY);
+            return new Point((int)finalX, (int)finalY);
         }
-
-        public override string ToString() {
-            return $"({X:0.##}, {Y:0.##})";
-        }
-
     }
 
     public class Murs {
 
-        private List<Position> perimetre;
+        public List<Point> perimetre;
         List<ElemMur> elemsmuraux;
 
 
 
-        public List<Position> Perimetre {
+        public List<Point> Perimetre {
             get => perimetre;
         }
 
-        public static bool checkMurs(List<Position> points) {
+        public static bool checkMurs(List<Point> points) {
             for (int i = 0; i < points.Count - 1; i++) {
                 var p1 = points[i];
                 var q1 = points[i + 1];
@@ -87,7 +59,7 @@
             return false;
         }
 
-        public static bool SegmentsIntersect(Position p1, Position q1, Position p2, Position q2) {
+        public static bool SegmentsIntersect(Point p1, Point q1, Point p2, Point q2) {
             int o1 = Orientation(p1, q1, p2);
             int o2 = Orientation(p1, q1, q2);
             int o3 = Orientation(p2, q2, p1);
@@ -106,24 +78,40 @@
             return false;
         }
 
-        private static int Orientation(Position p, Position q, Position r) {
+        private static int Orientation(Point p, Point q, Point r) {
             float val = (q.Y - p.Y) * (r.X - q.X) - (q.X - p.X) * (r.Y - q.Y);
             if (Math.Abs(val) < 1e-6) return 0;  // Colinear
             return val > 0 ? 1 : 2;           // Clockwise or Counterclockwise
         }
 
-        private static bool OnSegment(Position p, Position q, Position r) {
+        private static bool OnSegment(Point p, Point q, Point r) {
             return q.X <= Math.Max(p.X, r.X) && q.X >= Math.Min(p.X, r.X) &&
                    q.Y <= Math.Max(p.Y, r.Y) && q.Y >= Math.Min(p.Y, r.Y);
         }
 
 
+        public Murs() {
+            List<Point> points = new List<Point>();
+            points.Add(new Point(300, 150)); // sommet haut
+            points.Add(new Point(320, 200));
+            points.Add(new Point(370, 200));
+            points.Add(new Point(330, 230));
+            points.Add(new Point(350, 280));
+            points.Add(new Point(300, 250)); // centre bas
+            points.Add(new Point(250, 280));
+            points.Add(new Point(270, 230));
+            points.Add(new Point(230, 200));
+            points.Add(new Point(280, 200));
+            this.perimetre = points;
+            this.elemsmuraux = new List<ElemMur>();
+        }
 
 
 
-        public Murs(List<Position> perimetre) {
-            if(perimetre.Count < 3)
-                throw new ArgumentOutOfRangeException("Le périmètre doit contenir au moins 3 points.");
+
+        public Murs(List<Point> perimetre) {
+            //if(perimetre.Count < 3)
+            //    throw new ArgumentOutOfRangeException("Le périmètre doit contenir au moins 3 points.");
 
             if (checkMurs(perimetre))
                 throw new ArgumentOutOfRangeException("Les mures s'intersectent, impossible de générer la cuisine.");
@@ -134,9 +122,9 @@
         float GetPerimetreLength() {
             float total = 0;
             for (int i = 0; i < perimetre.Count; i++) {
-                Position a = perimetre[i];
-                Position b = perimetre[(i + 1) % perimetre.Count];
-                total += a.distance(b);
+                Point a = perimetre[i];
+                Point b = perimetre[(i + 1) % perimetre.Count];
+                total += GeometrieUtils.distance(a, b);
             }
             return total;
         }
@@ -146,9 +134,9 @@
             float globalOffset = e.DistPos;
             float current = 0;
             for (int i = 0; i < perimetre.Count; i++) {
-                Position a = perimetre[i];
-                Position b = perimetre[(i + 1) % perimetre.Count];
-                float segmentLength = a.distance(b);
+                Point a = perimetre[i];
+                Point b = perimetre[(i + 1) % perimetre.Count];
+                float segmentLength = GeometrieUtils.distance(a, b);
 
                 if (globalOffset <= current + segmentLength) {
                     // position localisée de la porte sur le segment
@@ -174,12 +162,12 @@
         }
 
         /// renvoit la vraie position d'un point
-        public Position GetPositionForOffset(float offset) {
+        public Point GetPositionForOffset(float offset) {
             float current = 0;
             for (int i = 0; i < perimetre.Count; i++) {
-                Position a = perimetre[i];
-                Position b = perimetre[(i + 1) % perimetre.Count];
-                float segmentLength = a.distance(b);
+                Point a = perimetre[i];
+                Point b = perimetre[(i + 1) % perimetre.Count];
+                float segmentLength = GeometrieUtils.distance(a, b);
 
                 // Si l'offset tombe dans ce segment
                 if (offset <= current + segmentLength) {
@@ -187,17 +175,17 @@
                     // position sur le segment
                     float x = a.X + t * (b.X - a.X);
                     float y = a.Y + t * (b.Y - a.Y);
-                    return new Position(x, y);
+                    return new Point((int)x, (int)y);
                 }
                 current += segmentLength;
             }
-            Position last = perimetre.Last();
-            return new Position(last.X, last.Y);
+            Point last = perimetre.Last();
+            return new Point(last.X, last.Y);
         }
 
 
-        public List<(Position, Position)> GetSegments() {
-            var segments = new List<(Position, Position)>();
+        public List<(Point, Point)> GetSegments() {
+            var segments = new List<(Point, Point)>();
             for (int i = 0; i < perimetre.Count; i++) {
                 segments.Add((perimetre[i], perimetre[(i + 1) % perimetre.Count]));
             }
@@ -208,7 +196,7 @@
             (int, float) pos = getSegmentForElem(e);
 
             if (pos == (perimetre.Count - 1, 0)) {  //check si le dernier segment peut accueillir l'elem
-                if (perimetre.Last().distance(perimetre[0]) <= e.Largeur) {
+                if (GeometrieUtils.distance(perimetre.Last(), perimetre[0]) <= e.Largeur) {
                     throw new ArgumentException("La porte ou la fenêtre ne peut pas être placée car trop large.");
                 } else {
                     elemsmuraux.Add(e);

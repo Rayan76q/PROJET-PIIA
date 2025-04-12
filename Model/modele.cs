@@ -6,7 +6,7 @@ namespace PROJET_PIIA.Modele {
         public Catalogue cat {
             get => _cat;
         }
-        public Plan? planActuel = null;
+        public Plan planActuel;
         public Compte? compteActuel = null;
 
         public Compte creerCompte(string nom, string password) {
@@ -52,7 +52,7 @@ namespace PROJET_PIIA.Modele {
 
         public Modele() {
             _cat = new Catalogue();
-           this.planActuel = new Plan(new Murs(new List<Position> ()), "Untitled 1");
+           this.planActuel = new Plan(new Murs(), "Untitled 1");
            this.compteActuel = null;
         }
 

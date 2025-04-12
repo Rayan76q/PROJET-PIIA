@@ -3,7 +3,7 @@ using System.Windows.Forms;
 
 
 namespace PROJET_PIIA.Modele {
-    partial public class MainView : Form {
+    public partial class MainView : Form {
         /// <summary>
         ///  Required designer variable.
         /// </summary>
@@ -18,6 +18,8 @@ namespace PROJET_PIIA.Modele {
             ctr = new Controleur(new Modele(), this);
             InitializeComponent();
 
+            planView = new PlanView(ctr);
+            splitContainer1.Panel2.Controls.Add(planView);
         }
 
         /// <summary>
@@ -286,9 +288,11 @@ namespace PROJET_PIIA.Modele {
         }
 
         private void button1_Click_1(object sender, EventArgs e) {
-            Murs m = new Murs(new List<Position> { new Position(0, 0), new Position(600, 0), new Position(600, 400), new Position(0, 400) });
+            Murs m = new Murs(new List<Point> { new Point(0, 0), new Point(600, 0), new Point(600, 400), new Point(0, 400) });
             ctr.setMurs(m);
-            
+            planView.Invalidate();
+
+
         }
 
         private void label2_Click(object sender, EventArgs e) {

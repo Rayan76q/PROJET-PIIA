@@ -1,3 +1,5 @@
+using PROJET_PIIA.Modele;
+
 namespace PROJET_PIIA {
     internal static class Program {
         /// <summary>
