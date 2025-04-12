@@ -1,34 +1,6 @@
-﻿namespace PROJET_PIIA.Modele {
+﻿using PROJET_PIIA.Extensions;
 
-    public static class GeometrieUtils {
-        public static float distance(Point p1, Point p2) {
-            (float dx, float dy) = (p1.X - p2.X, p1.Y - p2.Y);
-            return (float)Math.Sqrt(dx * dx + dy * dy);
-        }
-
-        public static bool is_valid(Point p) {
-          
-            // Exemple de validité : coordonnées finies
-            return !float.IsNaN(p.X) && !float.IsNaN(p.Y)
-                && !float.IsInfinity(p.X) && !float.IsInfinity(p.Y);
-        }
-
-        public static Point RotatePoint(Point p, (float, float) origin, float angleRad) {
-
-            float translatedX = p.X - origin.Item1;
-            float translatedY = p.Y - origin.Item2;
-
-
-            float rotatedX = translatedX * (float)Math.Cos(angleRad) - translatedY * (float)Math.Sin(angleRad);
-            float rotatedY = translatedX * (float)Math.Sin(angleRad) + translatedY * (float)Math.Cos(angleRad);
-
-
-            float finalX = rotatedX + origin.Item1;
-            float finalY = rotatedY + origin.Item2;
-
-            return new Point((int)finalX, (int)finalY);
-        }
-    }
+namespace PROJET_PIIA.Model {
 
     public class Murs {
 
@@ -41,6 +13,25 @@
             get => perimetre;
         }
 
+        public Murs() {
+            List<Point> points = new List<Point>();
+            // etoile ☼
+            points.Add(new Point(300, 150)); // sommet haut ↑
+            points.Add(new Point(320, 200));
+            points.Add(new Point(370, 200));
+            points.Add(new Point(330, 230));
+            points.Add(new Point(350, 280));
+            points.Add(new Point(300, 250)); // centre bas ↓
+            points.Add(new Point(250, 280));
+            points.Add(new Point(270, 230));
+            points.Add(new Point(230, 200));
+            points.Add(new Point(280, 200));
+            this.perimetre = points;
+            this.elemsmuraux = new List<ElemMur>();
+        }
+
+
+        // mettre dans un controleur ?
         public static bool checkMurs(List<Point> points) {
             for (int i = 0; i < points.Count - 1; i++) {
                 var p1 = points[i];
@@ -59,6 +50,7 @@
             return false;
         }
 
+        // mettre dans un controleur ?
         public static bool SegmentsIntersect(Point p1, Point q1, Point p2, Point q2) {
             int o1 = Orientation(p1, q1, p2);
             int o2 = Orientation(p1, q1, q2);
@@ -90,21 +82,7 @@
         }
 
 
-        public Murs() {
-            List<Point> points = new List<Point>();
-            points.Add(new Point(300, 150)); // sommet haut
-            points.Add(new Point(320, 200));
-            points.Add(new Point(370, 200));
-            points.Add(new Point(330, 230));
-            points.Add(new Point(350, 280));
-            points.Add(new Point(300, 250)); // centre bas
-            points.Add(new Point(250, 280));
-            points.Add(new Point(270, 230));
-            points.Add(new Point(230, 200));
-            points.Add(new Point(280, 200));
-            this.perimetre = points;
-            this.elemsmuraux = new List<ElemMur>();
-        }
+
 
 
 
@@ -124,7 +102,7 @@
             for (int i = 0; i < perimetre.Count; i++) {
                 Point a = perimetre[i];
                 Point b = perimetre[(i + 1) % perimetre.Count];
-                total += GeometrieUtils.distance(a, b);
+                total += a.DistanceTo(b);
             }
             return total;
         }
@@ -136,7 +114,7 @@
             for (int i = 0; i < perimetre.Count; i++) {
                 Point a = perimetre[i];
                 Point b = perimetre[(i + 1) % perimetre.Count];
-                float segmentLength = GeometrieUtils.distance(a, b);
+                float segmentLength = a.DistanceTo(b);
 
                 if (globalOffset <= current + segmentLength) {
                     // position localisée de la porte sur le segment
@@ -161,13 +139,14 @@
             return (perimetre.Count - 1, 0);
         }
 
-        /// renvoit la vraie position d'un point
+        /// renvoit la vraie position d'un point 
+        /// mettre dans uncontroleur ?
         public Point GetPositionForOffset(float offset) {
             float current = 0;
             for (int i = 0; i < perimetre.Count; i++) {
                 Point a = perimetre[i];
                 Point b = perimetre[(i + 1) % perimetre.Count];
-                float segmentLength = GeometrieUtils.distance(a, b);
+                float segmentLength = a.DistanceTo(b);
 
                 // Si l'offset tombe dans ce segment
                 if (offset <= current + segmentLength) {
@@ -196,7 +175,7 @@
             (int, float) pos = getSegmentForElem(e);
 
             if (pos == (perimetre.Count - 1, 0)) {  //check si le dernier segment peut accueillir l'elem
-                if (GeometrieUtils.distance(perimetre.Last(), perimetre[0]) <= e.Largeur) {
+                if (perimetre.Last().DistanceTo(perimetre[0]) <= e.Largeur) {
                     throw new ArgumentException("La porte ou la fenêtre ne peut pas être placée car trop large.");
                 } else {
                     elemsmuraux.Add(e);

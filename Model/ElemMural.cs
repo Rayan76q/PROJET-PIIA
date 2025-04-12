@@ -1,8 +1,9 @@
-﻿namespace PROJET_PIIA.Modele {
+﻿namespace PROJET_PIIA.Model {
     abstract public class ElemMur {
         static protected int idCounter = 0;
         public readonly int Id;
 
+        // là aussi y'a vrm besoin ? je ne comprends pas trop
         protected float distPos;
         public float DistPos {
             get => distPos;
@@ -21,6 +22,8 @@
             }
         }
 
+        // I guess faut autoriser null ? genre si on est trop loin d'un mur flemme de faire une projection
+        // on l'affiche sur le curseurs -> verifier si c'est un endroit valide audepot de la porte
         protected ElemMur(float position, float largeur) {
             DistPos = position;
             Largeur = largeur;

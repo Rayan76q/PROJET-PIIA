@@ -1,14 +1,10 @@
 ﻿using System.Text;
-using PROJET_PIIA.Model;
 
-namespace PROJET_PIIA.Modele {
+namespace PROJET_PIIA.Model {
     public class Plan {
         private static int _idCounter = 0;
 
-        private int _id = _idCounter;
-        public int Id {
-            get { return _id; }
-        }
+        public int Id { get; }
 
         string nom;
         Murs murs;
@@ -18,19 +14,15 @@ namespace PROJET_PIIA.Modele {
             set => murs = value;
         }
 
-
-        public Plan(Murs murs, string nom) {
-            //if (Murs.checkMurs(murs.Perimetre)){
-            this.murs = murs;
+        // Constructeur
+        public Plan() {
+            this.nom = "Plan N°" + _idCounter;
+            this.murs = new();
             meubles = new List<Meuble>();
-            _idCounter++;
-
-            if (nom != null) this.nom = nom;
-            else this.nom = "Plan N°" + _idCounter;
-
-            //} else {
-            //    throw new ArgumentException("Les murs s'interesectent, impossible de créer le plan.");
-            //}
+            this.Id = _idCounter++;
+        }
+        public Plan(string nom) : this() {  // Appel constructeur par défaut
+            this.nom = nom;
         }
 
 

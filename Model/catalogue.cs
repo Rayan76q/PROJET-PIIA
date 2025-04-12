@@ -1,84 +1,52 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
-namespace PROJET_PIIA.Modele {
-
-    using System.ComponentModel.DataAnnotations;
-    using System.Reflection;
-    using PROJET_PIIA.Model;
-
-    public enum Categorie {
-        [Display(Name = "Plomberie")]
-        Plomberie,
-
-        [Display(Name = "Électroménager")]
-        Electroménager,
-
-        [Display(Name = "Chaise")]
-        Chaise,
-
-        [Display(Name = "Table")]
-        Table,
-
-        [Display(Name = "Rangement")]
-        Rangement,
-
-        [Display(Name = "Décoration")]
-        Decoration,
-
-        [Display(Name = "Plan de travail")]
-        PlanDeTravail
-    }
-
-    public static class EnumExtensions {
-        public static string GetDisplayName(this Enum value) {
-            var field = value.GetType().GetField(value.ToString());
-            var attribute = field?.GetCustomAttribute<DisplayAttribute>();
-
-            return attribute?.Name ?? value.ToString();
-        }
-
-    }
-
-
-    
-
+namespace PROJET_PIIA.Model {
 
     public class Catalogue {
-        public Dictionary<Categorie, List<Meuble>> CategoryToMeubles { get; set; }
+        // tous les meubles sont dans cette liste
+        // ouion pourrait faire un dict
+        public List<Meuble> Meubles { get; private set; }
 
         public Catalogue() {
-
-            CategoryToMeubles = new Dictionary<Categorie, List<Meuble>>();
+            Meubles = new List<Meuble>();
         }
 
-        public void addMeuble(Meuble meuble) {
-            if (meuble == null)
-                throw new ArgumentNullException(nameof(meuble), "Le meuble ne peut pas être nul.");
-            if (!CategoryToMeubles.ContainsKey(meuble.Type)) {
-                CategoryToMeubles[meuble.Type] = new List<Meuble>();
-            }
-            CategoryToMeubles[meuble.Type].Add(meuble);
+        public void AjouterMeuble(Meuble meuble) {
+            Meubles.Add(meuble);
         }
 
-        public void supprimeMeuble(Meuble meuble) {
-            if (meuble == null)
-                throw new ArgumentNullException(nameof(meuble), "Le meuble ne peut pas être nul.");
-            if (CategoryToMeubles.ContainsKey(meuble.Type)) {
-                CategoryToMeubles[meuble.Type].Remove(meuble);
-            }
+        public List<Meuble> ObtenirMeublesParCategorie(Categorie categorie) {
+            return Meubles.Where(meuble => meuble.Categorie == categorie).ToList();
         }
+
+       
+        // meubles non catégorisés
+        public List<Meuble> ObtenirMeublesNonCategorises() {
+            return Meubles.Where(meuble => !meuble.Categorie.HasValue).ToList();
+        }
+
+
         public override string ToString() {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine("Catalogue des Meubles:");
+            StringBuilder sb = new();
+            // meubles par catégorie
+            foreach (Categorie categorie in Enum.GetValues(typeof(Categorie))) {
+                sb.AppendLine($"Catégorie: {categorie}");
+                var meublesParCategorie = ObtenirMeublesParCategorie(categorie);
+                if (meublesParCategorie.Any()) {
+                    foreach (var meuble in meublesParCategorie) {
+                        sb.AppendLine($" - {meuble}");
+                    }
+                } else {
+                    sb.AppendLine(" Aucun meuble");
+                }
+            }
 
-            foreach (var categorie in CategoryToMeubles) {
-                sb.AppendLine($"Catégorie: {categorie.Key.GetDisplayName()}");
-                foreach (var meuble in categorie.Value) {
-                    sb.AppendLine($"  - {meuble.ToString()}");
+            // meubles non catégorisés
+            var meublesNonCategorises = ObtenirMeublesNonCategorises();
+            if (meublesNonCategorises.Any()) {
+                sb.AppendLine("\nMeubles non catégorisés:");
+                foreach (var meuble in meublesNonCategorises) {
+                    sb.AppendLine($" - {meuble}");
                 }
             }
 

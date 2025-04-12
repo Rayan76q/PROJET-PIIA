@@ -1,10 +1,19 @@
-﻿using PROJET_PIIA.Modele;
+﻿using PROJET_PIIA.Extensions;
 
 namespace PROJET_PIIA.Model {
     public class Meuble {
+        public Categorie? Categorie { get; } = null;
 
-        private bool IsValidPositive(float value) => value > 0;
-        private bool IsNonEmpty(string value) => !string.IsNullOrEmpty(value);
+        private float? _prix = null;
+        public float? Prix {
+            get => _prix;
+            set {
+                if (value.HasValue && IsValidPositive(value.Value)) _prix = value;
+                else _prix = _prix;
+            }
+        }
+
+        public string Description { get; set; } = "";
 
         private string _nom;
         public string Nom {
@@ -12,64 +21,55 @@ namespace PROJET_PIIA.Model {
             set => _nom = IsNonEmpty(value) ? value : _nom;
         }
 
-        private Categorie _type;
-        public Categorie Type => _type;
+        public string? ImagePath = null;
 
-        private float _prix;
-        public float Prix {
-            get => _prix;
-            set => _prix = IsValidPositive(value) ? value : _prix;
-        }
+        // si doit etre posé contre un mur
+        public bool IsMural = false;
+        
 
-        private string _description;
-        public string Description {
-            get => _description;
-            set => _description = value;
-        }
-
-        private string _image;
-        public string Image {
-            get => _image;
-            set => _image = value;
-        }
-
-        private bool _isMural;
-        public bool IsMural {
-            get => _isMural;
-            set => _isMural = value;
-        }
-
-        private Point? _position;
+        private Point? _position = null;
         public Point? Position {
             get => _position;
             set {
-                if (value != null && GeometrieUtils.is_valid(value.Value))
+                // onautorise pas null ??? chelou imo, un meuble peut ne pas etre placé maisendrag par ex
+                if (value != null && value.Value.is_valid()) 
                     _position = value;
             }
         }
 
         private (float, float) _dimensions;
+        // verbeux les fonction imo
         public (float, float) Dimensions {
             get => _dimensions;
             set => _dimensions = IsValidPositive(value.Item1) && IsValidPositive(value.Item2) ? value : _dimensions;
         }
 
-        private (float, float) _orientation;
+        private (float, float) _orientation = (0, 0);
         public (float, float) Orientation {
             get => _orientation;
             set => _orientation = IsValidPositive(value.Item1) && IsValidPositive(value.Item2) ? value : _orientation;
         }
 
+        // en vrai je ne comprends pas à  100% de creer plusieurs attribut qui en englobe un
 
 
+        private bool IsValidPositive(float value) => value > 0;
+        private bool IsNonEmpty(string value) => !string.IsNullOrEmpty(value);
 
 
+        //Constructeur
+        public Meuble(string nom, bool ismural, (float, float) dim) {
+            Nom = nom;
+            this.IsMural = ismural;
+            Dimensions = dim;
+        }
+        //Full
         public Meuble(string nom, Categorie type, float prix, string description, string image, bool mural, (float, float) dim) {
             Nom = nom;
-            _type = type;
+            Categorie = type;
             Prix = prix;
             Description = description;
-            Image = image;
+            this.ImagePath = image;
             IsMural = mural;
             Position = null;  //pas encore placé dans le plan
             Dimensions = dim;
@@ -77,6 +77,8 @@ namespace PROJET_PIIA.Model {
         }
 
 
+
+        // a mettre dans un controleur ?
         public bool ChevaucheMur(Murs murs) {
             if (Position == null)
                 return false; // pas encore placé
@@ -89,11 +91,11 @@ namespace PROJET_PIIA.Model {
             float angleRad = (float)Math.Atan2(Orientation.Item2, Orientation.Item1);
 
 
-            List<Point> corners = new List<Point>();
-            corners.Add(GeometrieUtils.RotatePoint(meublePos, (0, 0), angleRad));
-            corners.Add(GeometrieUtils.RotatePoint(meublePos, (largeur, 0), angleRad));
-            corners.Add(GeometrieUtils.RotatePoint(meublePos, (largeur, hauteur), angleRad));
-            corners.Add(GeometrieUtils.RotatePoint(meublePos, (0, hauteur), angleRad));
+            List<Point> corners = new();
+            corners.Add(meublePos.RotatePoint((0, 0), angleRad));
+            corners.Add(meublePos.RotatePoint((largeur, 0), angleRad));
+            corners.Add(meublePos.RotatePoint((largeur, hauteur), angleRad));
+            corners.Add(meublePos.RotatePoint((0, hauteur), angleRad));
 
 
             var meubleSegments = new List<(Point, Point)>
@@ -118,7 +120,7 @@ namespace PROJET_PIIA.Model {
             return false;
         }
 
-
+        // a mettre dans un controleur ?
         public bool chevaucheMeuble(Meuble autre) {
             if (Position == null || autre.Position == null)
                 return false; // au moins un meuble n'est pas placé
@@ -135,14 +137,16 @@ namespace PROJET_PIIA.Model {
             return overlapX && overlapY;
         }
 
+        // a mettre dans un controleur ?
         public void deplacer(Point nouvellePos) {
-            if (GeometrieUtils.is_valid(nouvellePos)) {
+            if (nouvellePos.is_valid()) {
                 Position = nouvellePos;
             } else {
                 throw new ArgumentException("La nouvelle position n'est pas valide.");
             }
         }
 
+        // a mettre dans un controleur ?
         public void tourner(float angle) {
             if (angle >= 0 && angle <= 360) {
                 float angleRad = (float)(angle * Math.PI / 180);
@@ -153,8 +157,8 @@ namespace PROJET_PIIA.Model {
         }
 
         public override string ToString() {
-            return $"Meuble [Nom: {Nom}, Type: {Type.GetDisplayName()}, Prix: {Prix}€," +
-                   $" Description: {Description}, Image: {Image}, " +
+            return $"Meuble [Nom: {Nom}, Type: {Categorie.GetDisplayName()}, Prix: {Prix}€," +
+                   $" Description: {Description}, Image: {ImagePath}, " +
                    $"Mural: {IsMural}, Position: {Position}, " +
                    $"Dimensions: ({Dimensions.Item1}x{Dimensions.Item2}), " +
                    $"Orientation: ({Orientation.Item1}, {Orientation.Item2})]";

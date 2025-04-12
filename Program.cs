@@ -1,4 +1,5 @@
-using PROJET_PIIA.Modele;
+using PROJET_PIIA.Model;
+using PROJET_PIIA.View;
 
 namespace PROJET_PIIA {
     internal static class Program {
@@ -10,7 +11,11 @@ namespace PROJET_PIIA {
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
-            Application.Run(new View.LoginView());
+
+            Modele m = new();
+            Form startingView = new MainView(m);
+
+            Application.Run(startingView);
         }
     }
 }

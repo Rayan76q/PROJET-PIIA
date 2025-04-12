@@ -1,14 +1,15 @@
 ﻿using System.Text;
 
-namespace PROJET_PIIA.Modele {
+namespace PROJET_PIIA.Model {
     public class Modele {
-        private Catalogue _cat;
-        public Catalogue cat {
-            get => _cat;
-        }
+        private Catalogue Catalogue { get; }
+
         public Plan planActuel;
         public Compte? compteActuel = null;
 
+
+        // Ques ce que ça fou là svp, Soit a foutre dans un controleur, soit une classe 
+        // je pense plutot un controleur pour la page login, psq là modele.creerCompte... ça napas trop de sens imo
         public Compte creerCompte(string nom, string password) {
             try {
                 Compte compte = new Compte(nom, password);
@@ -22,6 +23,8 @@ namespace PROJET_PIIA.Modele {
             return Compte.comptes.Remove(compte.Id);
         }
 
+        // pourquoi ? on ne passe pas par l'id ? vaut mieux une liste/dict de plan dans model
+        // ou bien dans user, ilfautcreer une classe User
         public void selectionnerPlan(Plan p) {
             planActuel = p;
         }
@@ -37,30 +40,30 @@ namespace PROJET_PIIA.Modele {
             foreach (Compte compte in Compte.comptes.Values) {
                 if (compte.Name == nom && compte.Password == password) {
                     compteActuel = compte;
-                    return; 
+                    return;
                 }
             }
-            
+
             throw new ArgumentException("Nom d'utilisateur ou mot de passe incorrect.");
         }
 
-       public  void creerPlan(Murs m, string nom) {
-            Plan plan = new Plan(m, nom);
+        public void creerPlan(Murs m, string nom) {
+            Plan plan = new Plan(nom);
             planActuel = plan;
         }
 
 
         public Modele() {
-            _cat = new Catalogue();
-           this.planActuel = new Plan(new Murs(), "Untitled 1");
-           this.compteActuel = null;
+            Catalogue = new Catalogue();
+            this.planActuel = new Plan(); // il a un nom par defaut selon son id
+            this.compteActuel = null;
         }
 
         public override string ToString() {
             StringBuilder sb = new StringBuilder();
 
             sb.AppendLine("Modèle:");
-            sb.AppendLine($"Catalogue: {cat.ToString()}");
+            sb.AppendLine($"Catalogue: {Catalogue.ToString()}");
 
             if (planActuel != null) {
                 sb.AppendLine($"Plan Actuel: {planActuel.ToString()}");

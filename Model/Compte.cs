@@ -1,16 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Accessibility;
-
-namespace PROJET_PIIA.Modele
-{
-    public class Compte
-    {
+﻿namespace PROJET_PIIA.Model {
+    public class Compte {
         private static string DEFAULT_AVATAR = "";
-        private static int _idCounter = 0; 
+        private static int _idCounter = 0;
         public static Dictionary<int, Compte> comptes = new Dictionary<int, Compte>();
 
         public static bool nomDispo(string nom) {
@@ -67,7 +58,7 @@ namespace PROJET_PIIA.Modele
             _plans.Remove(p);
         }
 
-        private string _avatar;
+        private string _avatar; // j'aienvie de dire null par defaut pour etre sur qu'il n'y a pas d'image ?
         public string Avatar {
             get => _avatar;
         }
@@ -88,7 +79,7 @@ namespace PROJET_PIIA.Modele
 
 
         public Compte(string name, string password) {
-            
+
             if (string.IsNullOrEmpty(name))
                 throw new ArgumentException("Name cannot be null or empty.");
             if (string.IsNullOrEmpty(password))
@@ -98,7 +89,7 @@ namespace PROJET_PIIA.Modele
             Name = name;
             Password = password;
             _plans = new List<Plan>();
-            _avatar = DEFAULT_AVATAR; 
+            _avatar = DEFAULT_AVATAR;
             comptes.Add(Id, this);
             Connected = false;
         }
