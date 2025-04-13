@@ -15,17 +15,9 @@ namespace PROJET_PIIA.Model {
 
         public Murs() {
             List<Point> points = new List<Point>();
-            // etoile ☼
-            points.Add(new Point(300, 150)); // sommet haut ↑
-            points.Add(new Point(320, 200));
-            points.Add(new Point(370, 200));
-            points.Add(new Point(330, 230));
-            points.Add(new Point(350, 280));
-            points.Add(new Point(300, 250)); // centre bas ↓
-            points.Add(new Point(250, 280));
-            points.Add(new Point(270, 230));
-            points.Add(new Point(230, 200));
-            points.Add(new Point(280, 200));
+            
+            //put something if you wanna test a special shape
+
             this.perimetre = points;
             this.elemsmuraux = new List<ElemMur>();
         }
@@ -51,6 +43,12 @@ namespace PROJET_PIIA.Model {
         }
 
         // mettre dans un controleur ?
+
+
+
+        // eh pour moi la logique doit rester là le controleur à juste à appeler la méthode, comme ça la logique de chaque
+        // element est dans son propre fichier plutot que de tout foutre dans controleur then again partial exists so ig you could but eh
+
         public static bool SegmentsIntersect(Point p1, Point q1, Point p2, Point q2) {
             int o1 = Orientation(p1, q1, p2);
             int o2 = Orientation(p1, q1, q2);
