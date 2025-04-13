@@ -5,7 +5,9 @@ using PROJET_PIIA.Model;
 namespace PROJET_PIIA.View {
     public enum PlanMode { // jsp où mettre
         Deplacement,
-        DessinPolygone
+        DessinPolygone,
+       
+        
     }
 
     public partial class MainView : Form {
@@ -17,6 +19,7 @@ namespace PROJET_PIIA.View {
         private Button switchmodebutton;
         private Button button2;
         private ControleurMainView ctrg;
+
 
 
         public MainView(Modele m) {

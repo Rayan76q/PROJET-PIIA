@@ -52,6 +52,12 @@ namespace PROJET_PIIA.Controleurs {
         protected virtual void OnPerimeterChanged() {
             PerimeterChanged?.Invoke();  // Appel à tous les abonnés
         }
+
+        public void UpdatePerimetre(List<Point> nouveauPerimetre) {
+            plan.Murs.perimetre = nouveauPerimetre;
+            PerimeterChanged?.Invoke();
+        }
+
     }
 
 

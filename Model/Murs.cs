@@ -191,6 +191,41 @@ namespace PROJET_PIIA.Model {
         }
 
 
+        //C'est pour les élongations
+        public void ModifierSegment(int indexSegment, float distance) {
+            if (indexSegment < 0 || indexSegment >= perimetre.Count)
+                throw new ArgumentOutOfRangeException(nameof(indexSegment));
+
+            Point a = perimetre[indexSegment];
+            Point b = perimetre[(indexSegment + 1) % perimetre.Count];
+
+            // Vecteur du segment
+            float dx = b.X - a.X;
+            float dy = b.Y - a.Y;
+
+            // Normale (orthogonale) - on inverse dx/dy et on change un signe
+            float nx = -dy;
+            float ny = dx;
+
+            // Normalisation
+            float length = MathF.Sqrt(nx * nx + ny * ny);
+            nx /= length;
+            ny /= length;
+
+            // Appliquer le déplacement le long de la normale
+            Point newA = new Point((int)(a.X + nx * distance), (int)(a.Y + ny * distance));
+            Point newB = new Point((int)(b.X + nx * distance), (int)(b.Y + ny * distance));
+
+            perimetre[indexSegment] = newA;
+            perimetre[(indexSegment + 1) % perimetre.Count] = newB;
+
+            // (optionnel) throw si les murs s'intersectent
+            if (Murs.checkMurs(perimetre))
+                throw new ArgumentException("La modification crée des intersections entre murs.");
+        }
+
+
+
         public override string ToString() {
             string pointsStr = string.Join(", ", perimetre.Select(p => p.ToString()));
 
