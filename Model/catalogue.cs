@@ -9,7 +9,67 @@ namespace PROJET_PIIA.Model {
 
         public Catalogue() {
             Meubles = new List<Meuble>();
+
+            Meubles.Add(new Meuble(
+                "Chaise",
+                new List<Tags> { Tags.Chaise, Tags.Sol },
+                49.99f,
+                "Chaise en bois confortable",
+                "Images/chaise.png",
+                (45, 45)
+            ));
+
+            Meubles.Add(new Meuble(
+                "Table",
+                new List<Tags> { Tags.Table, Tags.Sol },
+                149.99f,
+                "Table à manger 4 personnes",
+                "Images/table.png",
+                
+                (120, 80)
+            ));
+
+            Meubles.Add(new Meuble(
+                "Réfrigérateur",
+                new List<Tags> { Tags.Electroménager, Tags.Mural },
+                299.99f,
+                "Frigo grande capacité",
+                "Images/frigo.png",
+                
+                (60, 60)
+            ));
+
+            Meubles.Add(new Meuble(
+                "Évier",
+                new List<Tags> { Tags.Plomberie, Tags.Mural },
+                89.99f,
+                "Évier de cuisine inox",
+                "Images/evier.png",
+                
+                (80, 50)
+            ));
+
+            Meubles.Add(new Meuble(
+                "Plan de travail classique",
+                new List<Tags> { Tags.PlanDeTravail, Tags.Mural },
+                199.99f,
+                "Plan de travail stratifié",
+                "Images/plan_travail.png",
+               
+                (150, 60)
+            ));
+
+            Meubles.Add(new Meuble(
+                "Lampe 1",
+                new List<Tags> { Tags.Eclairage, Tags.Decoration },
+                29.99f,
+                "Lampe sur pied LED",
+                "Images/lampe.png",
+                
+                (30, 30)
+            ));
         }
+
 
         public void AjouterMeuble(Meuble meuble) {
             Meubles.Add(meuble);

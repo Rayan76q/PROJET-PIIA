@@ -1,6 +1,13 @@
-﻿using PROJET_PIIA.Controleurs;
+﻿using System.Diagnostics;
+using System.Drawing.Drawing2D;
+using PROJET_PIIA.Controleurs;
 using PROJET_PIIA.Extensions;
 using PROJET_PIIA.Model;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
+
 
 
 namespace PROJET_PIIA.View {
@@ -26,6 +33,9 @@ namespace PROJET_PIIA.View {
         private ControleurMainView ctrg;
 
 
+        private Dictionary<string, Image> _imageCache = new Dictionary<string, Image>();
+
+
         public PlanView(ControleurMainView ctrg) {
             this.DoubleBuffered = true;
             this.Dock = DockStyle.Fill;
@@ -38,6 +48,7 @@ namespace PROJET_PIIA.View {
             this.ctrg = ctrg;
             ctrg.ModeChanged += OnModeChanged;
             ctrg.PerimeterChanged += OnMurChanged;
+            LoadImages("images");
             this.Invalidate();
         }
 
@@ -239,8 +250,6 @@ namespace PROJET_PIIA.View {
                 g.DrawLine(new Pen(Color.Red, 3), PlanToScreen(p1), PlanToScreen(p2));
             }
 
-
-
             List<Point> points = ctrg.ObtenirPerimetre();
             if (points.Count > 1) {
                 for (int i = 0; i < points.Count - 1; i++) {
@@ -250,6 +259,120 @@ namespace PROJET_PIIA.View {
                 g.DrawLine(Pens.Blue, PlanToScreen(points.Last()), PlanToScreen(points.First()));
             }
 
+            // Draw meubles
+            DrawMeubles(g);
+        }
+
+        // Method to draw all meubles from the controller
+        private void DrawMeubles(Graphics g) {
+            var meubles = ctrg.ObtenirMeubles();
+            if (meubles == null || meubles.Count == 0) return;
+
+            foreach (var meuble in meubles) {
+                DrawMeuble(g, meuble);
+            }
+        }
+
+        // Method to draw a single meuble
+        private void DrawMeuble(Graphics g, Meuble meuble) {
+            // Skip if meuble is null or has no position
+            if (meuble == null) return;
+            else {
+                (float width, float height) = meuble.Dimensions;
+
+                // Get screen position from plan position
+                Point screenPos = PlanToScreen(meuble.Position);
+
+                // If meuble has an image path, draw the image
+                if (!string.IsNullOrEmpty(meuble.ImagePath)) {
+                    try {
+                        // Load image from cache or from file
+                        Image img = GetCachedImage(meuble.ImagePath);
+
+                        // Calculate the destination rectangle
+
+
+                        // Apply rotation if needed
+
+                        float orientation = (float)Math.Tan(meuble.Orientation.Item2 / meuble.Orientation.Item1);
+
+                        if (orientation != 0) {
+                            // Save current state
+                            Matrix oldMatrix = g.Transform;
+
+                            // Create a new matrix for rotation
+                            Matrix rotationMatrix = new Matrix();
+                            rotationMatrix.RotateAt(orientation, new PointF(screenPos.X, screenPos.Y));
+                            g.Transform = rotationMatrix;
+
+                            // Draw rotated image
+                            g.DrawImage(img, screenPos.X - width / 2, screenPos.Y - height / 2, width, height);
+
+                            // Restore original transformation
+                            g.Transform = oldMatrix;
+                        } else {
+                            // Draw image normally
+                            g.DrawImage(img, screenPos.X - width / 2, screenPos.Y - height / 2, width, height);
+                        }
+                    } catch (Exception ex) {
+                        // If image loading fails, draw a placeholder rectangle
+                        using (Brush brush = new SolidBrush(Color.LightGray)) {
+                            g.FillRectangle(brush, screenPos.X - width / 2, screenPos.Y - height / 2,
+                                           width, height);
+                        }
+
+                        // Draw a text indicating image error
+                        using (Font font = new Font("Arial", 8)) {
+                            g.DrawString("Image Error", font, Brushes.Red, screenPos.X - 30, screenPos.Y);
+                        }
+
+                        Debug.WriteLine($"Error loading image for meuble: {ex.Message}");
+                    }
+                } else {
+                    // If no image path, draw a simple rectangle representation
+                    using (Brush brush = new SolidBrush(Color.LightBlue)) {
+                        g.FillRectangle(brush, screenPos.X - width / 2, screenPos.Y - height / 2,
+                                       width, height);
+                    }
+                }
+
+                // Optionally, draw the name or type of the meuble
+                if (!string.IsNullOrEmpty(meuble.Nom)) {
+                    using (Font font = new Font("Arial", 8)) {
+                        g.DrawString(meuble.Nom, font, Brushes.Black,
+                                     screenPos.X - width / 2, screenPos.Y - height / 2 - 15);
+                    }
+                }
+            }
+        }
+
+        // Method to get image from cache or load it from file
+        private Image GetCachedImage(string imagePath) {
+            if (_imageCache.ContainsKey(imagePath)) {
+                return _imageCache[imagePath];
+            }
+
+            // Load image and add to cache
+            Image img = Image.FromFile(imagePath);
+            _imageCache[imagePath] = img;
+            return img;
+        }
+
+        // Add this method to clear the image cache when needed
+        public void ClearImageCache() {
+            // Dispose all images first
+            foreach (var img in _imageCache.Values) {
+                img.Dispose();
+            }
+            _imageCache.Clear();
+        }
+
+        // Make sure to call this when disposing the control
+        protected override void Dispose(bool disposing) {
+            if (disposing) {
+                ClearImageCache();
+            }
+            base.Dispose(disposing);
         }
         private Point PlanToScreen(Point p) => new Point(p.X + _offset.X, p.Y + _offset.Y);
         private Point ScreenToPlan(Point p) => new Point(p.X - _offset.X, p.Y - _offset.Y);
@@ -290,6 +413,29 @@ namespace PROJET_PIIA.View {
             return MathF.Sqrt(distX * distX + distY * distY);
         }
 
+    
+
+
+     private void LoadImages(string folderPath) {
+            if (!Directory.Exists(folderPath))
+                return;
+
+            string[] files = Directory.GetFiles(folderPath, "*.png"); // or *.jpg, etc.
+            foreach (string file in files) {
+                try {
+                    string key = Path.GetFileNameWithoutExtension(file); // use filename as key
+                    Image img = Image.FromFile(file);
+                    _imageCache[key] = img;
+                } catch (Exception ex) {
+                    // Handle invalid image or file access issues
+                    Console.WriteLine($"Error loading image {file}: {ex.Message}");
+                }
+            }
+        }
+
+        public Image GetImage(string key) {
+            return _imageCache.TryGetValue(key, out var img) ? img : null;
+        }
     }
 
 }

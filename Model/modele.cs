@@ -2,7 +2,7 @@
 
 namespace PROJET_PIIA.Model {
     public class Modele {
-        private Catalogue Catalogue { get; }
+        public Catalogue Catalogue { get; }
 
         public Plan planActuel;
         public Compte? compteActuel = null;

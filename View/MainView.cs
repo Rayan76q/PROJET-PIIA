@@ -3,11 +3,13 @@ using PROJET_PIIA.Model;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Drawing.Drawing2D;
+using System;
 
 namespace PROJET_PIIA.View {
     public enum PlanMode { // jsp où mettre
         Deplacement,
         DessinPolygone,
+        
     }
 
     public partial class MainView : Form {
@@ -24,23 +26,17 @@ namespace PROJET_PIIA.View {
         private FlowLayoutPanel meubleListPanel;
         private FlowLayoutPanel tagsPanel;
         private bool isFilterPanelVisible = false;
-        private List<string> availableTags = new List<string>();
+        private List<string> availableTags = TagExtensions.allStrings();
         private List<string> selectedTags = new List<string>();
+        private List<Meuble> selectedMeubles = new List<Meuble>();
         private FlowLayoutPanel availableTagsPanel;
         private FlowLayoutPanel selectedTagsPanel;
 
         // Furniture categories and tags
         private List<string> categories = TagExtensions.allStrings();
 
-        private Dictionary<string, List<Tags>> categoryTags = new Dictionary<string, List<Tags>> {
-            { "Machine à laver", new List<Tags>(){ Tags.Electroménager } },
-            { "Réfrigirateur", new List<Tags>(){ Tags.Electroménager } },
-            { "Chaise", new List<Tags>(){ Tags.Chaise } },
-            { "Table", new List<Tags>(){ Tags.Table } }
-        };
 
         private List<string> frequentlyUsedItems = new List<string> {
-            "Machine à laver", "Chaise", "Table", "Réfrigérateur"
         };
 
         private List<string> positionTags = new List<string> {
@@ -48,9 +44,11 @@ namespace PROJET_PIIA.View {
         };
 
         public MainView(Modele m) {
+            this.DoubleBuffered = true;
             InitializeComponent();
             ctrg = new ControleurMainView(m);
             planView = new PlanView(ctrg);
+            selectedMeubles = ctrg.catalogue.Meubles;
             splitContainer1.Panel2.Controls.Add(planView);
         }
 
@@ -391,11 +389,60 @@ namespace PROJET_PIIA.View {
             splitContainer1.Panel1.Invalidate();
         }
 
+        private void AddMeubleToPanel(Meuble m, FlowLayoutPanel panel) {
+            string meubleName = m.Nom;
+            // Create panel for the meuble item
+            Panel meublePanel = new Panel {
+                Width = 200,
+                Height = 90,
+                Margin = new Padding(5),
+                BackColor = Color.WhiteSmoke,
+            };
+
+            // Create button with furniture icon
+            Button meubleButton = new Button {
+                Text = "🪑", // Default furniture icon
+                Width = 60,
+                Height = 60,
+                Location = new Point(10, 5),
+                FlatStyle = FlatStyle.Flat,
+                Tag = meubleName // Store meuble name for reference
+            };
+            // Add click handler to add the meuble to the plan
+            meubleButton.Click += (sender, e) => {
+                // Call controller to add this meuble to the plan
+                this.ctrg.AjouterMeuble(m);
+            };
+
+            // Create label for furniture name
+            Label nameLabel = new Label {
+                Text = meubleName,
+                Location = new Point(80, 10),
+                AutoSize = true,
+            };
+
+            // Create favorite button
+            Button starButton = new Button {
+                Text = frequentlyUsedItems.Contains(meubleName) ? "★" : "☆",
+                Width = 30,
+                Height = 30,
+                Location = new Point(160, 50),
+                FlatStyle = FlatStyle.Flat,
+                Tag = meubleName
+            };
+            starButton.Click += ToggleFavorite_Click;
+
+            // Add all controls to the meuble panel
+            meublePanel.Controls.Add(meubleButton);
+            meublePanel.Controls.Add(nameLabel);
+            meublePanel.Controls.Add(starButton);
+
+            // Add meuble panel to the parent panel
+            panel.Controls.Add(meublePanel);
+        }
+
         private void InitializeSidePanelMeubles() {
-            // Init tags
-            availableTags.Clear();
-            selectedTags.Clear();
-            availableTags = TagExtensions.allStrings();
+            
 
             splitContainer1.Panel1.Controls.Clear();
 
@@ -430,49 +477,23 @@ namespace PROJET_PIIA.View {
                 FlowDirection = FlowDirection.TopDown,
                 AutoScroll = true,
                 WrapContents = false,
-                Padding = new Padding(10,40 ,5 ,5),
+                Padding = new Padding(10, 40, 5, 5),
             };
 
-            foreach (string meuble in categoryTags.Keys) {
-                if (!IsMeubleVisibleWithCurrentTags(meuble)) continue;
+            
+           
 
-                Panel meublePanel = new Panel {
-                    Width = 200,
-                    Height = 90,
-                    Margin = new Padding(5),
-                    BackColor = Color.WhiteSmoke,
-                };
+            // Add each meuble from the catalogue to the panel
+          
+            foreach (Meuble m in selectedMeubles) {
+                    // Skip if filtered out by selected tags
+                    if (!IsMeubleVisibleWithCurrentTags(m)) continue;
 
-                Button meubleButton = new Button {
-                    Text = "🪑", // You can replace with real icon/image
-                    Width = 60,
-                    Height = 60,
-                    Location = new Point(10, 5),
-                    FlatStyle = FlatStyle.Flat
-                };
-
-                Label nameLabel = new Label {
-                    Text = meuble,
-                    Location = new Point(80, 10),
-                    AutoSize = true,
-                };
-
-                Button starButton = new Button {
-                    Text = frequentlyUsedItems.Contains(meuble) ? "★" : "☆",
-                    Width = 30,
-                    Height = 30,
-                    Location = new Point(160, 50),
-                    FlatStyle = FlatStyle.Flat,
-                    Tag = meuble
-                };
-                starButton.Click += ToggleFavorite_Click;
-
-                meublePanel.Controls.Add(meubleButton);
-                meublePanel.Controls.Add(nameLabel);
-                meublePanel.Controls.Add(starButton);
-
-                meubleListPanel.Controls.Add(meublePanel);
+                    // Add the meuble to the panel
+                    AddMeubleToPanel(m, meubleListPanel);
             }
+            
+   
 
             splitContainer1.Panel1.Controls.Add(meubleListPanel);
 
@@ -722,17 +743,10 @@ namespace PROJET_PIIA.View {
         }
 
         private void ApplyTagFilters() {
-            // Implement filtering logic based on selected tags
-            // This would filter items in your main view based on the selected tags
-
-            // For now, just print the selected tags to debug
-            System.Diagnostics.Debug.WriteLine("Filtering with tags:");
-            foreach (string tag in selectedTags) {
-                System.Diagnostics.Debug.WriteLine(" - " + tag);
+            selectedMeubles = new List<Meuble>();
+            foreach(Meuble m in ctrg.catalogue.Meubles) {
+                if(IsMeubleVisibleWithCurrentTags(m)) selectedMeubles.Add(m);
             }
-
-            // Your actual filtering logic would go here
-            // Example: Filter items in a list view or other display component
         }
 
         private void FilterButton_Click(object sender, EventArgs e) {
@@ -745,6 +759,7 @@ namespace PROJET_PIIA.View {
                 UpdateTagPanelsLayout();
             } else {
                 filterPanel.Visible = false;
+                InitializeSidePanelMeubles();
                 meubleListPanel.Visible = true;
                 isFilterPanelVisible = false;
             }
@@ -787,13 +802,15 @@ namespace PROJET_PIIA.View {
             }
         }
 
-        private bool IsMeubleVisibleWithCurrentTags(string meuble) {
+        private bool IsMeubleVisibleWithCurrentTags(Meuble meuble) {
             if (selectedTags.Count == 0) return true;
+            if (meuble.tags.Count == 0) return true;
 
-            if (!categoryTags.ContainsKey(meuble)) return false;
+            foreach(Tags t in meuble.tags) {
+                if (selectedTags.Contains(t.GetDisplayName())) return true;
+            }
 
-            var meubleTags = categoryTags[meuble].Select(tag => tag.ToString());
-            return selectedTags.All(tag => meubleTags.Contains(tag));
+            return false;
         }
 
 

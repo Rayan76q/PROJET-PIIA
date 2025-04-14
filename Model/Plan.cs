@@ -9,6 +9,17 @@ namespace PROJET_PIIA.Model {
         string nom;
         Murs murs;
         List<Meuble> meubles;
+
+        public List<Meuble> Meubles {
+            get => meubles;
+            set {
+                if (value != null) {
+                    meubles = new List<Meuble>(value);
+                } else {
+                    meubles = new List<Meuble>();
+                }
+            }
+        }
         public Murs Murs {
             get => murs;
             set => murs = value;
@@ -35,7 +46,7 @@ namespace PROJET_PIIA.Model {
                 meubles.Add(meuble);
                 placing = true;
             } else {
-                Point old_pos = meuble.Position.Value;
+                Point old_pos = meuble.Position;
                 meuble.Position = position;
 
                 if (!meuble.ChevaucheMur(murs)) {

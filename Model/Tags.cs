@@ -29,6 +29,9 @@ namespace PROJET_PIIA.Model {
         [Display(Name = "Plan de travail")]
         PlanDeTravail,
 
+        [Display(Name = "Eclairage")]
+        Eclairage,
+
         [Display(Name = "Mural")]
         Mural,
 

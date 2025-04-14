@@ -27,12 +27,10 @@ namespace PROJET_PIIA.Model {
         public bool IsMural = false;
         
 
-        private Point? _position = null;
-        public Point? Position {
+        private Point _position;
+        public Point Position {
             get => _position;
             set {
-                // onautorise pas null ??? chelou imo, un meuble peut ne pas etre placé maisendrag par ex
-                if (value != null && value.Value.is_valid()) 
                     _position = value;
             }
         }
@@ -58,20 +56,18 @@ namespace PROJET_PIIA.Model {
 
 
         //Constructeur
-        public Meuble(string nom, bool ismural, (float, float) dim) {
+        public Meuble(string nom, (float, float) dim) {
             Nom = nom;
-            this.IsMural = ismural;
             Dimensions = dim;
         }
         //Full
-        public Meuble(string nom, List<Tags> tags, float prix, string description, string image, bool mural, (float, float) dim) {
+        public Meuble(string nom, List<Tags> tags, float prix, string description, string image,  (float, float) dim) {
             Nom = nom;
             this.tags = tags ?? new List<Tags>(); 
             Prix = prix;
             Description = description;
             this.ImagePath = image;
-            IsMural = mural;
-            Position = null;  //pas encore placé dans le plan
+            Position = new Point(-1,-1);  //pas encore placé dans le plan
             Dimensions = dim;
             Orientation = (0, 0);
         }
@@ -83,7 +79,7 @@ namespace PROJET_PIIA.Model {
             if (Position == null)
                 return false; // pas encore placé
 
-            Point meublePos = Position.Value;
+            Point meublePos = Position;
             float largeur = Dimensions.Item1;
             float hauteur = Dimensions.Item2;
 
@@ -125,10 +121,10 @@ namespace PROJET_PIIA.Model {
             if (Position == null || autre.Position == null)
                 return false; // au moins un meuble n'est pas placé
 
-            var (x1, y1) = (Position?.X, Position?.Y);
+            var (x1, y1) = (Position.X, Position.Y);
             var (w1, h1) = Dimensions;
 
-            var (x2, y2) = (autre.Position?.X, autre.Position?.Y);
+            var (x2, y2) = (autre.Position.X, autre.Position.Y);
             var (w2, h2) = autre.Dimensions;
 
             bool overlapX = x1 < x2 + w2 && x1 + w1 > x2;
@@ -165,7 +161,7 @@ namespace PROJET_PIIA.Model {
 
             return $"Meuble [Nom: {Nom}, Type: {s}, Prix: {Prix}€," +
                    $" Description: {Description}, Image: {ImagePath}, " +
-                   $"Mural: {IsMural}, Position: {Position}, " +
+                   $" Position: {Position}, " +
                    $"Dimensions: ({Dimensions.Item1}x{Dimensions.Item2}), " +
                    $"Orientation: ({Orientation.Item1}, {Orientation.Item2})]";
         }
