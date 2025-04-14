@@ -15,21 +15,21 @@ namespace PROJET_PIIA.Model {
             Meubles.Add(meuble);
         }
 
-        public List<Meuble> ObtenirMeublesParCategorie(Categorie categorie) {
-            return Meubles.Where(meuble => meuble.Categorie == categorie).ToList();
+        public List<Meuble> ObtenirMeublesParCategorie(Tags categorie) {
+            return Meubles.Where(meuble => meuble.tags.Contains(categorie)).ToList();
         }
 
        
         // meubles non catégorisés
         public List<Meuble> ObtenirMeublesNonCategorises() {
-            return Meubles.Where(meuble => !meuble.Categorie.HasValue).ToList();
+            return Meubles.Where(meuble => !meuble.tags.Any()).ToList();
         }
 
 
         public override string ToString() {
             StringBuilder sb = new();
             // meubles par catégorie
-            foreach (Categorie categorie in Enum.GetValues(typeof(Categorie))) {
+            foreach (Tags categorie in Enum.GetValues(typeof(Tags))) {
                 sb.AppendLine($"Catégorie: {categorie}");
                 var meublesParCategorie = ObtenirMeublesParCategorie(categorie);
                 if (meublesParCategorie.Any()) {

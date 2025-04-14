@@ -2,7 +2,7 @@
 
 namespace PROJET_PIIA.Model {
     public class Meuble {
-        public Categorie? Categorie { get; } = null;
+        public List<Tags> tags { get; }
 
         private float? _prix = null;
         public float? Prix {
@@ -64,9 +64,9 @@ namespace PROJET_PIIA.Model {
             Dimensions = dim;
         }
         //Full
-        public Meuble(string nom, Categorie type, float prix, string description, string image, bool mural, (float, float) dim) {
+        public Meuble(string nom, List<Tags> tags, float prix, string description, string image, bool mural, (float, float) dim) {
             Nom = nom;
-            Categorie = type;
+            this.tags = tags ?? new List<Tags>(); 
             Prix = prix;
             Description = description;
             this.ImagePath = image;
@@ -157,7 +157,13 @@ namespace PROJET_PIIA.Model {
         }
 
         public override string ToString() {
-            return $"Meuble [Nom: {Nom}, Type: {Categorie.GetDisplayName()}, Prix: {Prix}€," +
+            string s = "[ ";
+            foreach (Tags tag in tags) {
+                s += TagExtensions.GetDisplayName(tag) + " ";
+            }
+            s += " ]";
+
+            return $"Meuble [Nom: {Nom}, Type: {s}, Prix: {Prix}€," +
                    $" Description: {Description}, Image: {ImagePath}, " +
                    $"Mural: {IsMural}, Position: {Position}, " +
                    $"Dimensions: ({Dimensions.Item1}x{Dimensions.Item2}), " +

@@ -21,7 +21,7 @@ namespace PROJET_PIIA.View {
         private ControleurMainView ctrg;
         private Panel filterPanel;
         private Button filterButton;
-        private FlowLayoutPanel categoriesPanel;
+        private FlowLayoutPanel meubleListPanel;
         private FlowLayoutPanel tagsPanel;
         private bool isFilterPanelVisible = false;
         private List<string> availableTags = new List<string>();
@@ -30,15 +30,13 @@ namespace PROJET_PIIA.View {
         private FlowLayoutPanel selectedTagsPanel;
 
         // Furniture categories and tags
-        private List<string> categories = new List<string> {
-            "Plomberie", "Plan de travail", "Électroménagers", "Meubles"
-        };
+        private List<string> categories = TagExtensions.allStrings();
 
-        private Dictionary<string, List<string>> categoryTags = new Dictionary<string, List<string>> {
-            { "Plomberie", new List<string>() },
-            { "Plan de travail", new List<string>() },
-            { "Électroménagers", new List<string>() { "Machine à laver", "Réfrigérateur" } },
-            { "Meubles", new List<string>() { "Chaise", "Table" } }
+        private Dictionary<string, List<Tags>> categoryTags = new Dictionary<string, List<Tags>> {
+            { "Machine à laver", new List<Tags>(){ Tags.Electroménager } },
+            { "Réfrigirateur", new List<Tags>(){ Tags.Electroménager } },
+            { "Chaise", new List<Tags>(){ Tags.Chaise } },
+            { "Table", new List<Tags>(){ Tags.Table } }
         };
 
         private List<string> frequentlyUsedItems = new List<string> {
@@ -394,28 +392,19 @@ namespace PROJET_PIIA.View {
         }
 
         private void InitializeSidePanelMeubles() {
-            // Initialize tag lists
+            // Init tags
             availableTags.Clear();
             selectedTags.Clear();
-
-            // Populate available tags from all categories
-            foreach (var category in categoryTags) {
-                foreach (var tag in category.Value) {
-                    if (!availableTags.Contains(tag)) {
-                        availableTags.Add(tag);
-                    }
-                }
-            }
+            availableTags = TagExtensions.allStrings();
 
             splitContainer1.Panel1.Controls.Clear();
 
-            // Create header panel with search and filter button
+            // Top bar
             Panel headerPanel = new Panel {
                 Dock = DockStyle.Top,
                 Height = 40
             };
 
-            // Add search box
             TextBox searchBox = new TextBox {
                 Width = 150,
                 Location = new Point(10, 10),
@@ -423,9 +412,8 @@ namespace PROJET_PIIA.View {
             };
             headerPanel.Controls.Add(searchBox);
 
-            // Add filter button with filter icon instead of gear
             filterButton = new Button {
-                Text = "🔍︎",  // Changed to a filter-like icon
+                Text = "🔍︎",
                 Width = 40,
                 Height = 30,
                 Location = new Point(175, 5),
@@ -436,85 +424,65 @@ namespace PROJET_PIIA.View {
 
             splitContainer1.Panel1.Controls.Add(headerPanel);
 
-            // Create and add categories panel
-            categoriesPanel = new FlowLayoutPanel {
+            // Furniture list
+            meubleListPanel = new FlowLayoutPanel {
                 Dock = DockStyle.Fill,
                 FlowDirection = FlowDirection.TopDown,
                 AutoScroll = true,
-                WrapContents = false
+                WrapContents = false,
+                Padding = new Padding(10,40 ,5 ,5),
             };
 
-            // Create category label
-            Label categoryLabel = new Label {
-                Text = "Catégorie",
-                Font = new Font("Arial", 12, FontStyle.Bold),
-                AutoSize = true,
-                Margin = new Padding(10, 40, 0, 5)
-            };
-            categoriesPanel.Controls.Add(categoryLabel);
+            foreach (string meuble in categoryTags.Keys) {
+                if (!IsMeubleVisibleWithCurrentTags(meuble)) continue;
 
-            // Add categories
-            foreach (string category in categories) {
-                Button categoryButton = new Button {
-                    Text = category,
+                Panel meublePanel = new Panel {
                     Width = 200,
-                    Height = 30,
-                    TextAlign = ContentAlignment.MiddleLeft,
-                    Margin = new Padding(10, 5, 0, 0),
+                    Height = 90,
+                    Margin = new Padding(5),
+                    BackColor = Color.WhiteSmoke,
+                };
+
+                Button meubleButton = new Button {
+                    Text = "🪑", // You can replace with real icon/image
+                    Width = 60,
+                    Height = 60,
+                    Location = new Point(10, 5),
                     FlatStyle = FlatStyle.Flat
                 };
-                categoriesPanel.Controls.Add(categoryButton);
-            }
 
-            // Add "Fréquemment utilisé" section
-            Label frequentLabel = new Label {
-                Text = "Fréquemment utilisé",
-                Font = new Font("Arial", 12, FontStyle.Bold),
-                AutoSize = true,
-                Margin = new Padding(10, 20, 0, 5)
-            };
-            categoriesPanel.Controls.Add(frequentLabel);
-
-            // Add frequently used items
-            foreach (string item in frequentlyUsedItems) {
-                Button itemButton = new Button {
-                    Text = item,
-                    Width = 200,
-                    Height = 30,
-                    TextAlign = ContentAlignment.MiddleLeft,
-                    Margin = new Padding(10, 5, 0, 0),
-                    FlatStyle = FlatStyle.Flat
+                Label nameLabel = new Label {
+                    Text = meuble,
+                    Location = new Point(80, 10),
+                    AutoSize = true,
                 };
-                categoriesPanel.Controls.Add(itemButton);
-            }
 
-            // Add "Position" section
-            Label positionLabel = new Label {
-                Text = "Position",
-                Font = new Font("Arial", 12, FontStyle.Bold),
-                AutoSize = true,
-                Margin = new Padding(10, 20, 0, 5)
-            };
-            categoriesPanel.Controls.Add(positionLabel);
-
-            // Add position options
-            foreach (string pos in positionTags) {
-                Button posButton = new Button {
-                    Text = pos,
-                    Width = 200,
+                Button starButton = new Button {
+                    Text = frequentlyUsedItems.Contains(meuble) ? "★" : "☆",
+                    Width = 30,
                     Height = 30,
-                    TextAlign = ContentAlignment.MiddleLeft,
-                    Margin = new Padding(10, 5, 0, 0),
-                    FlatStyle = FlatStyle.Flat
+                    Location = new Point(160, 50),
+                    FlatStyle = FlatStyle.Flat,
+                    Tag = meuble
                 };
-                categoriesPanel.Controls.Add(posButton);
+                starButton.Click += ToggleFavorite_Click;
+
+                meublePanel.Controls.Add(meubleButton);
+                meublePanel.Controls.Add(nameLabel);
+                meublePanel.Controls.Add(starButton);
+
+                meubleListPanel.Controls.Add(meublePanel);
             }
 
-            splitContainer1.Panel1.Controls.Add(categoriesPanel);
+            splitContainer1.Panel1.Controls.Add(meubleListPanel);
 
-            // Create filter panel (initially hidden)
-            CreateFilterPanel();
+            CreateFilterPanel(); // Keep filters
         }
+
+
+
+
+
 
         private void CreateFilterPanel() {
             filterPanel = new Panel {
@@ -542,7 +510,7 @@ namespace PROJET_PIIA.View {
             };
             backButton.Click += (sender, e) => {
                 filterPanel.Visible = false;
-                categoriesPanel.Visible = true;
+                meubleListPanel.Visible = true;
                 isFilterPanelVisible = false;
             };
             filterPanel.Controls.Add(backButton);
@@ -769,7 +737,7 @@ namespace PROJET_PIIA.View {
 
         private void FilterButton_Click(object sender, EventArgs e) {
             if (!isFilterPanelVisible) {
-                categoriesPanel.Visible = false;
+                meubleListPanel.Visible = false;
                 filterPanel.Visible = true;
                 isFilterPanelVisible = true;
 
@@ -777,7 +745,7 @@ namespace PROJET_PIIA.View {
                 UpdateTagPanelsLayout();
             } else {
                 filterPanel.Visible = false;
-                categoriesPanel.Visible = true;
+                meubleListPanel.Visible = true;
                 isFilterPanelVisible = false;
             }
         }
@@ -806,5 +774,28 @@ namespace PROJET_PIIA.View {
                 }
             }
         }
+
+        private void ToggleFavorite_Click(object sender, EventArgs e) {
+            Button btn = (Button)sender;
+            string meuble = btn.Tag.ToString();
+            if (frequentlyUsedItems.Contains(meuble)) {
+                frequentlyUsedItems.Remove(meuble);
+                btn.Text = "☆";
+            } else {
+                frequentlyUsedItems.Add(meuble);
+                btn.Text = "★";
+            }
+        }
+
+        private bool IsMeubleVisibleWithCurrentTags(string meuble) {
+            if (selectedTags.Count == 0) return true;
+
+            if (!categoryTags.ContainsKey(meuble)) return false;
+
+            var meubleTags = categoryTags[meuble].Select(tag => tag.ToString());
+            return selectedTags.All(tag => meubleTags.Contains(tag));
+        }
+
+
     }
 }
