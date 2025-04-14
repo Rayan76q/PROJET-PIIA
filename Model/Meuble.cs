@@ -76,7 +76,7 @@ namespace PROJET_PIIA.Model {
 
         // a mettre dans un controleur ?
         public bool ChevaucheMur(Murs murs) {
-            if (Position == null)
+            if (Position == new Point(-1,-1))
                 return false; // pas encore placé
 
             Point meublePos = Position;
@@ -87,11 +87,11 @@ namespace PROJET_PIIA.Model {
             float angleRad = (float)Math.Atan2(Orientation.Item2, Orientation.Item1);
 
 
-            List<Point> corners = new();
-            corners.Add(meublePos.RotatePoint((0, 0), angleRad));
-            corners.Add(meublePos.RotatePoint((largeur, 0), angleRad));
-            corners.Add(meublePos.RotatePoint((largeur, hauteur), angleRad));
-            corners.Add(meublePos.RotatePoint((0, hauteur), angleRad));
+            List<Point> corners = new List<Point>();
+            corners.Add(meublePos);
+            corners.Add(new Point((int)(meublePos.X + largeur), meublePos.Y));
+            corners.Add(new Point(meublePos.X, (int)(meublePos.Y+hauteur)  ));
+            corners.Add(new Point((int)(meublePos.X + largeur), (int)(meublePos.Y + hauteur)));
 
 
             var meubleSegments = new List<(Point, Point)>

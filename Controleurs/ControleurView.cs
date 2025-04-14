@@ -63,8 +63,9 @@ namespace PROJET_PIIA.Controleurs {
             }
         }
 
-        public void AjouterMeuble(Meuble m) {
-            this.plan.placerMeuble(m, new Point(200, 200));
+       
+        public void PlaceMeubleAtPosition(Meuble m, Point position) {
+            this.plan.placerMeuble(m, position);
         }
 
         public List<Meuble> ObtenirMeubles() {

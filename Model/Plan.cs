@@ -42,8 +42,9 @@ namespace PROJET_PIIA.Model {
             //place un meuble qui a été ajouté au plan
             bool placing = false;
 
-            if (!meubles.Contains(meuble)) {
+            if (meuble.Position == new Point(-1,-1)) {
                 meubles.Add(meuble);
+                meuble.Position = position;
                 placing = true;
             } else {
                 Point old_pos = meuble.Position;

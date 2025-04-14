@@ -399,19 +399,22 @@ namespace PROJET_PIIA.View {
                 BackColor = Color.WhiteSmoke,
             };
 
-            // Create button with furniture icon
+            // Create button with furniture icon that supports dragging
             Button meubleButton = new Button {
                 Text = "🪑", // Default furniture icon
                 Width = 60,
                 Height = 60,
                 Location = new Point(10, 5),
                 FlatStyle = FlatStyle.Flat,
-                Tag = meubleName // Store meuble name for reference
+                Tag = m // Store meuble object for reference
             };
-            // Add click handler to add the meuble to the plan
-            meubleButton.Click += (sender, e) => {
-                // Call controller to add this meuble to the plan
-                this.ctrg.AjouterMeuble(m);
+
+            // Enable button to be dragged
+            meubleButton.MouseDown += (sender, e) => {
+                if (e.Button == MouseButtons.Left) {
+                    // Start drag operation with the meuble object
+                    meubleButton.DoDragDrop(m, DragDropEffects.Copy);
+                }
             };
 
             // Create label for furniture name
