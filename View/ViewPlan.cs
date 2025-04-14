@@ -106,6 +106,17 @@ namespace PROJET_PIIA.View {
                 _lignes.Add((lastPoint, firstPoint));
                 _currentStart = null;
                 this.Invalidate();
+
+                if (_lignes.Count > 0) {List<Point> ps = new();
+                    ps.Add(_lignes[0].Start);
+                    foreach (var ligne in _lignes) {
+                        ps.Add(ligne.End);
+                    }
+
+                    ctrg.setMurs(ps);
+                    _lignes = new List<(Point Start, Point End)>();
+                }
+
             }
         }
 
@@ -171,9 +182,9 @@ namespace PROJET_PIIA.View {
                     } else if ((angle >= 67.5 && angle < 112.5) || (angle >= 247.5 && angle < 292.5)) {
                         this.Cursor = Cursors.SizeWE;
                     } else if ((angle >= 22.5 && angle < 67.5) || (angle >= 202.5 && angle < 247.5)) {
-                        this.Cursor = Cursors.SizeNWSE;
-                    } else {
                         this.Cursor = Cursors.SizeNESW;
+                    } else {
+                        this.Cursor = Cursors.SizeNWSE;
                     }
                 } else {
                     if(this.Cursor != Cursors.SizeAll) {
