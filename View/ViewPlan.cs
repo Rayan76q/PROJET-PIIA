@@ -137,7 +137,7 @@ namespace PROJET_PIIA.View {
             _mousePosition = e.Location;
 
             // Si on est en resizing, agir sur le périmètre :
-            if (_resizing && _segmentResize != null) {
+            if (_resizing && _segmentResize != null && !ctrg.ModeMeuble) {
                 Point current = ScreenToPlan(e.Location);
                 Point delta = new Point(current.X - _resizeStart.X, current.Y - _resizeStart.Y);
 
@@ -181,7 +181,7 @@ namespace PROJET_PIIA.View {
                 var ancienSegment = segmentProche;
                 segmentProche = TrouverSegmentProche(e.Location, perimetre);
 
-                if (segmentProche != null) {
+                if (segmentProche != null && !ctrg.ModeMeuble ) {
                     var (a, b) = (perimetre[segmentProche.Value], perimetre[(segmentProche.Value + 1) % perimetre.Count]);
                     float dx = b.X - a.X;
                     float dy = b.Y - a.Y;
@@ -204,7 +204,7 @@ namespace PROJET_PIIA.View {
                     
                 }
 
-                if (ancienSegment != segmentProche) {
+                if (ancienSegment != segmentProche && !ctrg.ModeMeuble ) {
                     this.Invalidate();
                 }
 
