@@ -123,6 +123,7 @@ namespace PROJET_PIIA.View {
             splitContainer1.Panel2.Controls.Add(Undo);
             splitContainer1.Panel2.Controls.Add(toggleButton);
             splitContainer1.Panel2.Paint += splitContainer1_Panel2_Paint;
+            splitContainer1.Panel1.SizeChanged += Panel1_SizeChanged;
             splitContainer1.Size = new Size(952, 389);
             splitContainer1.SplitterDistance = 229;
             splitContainer1.TabIndex = 1;
@@ -383,6 +384,42 @@ namespace PROJET_PIIA.View {
             }
         }
 
+
+        private void Panel1_SizeChanged(object sender, EventArgs e) {
+            // Force panel to redraw
+            splitContainer1.Panel1.Invalidate();
+
+            // If you have the meubleListPanel, update its items
+            if (meubleListPanel != null) {
+                foreach (Control control in meubleListPanel.Controls) {
+                    if (control is Panel meublePanel) {
+                        meublePanel.Width = meubleListPanel.ClientSize.Width - 10;
+
+                        // Reposition any anchored controls like star buttons
+                        foreach (Control c in meublePanel.Controls) {
+                            if (c is Button starButton && (starButton.Text == "★" || starButton.Text == "☆")) {
+                                starButton.Location = new Point(meublePanel.Width - 40, starButton.Location.Y);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Update filter panels if they exist
+            if (selectedTagsPanel != null) {
+                selectedTagsPanel.Width = splitContainer1.Panel1.Width - 10;
+            }
+
+            if (availableTagsPanel != null) {
+                availableTagsPanel.Width = splitContainer1.Panel1.Width - 10;
+                UpdateTagPanelsLayout();
+            }
+
+            if (filterButton != null) {
+                filterButton.Location = new Point(splitContainer1.Panel1.Width - 50, filterButton.Location.Y);
+            }
+        }
+
         private void InitializeSidePanelMurs() {
             splitContainer1.Panel1.Controls.Clear();
             splitContainer1.Panel1.Controls.Add(sdb_murs_label1);
@@ -394,9 +431,9 @@ namespace PROJET_PIIA.View {
             string meubleName = m.Nom;
             // Create panel for the meuble item
             Panel meublePanel = new Panel {
-                Width = 200,
+                Width = panel.Width,
                 Height = 90,
-                Margin = new Padding(5),
+                Margin = new Padding(2,5,10,0),
                 BackColor = Color.WhiteSmoke,
             };
 
@@ -483,9 +520,10 @@ namespace PROJET_PIIA.View {
             meubleListPanel = new FlowLayoutPanel {
                 Dock = DockStyle.Fill,
                 FlowDirection = FlowDirection.TopDown,
+                Width = splitContainer1.Panel1.Width - 20, 
                 AutoScroll = true,
                 WrapContents = false,
-                Padding = new Padding(10, 40, 5, 5),
+                Padding = new Padding(5, 40, 5, 5),
             };
 
             // Remplissage initial de la liste en fonction de la recherche (initialement vide)
