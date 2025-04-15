@@ -31,6 +31,7 @@ namespace PROJET_PIIA.View {
         private List<Meuble> selectedMeubles = new List<Meuble>();
         private FlowLayoutPanel availableTagsPanel;
         private FlowLayoutPanel selectedTagsPanel;
+        private TextBox searchBox;
 
         // Furniture categories and tags
         private List<string> categories = TagExtensions.allStrings();
@@ -445,28 +446,32 @@ namespace PROJET_PIIA.View {
         }
 
         private void InitializeSidePanelMeubles() {
-            
-
             splitContainer1.Panel1.Controls.Clear();
 
-            // Top bar
+            // Barre d'en-tête avec la zone de recherche et le bouton de filtre
             Panel headerPanel = new Panel {
                 Dock = DockStyle.Top,
                 Height = 40
             };
 
-            TextBox searchBox = new TextBox {
+            // Création de la zone de recherche
+            searchBox = new TextBox {
                 Width = 150,
                 Location = new Point(10, 10),
                 PlaceholderText = "Recherche"
             };
+
+            // À chaque modification du texte, on rafraîchit la liste
+            searchBox.TextChanged += SearchBox_TextChanged;
             headerPanel.Controls.Add(searchBox);
 
+            // Ajoutez le bouton de filtre si besoin
             filterButton = new Button {
                 Text = "🔍︎",
                 Width = 40,
                 Height = 30,
-                Location = new Point(175, 5),
+                Anchor = AnchorStyles.Right | AnchorStyles.Top,
+                Location = new Point(160, 5),
                 FlatStyle = FlatStyle.Flat
             };
             filterButton.Click += FilterButton_Click;
@@ -474,7 +479,7 @@ namespace PROJET_PIIA.View {
 
             splitContainer1.Panel1.Controls.Add(headerPanel);
 
-            // Furniture list
+            // Panel d'affichage des meubles
             meubleListPanel = new FlowLayoutPanel {
                 Dock = DockStyle.Fill,
                 FlowDirection = FlowDirection.TopDown,
@@ -483,26 +488,38 @@ namespace PROJET_PIIA.View {
                 Padding = new Padding(10, 40, 5, 5),
             };
 
-            
-           
-
-            // Add each meuble from the catalogue to the panel
-          
-            foreach (Meuble m in selectedMeubles) {
-                    // Skip if filtered out by selected tags
-                    if (!IsMeubleVisibleWithCurrentTags(m)) continue;
-
-                    // Add the meuble to the panel
-                    AddMeubleToPanel(m, meubleListPanel);
-            }
-            
-   
-
+            // Remplissage initial de la liste en fonction de la recherche (initialement vide)
+            FilterMeubles();
+            CreateFilterPanel();
             splitContainer1.Panel1.Controls.Add(meubleListPanel);
-
-            CreateFilterPanel(); // Keep filters
         }
 
+        // Méthode appelée à chaque changement dans la barre de recherche
+        private void SearchBox_TextChanged(object sender, EventArgs e) {
+            FilterMeubles();
+        }
+
+        // Méthode de rafraîchissement de la liste des meubles selon la recherche
+        private void FilterMeubles() {
+            // Vider la liste actuelle
+            meubleListPanel.Controls.Clear();
+            // Récupérer le texte de la recherche en minuscule
+            string query = searchBox.Text.Trim().ToLower();
+
+            // Parcourir tous les meubles de la collection
+            foreach (Meuble m in ctrg.catalogue.Meubles) {
+                // Appliquer les filtres éventuels sur les tags avec votre méthode existante
+                if (!IsMeubleVisibleWithCurrentTags(m))
+                    continue;
+
+                // Si une recherche est active, vérifier que le nom contient le texte
+                if (!string.IsNullOrEmpty(query) && !m.Nom.ToLower().Contains(query))
+                    continue;
+
+                // Si le meuble correspond aux critères, l'ajouter au panel
+                AddMeubleToPanel(m, meubleListPanel);
+            }
+        }
 
 
 
