@@ -515,30 +515,6 @@ namespace PROJET_PIIA.View {
                 Visible = false
             };
 
-            // Create header for filter panel
-            Label filterHeaderLabel = new Label {
-                Text = "Filtres",
-                Font = new Font("Arial", 14, FontStyle.Bold),
-                AutoSize = true,
-                Location = new Point(10, 10)
-            };
-            filterPanel.Controls.Add(filterHeaderLabel);
-
-            // Add back button
-            Button backButton = new Button {
-                Text = "←",
-                Width = 30,
-                Height = 30,
-                Location = new Point(180, 5),
-                FlatStyle = FlatStyle.Flat
-            };
-            backButton.Click += (sender, e) => {
-                filterPanel.Visible = false;
-                meubleListPanel.Visible = true;
-                isFilterPanelVisible = false;
-            };
-            filterPanel.Controls.Add(backButton);
-
             // Selected tags section with dynamic sizing
             Label selectedTagsLabel = new Label {
                 Text = "Tags sélectionnés",
@@ -548,16 +524,14 @@ namespace PROJET_PIIA.View {
             };
             filterPanel.Controls.Add(selectedTagsLabel);
 
-            // Initial minimal height when no tags are selected
-            int initialSelectedHeight = selectedTags.Count > 0 ? 80 : 40;
-
             selectedTagsPanel = new FlowLayoutPanel {
-                Location = new Point(0, 65),
-                Width = 229,
-                Height = initialSelectedHeight, // Start with a minimal height
-                FlowDirection = FlowDirection.LeftToRight, // Changed to left-to-right for grid layout
-                AutoScroll = true,
-                WrapContents = true
+                Location = new Point(5, 65),
+                Width = splitContainer1.Panel1.Width - 10, // Almost full width
+                Height = splitContainer1.Panel1.Height / 3,
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = true,
+                AutoScroll = false, // Start with no scrolling
+                Padding = new Padding(2)
             };
 
             // Add selected tags
@@ -569,18 +543,19 @@ namespace PROJET_PIIA.View {
                 Text = "Tags disponibles",
                 Font = new Font("Arial", 12, FontStyle.Bold),
                 AutoSize = true,
-                Location = new Point(10, 65 + initialSelectedHeight + 10)
+                Location = new Point(10, 65 + selectedTagsPanel.Height + 10)
             };
             filterPanel.Controls.Add(availableTagsLabel);
 
             // Position available tags panel below selected tags panel
             availableTagsPanel = new FlowLayoutPanel {
-                Location = new Point(0, 65 + initialSelectedHeight + 35),
-                Width = 229,
-                Height = 270 - initialSelectedHeight, // Adjust height based on selected tags panel
-                FlowDirection = FlowDirection.LeftToRight, // Changed to left-to-right for grid layout
-                AutoScroll = true,
-                WrapContents = true
+                Location = new Point(5, 65 + selectedTagsPanel.Height + 35),
+                Width = splitContainer1.Panel1.Width - 10, // Almost full width
+                Height = splitContainer1.Panel1.Height / 3,
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = true,
+                AutoScroll = false, // Start with no scrolling
+                Padding = new Padding(2)
             };
 
             // Add available tags to grid
@@ -588,18 +563,48 @@ namespace PROJET_PIIA.View {
             filterPanel.Controls.Add(availableTagsPanel);
 
             splitContainer1.Panel1.Controls.Add(filterPanel);
+
+            // Add resize handler to update panel widths when the form or splitter changes size
+            splitContainer1.Panel1.SizeChanged += (sender, e) => {
+                selectedTagsPanel.Width = splitContainer1.Panel1.Width - 10;
+                availableTagsPanel.Width = splitContainer1.Panel1.Width - 10;
+                UpdateTagPanelsScrolling();
+            };
+        }
+
+        // Add this method to check if scrolling is needed
+        private void UpdateTagPanelsScrolling() {
+            // For selected tags panel
+            bool needsVerticalScroll = false;
+            foreach (Control ctrl in selectedTagsPanel.Controls) {
+                if (ctrl.Bottom > selectedTagsPanel.Height) {
+                    needsVerticalScroll = true;
+                    break;
+                }
+            }
+            selectedTagsPanel.AutoScroll = needsVerticalScroll;
+
+            // For available tags panel
+            needsVerticalScroll = false;
+            foreach (Control ctrl in availableTagsPanel.Controls) {
+                if (ctrl.Bottom > availableTagsPanel.Height) {
+                    needsVerticalScroll = true;
+                    break;
+                }
+            }
+            availableTagsPanel.AutoScroll = needsVerticalScroll;
         }
 
         private void UpdateTagPanelsLayout() {
             // Calculate a reasonable height for the selected tags panel
             int selectedTagsCount = selectedTags.Count;
-            int rowHeight = 35; // Height of each tag + margin
+            int rowHeight = 40; // Height of each tag + margin
             int minRows = 1;
-            int maxRows = 4;
-            int tagsPerRow = 2; // Assuming 2 tags fit per row in the grid
+            int maxRows = 5;
+            int tagsPerRow = splitContainer1.Panel1.Width > 200 ? 3 : 2; 
 
             int rows = Math.Min(maxRows, Math.Max(minRows, (int)Math.Ceiling((double)selectedTagsCount / tagsPerRow)));
-            int selectedPanelHeight = rows * rowHeight;
+            int selectedPanelHeight = (rows+1) * rowHeight;
 
             // Update selected tags panel height
             selectedTagsPanel.Height = selectedPanelHeight;
@@ -618,14 +623,16 @@ namespace PROJET_PIIA.View {
         }
 
         private void AddTagWithRemoveButton(string tagName, FlowLayoutPanel panel) {
-            // Create a custom rounded panel for the tag with reduced width for grid layout
+            // Calculate width based on text length (min 80px, max 150px)
+            int tagWidth = Math.Max(80, Math.Min(150, TextRenderer.MeasureText(tagName, SystemFonts.DefaultFont).Width + 40));
+
             RoundedPanel tagContainer = new RoundedPanel {
-                Width = 100, // Smaller width for grid layout
+                Width = tagWidth,
                 Height = 30,
-                Margin = new Padding(5, 3, 5, 3), // Tighter margins for grid
+                Margin = new Padding(3, 5, 3, 5),
                 BackColor = Color.LightGray,
                 BorderRadius = 15,
-                Tag = tagName // Store tag name for reference
+                Tag = tagName
             };
 
             Label tagLabel = new Label {
@@ -643,7 +650,7 @@ namespace PROJET_PIIA.View {
                 FlatStyle = FlatStyle.Flat,
                 Font = new Font("Arial", 8, FontStyle.Bold),
                 BackColor = Color.Transparent,
-                Tag = tagName // Store tag name for reference
+                Tag = tagName
             };
             removeButton.FlatAppearance.BorderSize = 0;
             removeButton.Click += RemoveTag_Click;
@@ -653,23 +660,25 @@ namespace PROJET_PIIA.View {
             panel.Controls.Add(tagContainer);
         }
 
+        // Similarly update the AddTagWithAddButton method
         private void AddTagWithAddButton(string tagName, FlowLayoutPanel panel) {
-            // Create a custom rounded panel for the tag with reduced width for grid layout
+            // Calculate width based on text length (min 80px, max 150px)
+            int tagWidth = Math.Max(80, Math.Min(150, TextRenderer.MeasureText(tagName, SystemFonts.DefaultFont).Width + 40));
+
             RoundedPanel tagContainer = new RoundedPanel {
-                Width = 100, // Smaller width for grid layout
+                Width = tagWidth,
                 Height = 30,
-                Margin = new Padding(5, 3, 5, 3), // Tighter margins for grid
+                Margin = new Padding(3, 5, 3, 5),
                 BackColor = Color.LightGray,
                 BorderRadius = 15,
-                Tag = tagName // Store tag name for reference
+                Tag = tagName
             };
 
             Label tagLabel = new Label {
                 Text = tagName,
                 AutoSize = true,
                 Location = new Point(10, 7),
-                BackColor = Color.Transparent,
-                MaximumSize = new Size(70, 20) // Limit label width to prevent overflow
+                BackColor = Color.Transparent
             };
 
             Button addButton = new Button {
@@ -680,7 +689,7 @@ namespace PROJET_PIIA.View {
                 FlatStyle = FlatStyle.Flat,
                 Font = new Font("Arial", 8, FontStyle.Bold),
                 BackColor = Color.Transparent,
-                Tag = tagName // Store tag name for reference
+                Tag = tagName
             };
             addButton.FlatAppearance.BorderSize = 0;
             addButton.Click += AddTag_Click;
@@ -729,6 +738,7 @@ namespace PROJET_PIIA.View {
         private void RefreshTagPanels() {
             RefreshSelectedTagsPanel();
             RefreshAvailableTagsPanel();
+            UpdateTagPanelsScrolling(); // Check if scrolling is needed
         }
 
         private void RefreshSelectedTagsPanel() {
