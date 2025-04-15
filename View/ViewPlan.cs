@@ -3,10 +3,6 @@ using System.Drawing.Drawing2D;
 using PROJET_PIIA.Controleurs;
 using PROJET_PIIA.Extensions;
 using PROJET_PIIA.Model;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
 
 namespace PROJET_PIIA.View {
     public partial class PlanView : UserControl {
@@ -35,6 +31,21 @@ namespace PROJET_PIIA.View {
 
         private Dictionary<string, Image> _imageCache = new Dictionary<string, Image>();
 
+        // Carousel properties
+        private bool _showCarousel = false;
+        private Point _carouselPosition = Point.Empty;
+        private List<CarouselOption> _carouselOptions = new List<CarouselOption>();
+        private int _selectedOptionIndex = -1;
+        private bool _wallSelected = false;
+        private int? _selectedWallIndex = null;
+        // New fields to support free-form rotation.
+        private bool _rotating = false;
+        private float _initialMouseAngle = 0f;  // The angle from the meuble's center to the mouse at rotation start.
+
+
+        // Custom cursor
+        private Cursor _greenCursor = null;
+
         public PlanView(ControleurMainView ctrg) {
             this.DoubleBuffered = true;
             this.Dock = DockStyle.Fill;
@@ -43,6 +54,7 @@ namespace PROJET_PIIA.View {
             this.MouseDown += PlanView_MouseDown;
             this.MouseMove += PlanView_MouseMove;
             this.MouseUp += PlanView_MouseUp;
+            this.MouseClick += PlanView_MouseClick;
 
             // Enable drag and drop
             this.AllowDrop = true;
@@ -54,15 +66,238 @@ namespace PROJET_PIIA.View {
             ctrg.ModeChanged += OnModeChanged;
             ctrg.PerimeterChanged += OnMurChanged;
             LoadImages("images");
+            InitializeCarouselOptions();
+            CreateGreenCursor();
+            this.Invalidate();
+        }
+
+        private void CenterCursorOnSelectedMeuble() {
+            //centre le curseur avant déplacement
+            int centerX = (int)(_selectedMeuble.Position.X + _selectedMeuble.Dimensions.Item1 / 2);
+            int centerY = (int)(_selectedMeuble.Position.Y + _selectedMeuble.Dimensions.Item2 / 2);
+
+            // Convert to screen coordinates
+            Point screenPoint = PointToScreen(new Point(centerX, centerY));
+
+            // Move the cursor
+            Cursor.Position = screenPoint;
+            _mousePosition = new Point(centerX, centerY);
+
+
+            Point planPoint = ScreenToPlan(_mousePosition);
+            _meubleOffset = new Point(planPoint.X - _selectedMeuble.Position.X,
+                                   planPoint.Y - _selectedMeuble.Position.Y);
+        }
+        
+
+        // Initialize carousel options with icons
+        private void InitializeCarouselOptions() {
+            _carouselOptions = new List<CarouselOption>
+            {
+                new CarouselOption("déplacer", GetMoveIcon(), (sender, e) => {
+                    if (_wallSelected)
+                    {
+                        // Start wall resize logic
+                        _resizing = true;
+                        _segmentResize = _selectedWallIndex;
+                        _resizeStart = ScreenToPlan(_mousePosition);
+                    }
+                    else if (_selectedMeuble != null)
+                    {
+
+                        CenterCursorOnSelectedMeuble();
+                         _movingMeuble = true;
+                        this.Cursor = Cursors.SizeAll;
+                    }
+                    HideCarousel();
+                }),
+                new CarouselOption("tourner", GetRotateIcon(), (sender, e) => {
+                    if (_selectedMeuble != null)
+                    {
+                        CenterCursorOnSelectedMeuble();
+                       
+                        _rotating = true;
+                        // Determine the center (in plan coordinates) of the selected meuble.
+                        int centerX = (int)(_selectedMeuble.Position.X + _selectedMeuble.Dimensions.Item1 / 2);
+                        int centerY = (int)(_selectedMeuble.Position.Y + _selectedMeuble.Dimensions.Item2 / 2);
+
+                        Point center = new Point(centerX, centerY);
+                        // Convert the current mouse position (in screen coordinates) to plan coordinates.
+                        Point planMouse = ScreenToPlan(_mousePosition);
+                        
+ 
+                        HideCarousel();
+                        this.Cursor = Cursors.PanSE;                 }
+                }),
+
+
+
+                new CarouselOption("supprimer", GetDeleteIcon(), (sender, e) => {
+                    if (_wallSelected && _selectedWallIndex.HasValue && ctrg.CanModifyWalls())
+                    {
+                        // Delete the wall segment
+                        List<Point> perimetre = ctrg.ObtenirPerimetre();
+                        if (perimetre.Count > 3) // Ensure we don't delete too many points
+                        {
+                            perimetre.RemoveAt(_selectedWallIndex.Value);
+                            ctrg.UpdatePerimetre(perimetre);
+                        }
+                    }
+                    else if (_selectedMeuble != null)
+                    {
+                        // Remove the meuble
+                        ctrg.plan.supprimerMeuble(_selectedMeuble);
+                        _selectedMeuble = null;
+                    }
+                    HideCarousel();
+                })
+            };
+        }
+
+        // Create a green cursor for hover effects
+        private void CreateGreenCursor() {
+            try {
+                Bitmap bmp = new Bitmap(32, 32);
+                using (Graphics g = Graphics.FromImage(bmp)) {
+                    g.Clear(Color.Transparent);
+                    using (Brush brush = new SolidBrush(Color.FromArgb(150, 0, 200, 0))) {
+                        g.FillEllipse(brush, 0, 0, 16, 16);
+                    }
+                    g.DrawEllipse(Pens.Green, 0, 0, 16, 16);
+                }
+                _greenCursor = new Cursor(bmp.GetHicon());
+            } catch (Exception ex) {
+                Debug.WriteLine("Failed to create custom cursor: " + ex.Message);
+                _greenCursor = Cursors.Hand; // Fallback
+            }
+        }
+
+        private Image GetMoveIcon() {
+            // Create a move icon (four directional arrows)
+            Bitmap icon = new Bitmap(32, 32);
+            using (Graphics g = Graphics.FromImage(icon)) {
+                g.Clear(Color.Transparent);
+                using (Pen pen = new Pen(Color.Black, 2)) {
+                    // Draw arrows in four directions
+                    // Up arrow
+                    g.DrawLine(pen, 16, 4, 16, 28);
+                    g.DrawLine(pen, 16, 4, 10, 10);
+                    g.DrawLine(pen, 16, 4, 22, 10);
+
+                    // Left-right arrow
+                    g.DrawLine(pen, 4, 16, 28, 16);
+                    g.DrawLine(pen, 4, 16, 10, 10);
+                    g.DrawLine(pen, 4, 16, 10, 22);
+                    g.DrawLine(pen, 28, 16, 22, 10);
+                    g.DrawLine(pen, 28, 16, 22, 22);
+                }
+            }
+            return icon;
+        }
+
+        private Image GetRotateIcon() {
+            // Create a rotate icon (circular arrow)
+            Bitmap icon = new Bitmap(32, 32);
+            using (Graphics g = Graphics.FromImage(icon)) {
+                g.Clear(Color.Transparent);
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                using (Pen pen = new Pen(Color.Black, 2)) {
+                    // Draw circular arrow
+                    g.DrawArc(pen, 6, 6, 20, 20, 0, 270);
+                    // Draw arrow head
+                    g.DrawLine(pen, 26, 16, 26, 8);
+                    g.DrawLine(pen, 26, 8, 20, 12);
+                }
+            }
+            return icon;
+        }
+
+        private Image GetDeleteIcon() {
+            // Create a delete icon (trash can)
+            Bitmap icon = new Bitmap(32, 32);
+            using (Graphics g = Graphics.FromImage(icon)) {
+                g.Clear(Color.Transparent);
+                using (Pen pen = new Pen(Color.Black, 2)) {
+                    // Draw trash can
+                    g.DrawRectangle(pen, 10, 10, 12, 16);
+                    g.DrawLine(pen, 8, 10, 24, 10);
+                    g.DrawLine(pen, 14, 10, 14, 6);
+                    g.DrawLine(pen, 18, 10, 18, 6);
+                    g.DrawLine(pen, 14, 6, 18, 6);
+
+                    // Draw lines inside trash
+                    g.DrawLine(pen, 13, 14, 13, 22);
+                    g.DrawLine(pen, 16, 14, 16, 22);
+                    g.DrawLine(pen, 19, 14, 19, 22);
+                }
+            }
+            return icon;
+        }
+
+        // Show the carousel at the specified position
+        private void ShowCarousel(Point position, bool isWall = false, int? wallIndex = null) {
+            _showCarousel = true;
+            _carouselPosition = position;
+            _wallSelected = isWall;
+            _selectedWallIndex = wallIndex;
+
+            // If it's a wall, remove rotation option
+            if (isWall) {
+                _carouselOptions.ForEach(opt => opt.Visible = opt.Name != "tourner");
+            } else {
+                _carouselOptions.ForEach(opt => opt.Visible = true);
+            }
+
+            this.Invalidate();
+        }
+
+        // Hide the carousel
+        private void HideCarousel() {
+            _showCarousel = false;
+            _selectedOptionIndex = -1;
             this.Invalidate();
         }
 
         private void OnModeChanged() {
+            HideCarousel();
             this.Invalidate();
         }
 
         private void OnMurChanged() {
+            HideCarousel();
             this.Invalidate();
+        }
+
+        // Mouse click handler for carousel interaction
+        private void PlanView_MouseClick(object sender, MouseEventArgs e) {
+            if (e.Button == MouseButtons.Right) {
+                if (_movingMeuble || _rotating || _resizing) {
+                    // If we are moving or rotating a meuble, ignore right-click
+                    _movingMeuble = false;
+                    _rotating = false;
+                    _resizing = false;
+                    _selectedMeuble = null;
+                    return;
+                }
+
+                // Check if an option was clicked
+                for (int i = 0; i < _carouselOptions.Count; i++) {
+                    if (!_carouselOptions[i].Visible) continue;
+
+                    Rectangle optionRect = GetOptionRectangle(i);
+                    if (optionRect.Contains(e.Location)) {
+                        _carouselOptions[i].OnClick?.Invoke(this, e);
+                        return;
+                    }
+                }
+            }
+            
+
+            // If click outside carousel, hide it
+            if (!GetCarouselRectangle().Contains(e.Location)) {
+                HideCarousel();
+            }
+
         }
 
         // Handle drag operations
@@ -82,25 +317,23 @@ namespace PROJET_PIIA.View {
 
         private void PlanView_DragDrop(object sender, DragEventArgs e) {
             if (e.Data.GetDataPresent(typeof(Meuble))) {
-                // Get the meuble from the drag data
                 Meuble meuble = (Meuble)e.Data.GetData(typeof(Meuble));
-
-                // Convert screen coordinates to client coordinates
                 Point clientPoint = this.PointToClient(new Point(e.X, e.Y));
-
-                // Convert to plan coordinates
                 Point planPoint = ScreenToPlan(clientPoint);
-               
-                // Place the meuble in the plan
-                this.ctrg.plan.placerMeuble(meuble, planPoint);
 
-                // Redraw
+                // Place TOP-LEFT corner at mouse position (no offset)
+                ctrg.plan.placerMeuble(meuble, planPoint);
                 this.Invalidate();
             }
         }
 
         private void PlanView_MouseUp(object sender, MouseEventArgs e) {
             if (e.Button == MouseButtons.Left) {
+                if (_rotating) {
+                    _rotating = false;
+                    _initialMouseAngle = 0f; 
+                    _selectedMeuble = null;
+                }
                 if (_resizing) {
                     _resizing = false;
                     _segmentResize = null;
@@ -118,6 +351,11 @@ namespace PROJET_PIIA.View {
 
         private void PlanView_MouseDown(object sender, MouseEventArgs e) {
             if (e.Button == MouseButtons.Left) {
+                if (_showCarousel) {
+                    // If carousel is shown, we handle it in MouseClick
+                    return;
+                }
+
                 if (ctrg.ModeEdition == PlanMode.Deplacement) {
                     // Check if we clicked on a meuble first
                     Point planPoint = ScreenToPlan(e.Location);
@@ -125,20 +363,14 @@ namespace PROJET_PIIA.View {
 
                     if (clickedMeuble != null) {
                         _selectedMeuble = clickedMeuble;
-                        _movingMeuble = true;
-                        _meubleOffset = new Point(planPoint.X - clickedMeuble.Position.X,
-                                                planPoint.Y - clickedMeuble.Position.Y);
-                        this.Cursor = Cursors.Hand;
-                        return; // Early exit so no other action is taken
+                        ShowCarousel(e.Location);
+                        return; // Early exit to show carousel
                     }
 
-                    // If a segment is close to the cursor, initiate resizing.
+                    // If a segment is close to the cursor, show carousel for wall
                     if (segmentProche != null && ctrg.CanModifyWalls()) {
-                        _resizing = true;
-                        _segmentResize = segmentProche;
-                        _resizeStart = ScreenToPlan(e.Location);
-                        // Optionally update the cursor here for resizing feedback.
-                        return; // Early exit so that no dragging occurs.
+                        ShowCarousel(e.Location, true, segmentProche);
+                        return; // Early exit to show carousel
                     } else {
                         // No segment detected, so start dragging (panning) the view.
                         _dragging = true;
@@ -182,6 +414,61 @@ namespace PROJET_PIIA.View {
 
         private void PlanView_MouseMove(object sender, MouseEventArgs e) {
             _mousePosition = e.Location;
+
+            // If in rotation mode, update the rotation continuously.
+
+            // In PlanView_MouseMove method, modify the rotation section:
+            if (_rotating && _selectedMeuble != null) {
+                int centerX = (int)(_selectedMeuble.Position.X + _selectedMeuble.Dimensions.Item1 / 2);
+                int centerY = (int)(_selectedMeuble.Position.Y + _selectedMeuble.Dimensions.Item2 / 2);
+                Point center = new Point(centerX, centerY);
+                Point planMouse = ScreenToPlan(e.Location);
+
+                // Calculate angles in radians first
+                float currentMouseAngleRad = (float)Math.Atan2(
+                    planMouse.Y - center.Y,
+                    planMouse.X - center.X
+                );
+
+                // Only set initial angle on first movement
+                if (_initialMouseAngle == 0f && !float.IsNaN(currentMouseAngleRad)) {
+                    _initialMouseAngle = currentMouseAngleRad;
+                }
+
+                // Calculate delta in radians
+                float deltaAngleRad = currentMouseAngleRad - _initialMouseAngle;
+
+                // Convert to degrees and apply rotation
+                float deltaAngleDeg = deltaAngleRad * (180f / (float)Math.PI);
+                _selectedMeuble.tourner(deltaAngleDeg);
+
+                // Reset initial angle for next frame
+                _initialMouseAngle = currentMouseAngleRad;
+
+                this.Invalidate();
+                return;
+            }
+
+            // If carousel is shown, check for hover on options
+            if (_showCarousel) {
+                int oldIndex = _selectedOptionIndex;
+                _selectedOptionIndex = -1;
+
+                for (int i = 0; i < _carouselOptions.Count; i++) {
+                    if (!_carouselOptions[i].Visible) continue;
+
+                    Rectangle optRect = GetOptionRectangle(i);
+                    if (optRect.Contains(e.Location)) {
+                        _selectedOptionIndex = i;
+                        break;
+                    }
+                }
+
+                if (oldIndex != _selectedOptionIndex) {
+                    this.Invalidate();
+                }
+                return;
+            }
 
             // Moving a meuble takes priority
             if (_movingMeuble && _selectedMeuble != null) {
@@ -244,36 +531,32 @@ namespace PROJET_PIIA.View {
 
             // Sinon, traiter la détection de segment et le déplacement de la vue si nécessaire
             if (ctrg.ModeEdition == PlanMode.Deplacement) {
-                // Détection du segment proche pour changement de curseur
-                var perimetre = ctrg.ObtenirPerimetre();
-                var ancienSegment = segmentProche;
-                segmentProche = TrouverSegmentProche(e.Location, perimetre);
+                // Check if mouse is over a wall or meuble for the green cursor
+                bool isOverElement = false;
 
-                if (segmentProche != null && !ctrg.ModeMeuble) {
-                    var (a, b) = (perimetre[segmentProche.Value], perimetre[(segmentProche.Value + 1) % perimetre.Count]);
-                    float dx = b.X - a.X;
-                    float dy = b.Y - a.Y;
-                    double angle = Math.Atan2(dy, dx) * 180 / Math.PI;
-                    angle = (angle + 360) % 360;
-
-                    if ((angle >= 337.5 || angle < 22.5) || (angle >= 157.5 && angle < 202.5)) {
-                        this.Cursor = Cursors.SizeNS;
-                    } else if ((angle >= 67.5 && angle < 112.5) || (angle >= 247.5 && angle < 292.5)) {
-                        this.Cursor = Cursors.SizeWE;
-                    } else if ((angle >= 22.5 && angle < 67.5) || (angle >= 202.5 && angle < 247.5)) {
-                        this.Cursor = Cursors.SizeNESW;
-                    } else {
-                        this.Cursor = Cursors.SizeNWSE;
-                    }
+                // Check if mouse is over a meuble
+                Point planPoint = ScreenToPlan(e.Location);
+                Meuble hoverMeuble = FindMeubleAtPoint(planPoint);
+                if (hoverMeuble != null) {
+                    this.Cursor = _greenCursor;
+                    isOverElement = true;
                 } else {
-                    if (this.Cursor != Cursors.SizeAll && this.Cursor != Cursors.Hand) {
+                    // Détection du segment proche pour changement de curseur
+                    var perimetre = ctrg.ObtenirPerimetre();
+                    var ancienSegment = segmentProche;
+                    segmentProche = TrouverSegmentProche(e.Location, perimetre);
+
+                    if (segmentProche != null && !ctrg.ModeMeuble) {
+                        // Use the green cursor when over a wall
+                        this.Cursor = _greenCursor;
+                        isOverElement = true;
+                    } else if (this.Cursor != Cursors.SizeAll && this.Cursor != Cursors.Hand && !isOverElement) {
                         this.Cursor = Cursors.Default;
                     }
 
-                }
-
-                if (ancienSegment != segmentProche && !ctrg.ModeMeuble) {
-                    this.Invalidate();
+                    if (ancienSegment != segmentProche && !ctrg.ModeMeuble) {
+                        this.Invalidate();
+                    }
                 }
 
                 // Déplacement de la vue si l'utilisateur fait un drag classique (et pas resizing)
@@ -310,14 +593,11 @@ namespace PROJET_PIIA.View {
 
         // Helper method to check if a point is inside a meuble
         private bool IsPointInMeuble(Point point, Meuble meuble) {
-            float halfWidth = meuble.Dimensions.Item1 / 2;
-            float halfHeight = meuble.Dimensions.Item2 / 2;
-
-            // Simple bounding box check for now - we could enhance with rotation later
-            return point.X >= meuble.Position.X - halfWidth &&
-                   point.X <= meuble.Position.X + halfWidth &&
-                   point.Y >= meuble.Position.Y - halfHeight &&
-                   point.Y <= meuble.Position.Y + halfHeight;
+            // Check against TOP-LEFT based bounding box
+            return point.X >= meuble.Position.X &&
+                   point.X <= meuble.Position.X + meuble.Dimensions.Item1 &&
+                   point.Y >= meuble.Position.Y &&
+                   point.Y <= meuble.Position.Y + meuble.Dimensions.Item2;
         }
 
         // Check if a meuble collides with walls or other meubles
@@ -359,7 +639,7 @@ namespace PROJET_PIIA.View {
                 List<Point> p = ctrg.ObtenirPerimetre();
                 Point p1 = p[segmentProche.Value];
                 Point p2 = p[(segmentProche.Value + 1) % p.Count];
-                g.DrawLine(new Pen(Color.Red, 3), PlanToScreen(p1), PlanToScreen(p2));
+                g.DrawLine(new Pen(Color.Green, 3), PlanToScreen(p1), PlanToScreen(p2));
             }
 
             List<Point> points = ctrg.ObtenirPerimetre();
@@ -373,6 +653,90 @@ namespace PROJET_PIIA.View {
 
             // Draw meubles
             DrawMeubles(g);
+
+            // Draw carousel if needed
+            if (_showCarousel) {
+                DrawCarousel(g);
+            }
+        }
+
+        // Draw the carousel of options
+        private void DrawCarousel(Graphics g) {
+            // Ensure smooth shapes
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Get overall carousel area
+            Rectangle carouselRect = GetCarouselRectangle();
+
+            // Draw the carousel background
+            using (Brush bgBrush = new SolidBrush(Color.FromArgb(230, 240, 240, 240))) {
+                g.FillEllipse(bgBrush, carouselRect);
+            }
+            g.DrawEllipse(Pens.Gray, carouselRect);
+
+            // Count visible options
+            int visibleCount = _carouselOptions.Count(o => o.Visible);
+
+            // Draw each option
+            int optionIndex = 0;
+            foreach (var option in _carouselOptions) {
+                if (!option.Visible) continue;
+
+                // Calculate position
+                Rectangle optRect = GetOptionRectangle(optionIndex);
+
+                // Draw option background (highlight if selected)
+                using (Brush optBrush = new SolidBrush(_selectedOptionIndex == optionIndex ?
+                                                      Color.FromArgb(200, 200, 255) :
+                                                      Color.FromArgb(200, 250, 250, 250))) {
+                    g.FillEllipse(optBrush, optRect);
+                }
+                g.DrawEllipse(Pens.DarkGray, optRect);
+
+                // Draw icon
+                if (option.Icon != null) {
+                    g.DrawImage(option.Icon,
+                               optRect.X + (optRect.Width - option.Icon.Width) / 2,
+                               optRect.Y + (optRect.Height - option.Icon.Height) / 2);
+                }
+
+                // Draw text below
+                using (Font font = new Font("Arial", 9))
+                using (Brush textBrush = new SolidBrush(Color.Black))
+                using (StringFormat sf = new StringFormat { Alignment = StringAlignment.Center }) {
+                    g.DrawString(option.Name, font, textBrush,
+                                new RectangleF(optRect.X, optRect.Bottom + 2, optRect.Width, 20),
+                                sf);
+                }
+
+                optionIndex++;
+            }
+        }
+
+        // Get the overall carousel rectangle
+        private Rectangle GetCarouselRectangle() {
+            int carouselSize = 180;
+            return new Rectangle(
+                _carouselPosition.X - carouselSize / 2,
+                _carouselPosition.Y - carouselSize / 2,
+                carouselSize, carouselSize);
+        }
+
+        // Get rectangle for a specific option
+        private Rectangle GetOptionRectangle(int index) {
+            // Count visible options
+            int visibleCount = _carouselOptions.Count(o => o.Visible);
+            if (visibleCount == 0) return Rectangle.Empty;
+
+            // Calculate position on circle
+            double angle = 2 * Math.PI * index / visibleCount;
+            int radius = 60;
+            int optionSize = 40;
+
+            int x = _carouselPosition.X + (int)(radius * Math.Cos(angle)) - optionSize / 2;
+            int y = _carouselPosition.Y + (int)(radius * Math.Sin(angle)) - optionSize / 2;
+
+            return new Rectangle(x, y, optionSize, optionSize);
         }
 
         // Method to draw all meubles from the controller
@@ -383,96 +747,75 @@ namespace PROJET_PIIA.View {
             foreach (var meuble in meubles) {
                 // Check if this is the selected meuble with a collision
                 bool isColliding = _selectedMeuble == meuble && _collisionDetected;
-                DrawMeuble(g, meuble, isColliding);
+                bool isSelected = _selectedMeuble == meuble;
+                DrawMeuble(g, meuble, isColliding, isSelected);
             }
         }
 
         // Method to draw a single meuble
-        private void DrawMeuble(Graphics g, Meuble meuble, bool isColliding = false) {
-            // Skip if meuble is null or has no position
+        private void DrawMeuble(Graphics g, Meuble meuble, bool isColliding = false, bool isSelected = false) {
             if (meuble == null) return;
 
+            // Get dimensions and define colors for fill/outline.
             (float width, float height) = meuble.Dimensions;
+            Color meubleColor = isColliding ? Color.Red : (isSelected ? Color.LightGreen : Color.LightBlue);
+            using Brush meubleBrush = new SolidBrush(meubleColor);
+            using Pen meublePen = new Pen(isColliding ? Color.DarkRed : (isSelected ? Color.Green : Color.Blue), 2);
 
-            // Get screen position from plan position
+            // Compute the center point (screen coordinates).
             Point screenPos = PlanToScreen(meuble.Position);
 
-            // Color for meuble outline or fill - red if colliding
-            Color meubleColor = isColliding ? Color.Red : Color.LightBlue;
-            Brush meubleBrush = new SolidBrush(meubleColor);
-            Pen meublePen = new Pen(isColliding ? Color.DarkRed : Color.Blue, 2);
+            // Calculate center for rotation (still rotates around center)
+            float centerX = screenPos.X + (meuble.Dimensions.Item1 / 2);
+            float centerY = screenPos.Y + (meuble.Dimensions.Item2 / 2);
 
-            // If meuble has an image path, draw the image
+            float angle = meuble.getAngle();
+            // Apply transformation to CENTER (for rotation)
+            g.TranslateTransform(centerX, centerY);
+            g.RotateTransform(angle);
+
+            // Draw from TOP-LEFT relative to rotation center
+            float drawX = -meuble.Dimensions.Item1 / 2;
+            float drawY = -meuble.Dimensions.Item2 / 2;
+
+           
             if (!string.IsNullOrEmpty(meuble.ImagePath)) {
                 try {
-                    // Load image from cache or from file
+                    // Load the image from cache or file.
                     Image img = GetCachedImage(meuble.ImagePath);
+                    // Draw the image centered at the origin.
+                    g.DrawImage(img, -width / 2, -height / 2, width, height);
 
-                    // Apply rotation if needed
-                    float orientation = (float)Math.Tan(meuble.Orientation.Item2 / meuble.Orientation.Item1);
-
-                    if (orientation != 0) {
-                        // Save current state
-                        Matrix oldMatrix = g.Transform;
-
-                        // Create a new matrix for rotation
-                        Matrix rotationMatrix = new Matrix();
-                        rotationMatrix.RotateAt(orientation, new PointF(screenPos.X, screenPos.Y));
-                        g.Transform = rotationMatrix;
-
-                        // Draw rotated image
-                        g.DrawImage(img, screenPos.X - width / 2, screenPos.Y - height / 2, width, height);
-
-                        // Draw red outline if colliding
-                        if (isColliding) {
-                            g.DrawRectangle(meublePen, screenPos.X - width / 2, screenPos.Y - height / 2, width, height);
-                        }
-
-                        // Restore original transformation
-                        g.Transform = oldMatrix;
-                    } else {
-                        // Draw image normally
-                        g.DrawImage(img, screenPos.X - width / 2, screenPos.Y - height / 2, width, height);
-
-                        // Draw red outline if colliding
-                        if (isColliding) {
-                            g.DrawRectangle(meublePen, screenPos.X - width / 2, screenPos.Y - height / 2, width, height);
-                        }
+                    // Draw an outline if needed.
+                    if (isColliding || isSelected) {
+                        g.DrawRectangle(meublePen, -width / 2, -height / 2, width, height);
                     }
                 } catch (Exception ex) {
-                    // If image loading fails, draw a placeholder rectangle
-                    using (Brush brush = new SolidBrush(isColliding ? Color.Red : Color.LightGray)) {
-                        g.FillRectangle(brush, screenPos.X - width / 2, screenPos.Y - height / 2,
-                                       width, height);
+                    // In case of image-loading error, draw a placeholder.
+                    using (Brush errorBrush = new SolidBrush(isColliding ? Color.Red : (isSelected ? Color.LightGreen : Color.LightGray))) {
+                        g.FillRectangle(errorBrush, -width / 2, -height / 2, width, height);
                     }
-
-                    // Draw a text indicating image error
                     using (Font font = new Font("Arial", 8)) {
-                        g.DrawString("Image Error", font, Brushes.Red, screenPos.X - 30, screenPos.Y);
+                        g.DrawString("Image Error", font, Brushes.Red, -30, 0);
                     }
-
                     Debug.WriteLine($"Error loading image for meuble: {ex.Message}");
                 }
             } else {
-                // If no image path, draw a simple rectangle representation
-                using (Brush brush = meubleBrush) {
-                    g.FillRectangle(brush, screenPos.X - width / 2, screenPos.Y - height / 2,
-                                   width, height);
-                }
-
-                // Add a border
-                g.DrawRectangle(meublePen, screenPos.X - width / 2, screenPos.Y - height / 2,
-                               width, height);
+                // No image provided: Draw a rotated rectangle.
+                g.FillRectangle(meubleBrush, drawX, drawY, meuble.Dimensions.Item1, meuble.Dimensions.Item2);
             }
 
-            // Optionally, draw the name or type of the meuble
+            // Reset the transformation so that subsequent drawing (like text) is unrotated.
+            g.ResetTransform();
+
+            // Optionally, draw the meuble name above it.
             if (!string.IsNullOrEmpty(meuble.Nom)) {
                 using (Font font = new Font("Arial", 8)) {
-                    g.DrawString(meuble.Nom, font, Brushes.Black,
-                                 screenPos.X - width / 2, screenPos.Y - height / 2 - 15);
+                    g.DrawString(meuble.Nom, font, Brushes.Black, screenPos.X - width / 2, screenPos.Y - height / 2 - 15);
                 }
             }
         }
+
 
         // Method to get image from cache or load it from file
         private Image GetCachedImage(string imagePath) {
@@ -499,13 +842,18 @@ namespace PROJET_PIIA.View {
         protected override void Dispose(bool disposing) {
             if (disposing) {
                 ClearImageCache();
+                _greenCursor?.Dispose();
+
+                // Dispose option icons
+                foreach (var option in _carouselOptions) {
+                    option.Icon?.Dispose();
+                }
             }
             base.Dispose(disposing);
         }
+
         private Point PlanToScreen(Point p) => new Point(p.X + _offset.X, p.Y + _offset.Y);
         private Point ScreenToPlan(Point p) => new Point(p.X - _offset.X, p.Y - _offset.Y);
-
-
 
         private int? TrouverSegmentProche(Point souris, List<Point> perimetre) {
             Point sourisPlan = ScreenToPlan(souris);
@@ -560,6 +908,20 @@ namespace PROJET_PIIA.View {
 
         public Image GetImage(string key) {
             return _imageCache.TryGetValue(key, out var img) ? img : null;
+        }
+    }
+
+    // Class to represent a carousel option
+    public class CarouselOption {
+        public string Name { get; set; }
+        public Image Icon { get; set; }
+        public EventHandler OnClick { get; set; }
+        public bool Visible { get; set; } = true;
+
+        public CarouselOption(string name, Image icon, EventHandler onClick) {
+            Name = name;
+            Icon = icon;
+            OnClick = onClick;
         }
     }
 }

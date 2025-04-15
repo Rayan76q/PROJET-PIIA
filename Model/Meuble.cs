@@ -42,10 +42,16 @@ namespace PROJET_PIIA.Model {
             set => _dimensions = IsValidPositive(value.Item1) && IsValidPositive(value.Item2) ? value : _dimensions;
         }
 
-        private (float, float) _orientation = (0, 0);
+        private (float, float) _orientation = (1, 0);
         public (float, float) Orientation {
             get => _orientation;
-            set => _orientation = IsValidPositive(value.Item1) && IsValidPositive(value.Item2) ? value : _orientation;
+            set {
+                // Add vector magnitude check
+                float magnitude = (float)Math.Sqrt(value.Item1 * value.Item1 + value.Item2 * value.Item2);
+                if (magnitude > 0.9f && magnitude < 1.1f) { // Allow slight floating point imprecision
+                    _orientation = value;
+                }
+            }
         }
 
         // en vrai je ne comprends pas à  100% de creer plusieurs attribut qui en englobe un
@@ -87,11 +93,12 @@ namespace PROJET_PIIA.Model {
             float angleRad = (float)Math.Atan2(Orientation.Item2, Orientation.Item1);
 
 
-            List<Point> corners = new List<Point>();
-            corners.Add(meublePos);
-            corners.Add(new Point((int)(meublePos.X + largeur), meublePos.Y));
-            corners.Add(new Point(meublePos.X, (int)(meublePos.Y+hauteur)  ));
-            corners.Add(new Point((int)(meublePos.X + largeur), (int)(meublePos.Y + hauteur)));
+            List<Point> corners = new List<Point> {
+            meublePos, // Top-left
+            new Point((int)(meublePos.X + largeur), meublePos.Y), // Top-right
+            new Point((int)(meublePos.X + largeur), (int)(meublePos.Y + hauteur)), // Bottom-right
+            new Point(meublePos.X, (int)(meublePos.Y + hauteur)) // Bottom-left
+         };
 
 
             var meubleSegments = new List<(Point, Point)>
@@ -143,14 +150,51 @@ namespace PROJET_PIIA.Model {
         }
 
         // a mettre dans un controleur ?
-        public void tourner(float angle) {
-            if (angle >= 0 && angle <= 360) {
-                float angleRad = (float)(angle * Math.PI / 180);
-                Orientation = ((float)Math.Cos(angleRad), (float)Math.Sin(angleRad));
-            } else {
-                throw new ArgumentException("L'angle doit être entre 0 et 360 degrés.");
+        // In the Meuble.cs file, modify the tourner method:
+        public void tourner(float deltaAngleDegrees) {
+            float deltaAngleRad = deltaAngleDegrees * (float)Math.PI / 180f;
+
+            // Get current orientation with fallback to (1,0)
+            float ox = Orientation.Item1;
+            float oy = Orientation.Item2;
+
+            // Handle zero-vector edge case
+            if (Math.Abs(ox) < 0.001f && Math.Abs(oy) < 0.001f) {
+                ox = 1;
+                oy = 0;
             }
+
+            // Apply rotation matrix
+            float cos = (float)Math.Cos(deltaAngleRad);
+            float sin = (float)Math.Sin(deltaAngleRad);
+
+            float newX = ox * cos - oy * sin;
+            float newY = ox * sin + oy * cos;
+
+            // Normalize vector
+            float magnitude = (float)Math.Sqrt(newX * newX + newY * newY);
+            newX /= magnitude;
+            newY /= magnitude;
+
+            Orientation = (newX, newY);
         }
+
+        public float getAngle() {
+            // Handle invalid orientation
+            if (Math.Abs(Orientation.Item1) < 0.001f &&
+                Math.Abs(Orientation.Item2) < 0.001f) {
+                return 0f;
+            }
+
+            float angleRad = (float)Math.Atan2(Orientation.Item2, Orientation.Item1);
+            float angleDeg = angleRad * (180f / (float)Math.PI);
+
+            // Convert to 0-360 range
+            if (angleDeg < 0) angleDeg += 360f;
+            return angleDeg;
+        }
+
+
 
         public override string ToString() {
             string s = "[ ";
