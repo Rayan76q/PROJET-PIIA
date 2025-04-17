@@ -81,6 +81,8 @@ namespace PROJET_PIIA.Model {
 
         public void supprimerMeuble(Meuble m) {
             if (meubles.Contains(m)) {
+                m.Position = new Point(-1, -1);
+                m.Orientation = (1, 0);
                 meubles.Remove(m);
             } else {
                 throw new ArgumentException("Le meuble n'est pas présent dans le plan.");
