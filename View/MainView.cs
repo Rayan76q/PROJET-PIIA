@@ -9,7 +9,7 @@ namespace PROJET_PIIA.View {
     public enum PlanMode { // jsp où mettre
         Deplacement,
         DessinPolygone,
-        
+
     }
 
     public partial class MainView : Form {
@@ -43,6 +43,18 @@ namespace PROJET_PIIA.View {
         private List<string> positionTags = new List<string> {
             "Mural", "Sol"
         };
+        private ToolStripButton convertButton;
+        private ToolStripTextBox searchToolBox;
+        private ToolStripButton searchButton;
+        private ToolStripButton downloadButton;
+        private ToolStripButton shareButton;
+        private ToolStripButton commentButton;
+        private ToolStripButton newButton;
+        private ToolStripButton modifyButton;
+        private ToolStripButton emailButton;
+        private ToolStrip mainToolStrip;
+        private ToolStripLabel appNameLabel;
+
 
         public MainView(Modele m) {
             this.DoubleBuffered = true;
@@ -71,6 +83,17 @@ namespace PROJET_PIIA.View {
         ///  the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
+            mainToolStrip = new ToolStrip();
+            appNameLabel = new ToolStripLabel();
+            newButton = new ToolStripButton();
+            modifyButton = new ToolStripButton();
+            convertButton = new ToolStripButton();
+            searchToolBox = new ToolStripTextBox();
+            searchButton = new ToolStripButton();
+            downloadButton = new ToolStripButton();
+            shareButton = new ToolStripButton();
+            commentButton = new ToolStripButton();
+            emailButton = new ToolStripButton();
             splitContainer1 = new SplitContainer();
             sdb_murs_label1 = new Label();
             sdb_murs_bt1 = new Button();
@@ -78,7 +101,6 @@ namespace PROJET_PIIA.View {
             switchmodebutton = new Button();
             label1 = new Label();
             labelsurface = new Label();
-            rotate = new Button();
             zoombar = new TrackBar();
             showgrid = new Button();
             button3 = new Button();
@@ -86,7 +108,7 @@ namespace PROJET_PIIA.View {
             Undo = new Button();
             toggleButton = new Button();
             fontDialog1 = new FontDialog();
-            toolStrip1 = new ToolStrip();
+            mainToolStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
@@ -94,12 +116,82 @@ namespace PROJET_PIIA.View {
             ((System.ComponentModel.ISupportInitialize)zoombar).BeginInit();
             SuspendLayout();
             // 
+            // mainToolStrip
+            // 
+            mainToolStrip.Items.AddRange(new ToolStripItem[] { appNameLabel, newButton, modifyButton, convertButton, searchToolBox, searchButton, downloadButton, shareButton, commentButton, emailButton });
+            mainToolStrip.Location = new Point(0, 0);
+            mainToolStrip.Name = "mainToolStrip";
+            mainToolStrip.RenderMode = ToolStripRenderMode.System;
+            mainToolStrip.Size = new Size(987, 25);
+            mainToolStrip.TabIndex = 0;
+            mainToolStrip.ItemClicked += mainToolStrip_ItemClicked_2;
+            // 
+            // appNameLabel
+            // 
+            appNameLabel.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            appNameLabel.Name = "appNameLabel";
+            appNameLabel.Size = new Size(65, 22);
+            appNameLabel.Text = "PLANCHA!";
+            // 
+            // newButton
+            // 
+            newButton.Name = "newButton";
+            newButton.Size = new Size(59, 22);
+            newButton.Text = "Nouveau";
+            // 
+            // modifyButton
+            // 
+            modifyButton.Name = "modifyButton";
+            modifyButton.Size = new Size(56, 22);
+            modifyButton.Text = "Modifier";
+            // 
+            // convertButton
+            // 
+            convertButton.Name = "convertButton";
+            convertButton.Size = new Size(60, 22);
+            convertButton.Text = "Convertir";
+            // 
+            // searchToolBox
+            // 
+            searchToolBox.Name = "searchToolBox";
+            searchToolBox.Size = new Size(100, 25);
+            searchToolBox.Click += searchToolBox_Click;
+            // 
+            // searchButton
+            // 
+            searchButton.Name = "searchButton";
+            searchButton.Size = new Size(23, 22);
+            searchButton.Text = "🔍";
+            // 
+            // downloadButton
+            // 
+            downloadButton.Name = "downloadButton";
+            downloadButton.Size = new Size(23, 22);
+            downloadButton.Text = "⬇";
+            // 
+            // shareButton
+            // 
+            shareButton.Name = "shareButton";
+            shareButton.Size = new Size(23, 22);
+            shareButton.Text = "↗";
+            // 
+            // commentButton
+            // 
+            commentButton.Name = "commentButton";
+            commentButton.Size = new Size(23, 22);
+            commentButton.Text = "💬";
+            // 
+            // emailButton
+            // 
+            emailButton.Name = "emailButton";
+            emailButton.Size = new Size(23, 22);
+            emailButton.Text = "✉";
+            // 
             // splitContainer1
             // 
             splitContainer1.Dock = DockStyle.Fill;
             splitContainer1.IsSplitterFixed = true;
             splitContainer1.Location = new Point(0, 25);
-            splitContainer1.Margin = new Padding(3, 2, 3, 2);
             splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
@@ -107,6 +199,7 @@ namespace PROJET_PIIA.View {
             splitContainer1.Panel1.BackColor = Color.Silver;
             splitContainer1.Panel1.Controls.Add(sdb_murs_label1);
             splitContainer1.Panel1.Controls.Add(sdb_murs_bt1);
+            splitContainer1.Panel1.SizeChanged += Panel1_SizeChanged;
             splitContainer1.Panel1.Paint += splitContainer1_Panel1_Paint;
             // 
             // splitContainer1.Panel2
@@ -115,7 +208,6 @@ namespace PROJET_PIIA.View {
             splitContainer1.Panel2.Controls.Add(switchmodebutton);
             splitContainer1.Panel2.Controls.Add(label1);
             splitContainer1.Panel2.Controls.Add(labelsurface);
-            splitContainer1.Panel2.Controls.Add(rotate);
             splitContainer1.Panel2.Controls.Add(zoombar);
             splitContainer1.Panel2.Controls.Add(showgrid);
             splitContainer1.Panel2.Controls.Add(button3);
@@ -123,11 +215,11 @@ namespace PROJET_PIIA.View {
             splitContainer1.Panel2.Controls.Add(Undo);
             splitContainer1.Panel2.Controls.Add(toggleButton);
             splitContainer1.Panel2.Paint += splitContainer1_Panel2_Paint;
-            splitContainer1.Panel1.SizeChanged += Panel1_SizeChanged;
-            splitContainer1.Size = new Size(952, 389);
-            splitContainer1.SplitterDistance = 229;
+            splitContainer1.Size = new Size(987, 440);
+            splitContainer1.SplitterDistance = 237;
             splitContainer1.TabIndex = 1;
             splitContainer1.TabStop = false;
+            splitContainer1.SplitterMoved += splitContainer1_SplitterMoved;
             // 
             // sdb_murs_label1
             // 
@@ -154,7 +246,7 @@ namespace PROJET_PIIA.View {
             // 
             button2.Anchor = AnchorStyles.Right;
             button2.Enabled = false;
-            button2.Location = new Point(658, 237);
+            button2.Location = new Point(685, 283);
             button2.Name = "button2";
             button2.Size = new Size(43, 23);
             button2.TabIndex = 10;
@@ -165,7 +257,7 @@ namespace PROJET_PIIA.View {
             // switchmodebutton
             // 
             switchmodebutton.Anchor = AnchorStyles.Bottom;
-            switchmodebutton.Location = new Point(295, 331);
+            switchmodebutton.Location = new Point(309, 382);
             switchmodebutton.Margin = new Padding(3, 2, 3, 2);
             switchmodebutton.Name = "switchmodebutton";
             switchmodebutton.Size = new Size(144, 38);
@@ -178,7 +270,7 @@ namespace PROJET_PIIA.View {
             // 
             label1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             label1.AutoSize = true;
-            label1.Location = new Point(532, 28);
+            label1.Location = new Point(559, 28);
             label1.Name = "label1";
             label1.Size = new Size(36, 15);
             label1.TabIndex = 8;
@@ -188,28 +280,17 @@ namespace PROJET_PIIA.View {
             // 
             labelsurface.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             labelsurface.AutoSize = true;
-            labelsurface.Location = new Point(532, 14);
+            labelsurface.Location = new Point(559, 14);
             labelsurface.Name = "labelsurface";
             labelsurface.Size = new Size(65, 15);
             labelsurface.TabIndex = 7;
             labelsurface.Text = "Superficie :";
             labelsurface.Click += labelsurface_Click;
             // 
-            // rotate
-            // 
-            rotate.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            rotate.Location = new Point(658, 286);
-            rotate.Margin = new Padding(3, 2, 3, 2);
-            rotate.Name = "rotate";
-            rotate.Size = new Size(44, 38);
-            rotate.TabIndex = 6;
-            rotate.Text = "button1";
-            rotate.UseVisualStyleBackColor = true;
-            // 
             // zoombar
             // 
             zoombar.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            zoombar.Location = new Point(3, 331);
+            zoombar.Location = new Point(3, 382);
             zoombar.Margin = new Padding(3, 2, 3, 2);
             zoombar.Name = "zoombar";
             zoombar.Size = new Size(131, 45);
@@ -218,12 +299,12 @@ namespace PROJET_PIIA.View {
             // showgrid
             // 
             showgrid.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            showgrid.Location = new Point(658, 337);
+            showgrid.Location = new Point(685, 388);
             showgrid.Margin = new Padding(3, 2, 3, 2);
             showgrid.Name = "showgrid";
             showgrid.Size = new Size(44, 38);
             showgrid.TabIndex = 4;
-            showgrid.Text = "button4";
+            showgrid.Text = "⊞";
             showgrid.UseVisualStyleBackColor = true;
             // 
             // button3
@@ -244,7 +325,7 @@ namespace PROJET_PIIA.View {
             Redo.Name = "Redo";
             Redo.Size = new Size(44, 38);
             Redo.TabIndex = 2;
-            Redo.Text = "button2";
+            Redo.Text = "↪";
             Redo.UseVisualStyleBackColor = true;
             // 
             // Undo
@@ -254,7 +335,7 @@ namespace PROJET_PIIA.View {
             Undo.Name = "Undo";
             Undo.Size = new Size(44, 38);
             Undo.TabIndex = 1;
-            Undo.Text = "button1";
+            Undo.Text = "↩";
             Undo.UseVisualStyleBackColor = true;
             Undo.Click += Undo_Click;
             // 
@@ -262,7 +343,7 @@ namespace PROJET_PIIA.View {
             // 
             toggleButton.Anchor = AnchorStyles.Left;
             toggleButton.CausesValidation = false;
-            toggleButton.Location = new Point(3, 184);
+            toggleButton.Location = new Point(3, 190);
             toggleButton.Margin = new Padding(3, 2, 3, 2);
             toggleButton.Name = "toggleButton";
             toggleButton.Size = new Size(28, 76);
@@ -271,26 +352,18 @@ namespace PROJET_PIIA.View {
             toggleButton.UseVisualStyleBackColor = true;
             toggleButton.Click += button1_Click;
             // 
-            // toolStrip1
-            // 
-            toolStrip1.ImageScalingSize = new Size(20, 20);
-            toolStrip1.Location = new Point(0, 0);
-            toolStrip1.Name = "toolStrip1";
-            toolStrip1.Size = new Size(952, 25);
-            toolStrip1.TabIndex = 2;
-            toolStrip1.Text = "toolStrip1";
-            // 
             // MainView
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(952, 414);
+            ClientSize = new Size(987, 465);
             Controls.Add(splitContainer1);
-            Controls.Add(toolStrip1);
+            Controls.Add(mainToolStrip);
             Margin = new Padding(3, 2, 3, 2);
             Name = "MainView";
-            Text = "Form1";
-            Load += MainView_Load;
+            Text = "Kitchen Design App";
+            mainToolStrip.ResumeLayout(false);
+            mainToolStrip.PerformLayout();
             splitContainer1.Panel1.ResumeLayout(false);
             splitContainer1.Panel1.PerformLayout();
             splitContainer1.Panel2.ResumeLayout(false);
@@ -321,9 +394,7 @@ namespace PROJET_PIIA.View {
         private Button showgrid;
         private TrackBar zoombar;
         private Label labelsurface;
-        private Button rotate;
         private Label label1;
-        private ToolStrip toolStrip1;
         private Button sdb_murs_bt1;
         private Label sdb_murs_label1;
         private Button toggleButton;
@@ -340,9 +411,7 @@ namespace PROJET_PIIA.View {
 
         }
 
-        private void MainView_Load(object sender, EventArgs e) {
 
-        }
 
         private void Undo_Click(object sender, EventArgs e) {
 
@@ -433,7 +502,7 @@ namespace PROJET_PIIA.View {
             Panel meublePanel = new Panel {
                 Width = panel.Width,
                 Height = 90,
-                Margin = new Padding(2,5,10,0),
+                Margin = new Padding(2, 5, 10, 0),
                 BackColor = Color.WhiteSmoke,
             };
 
@@ -520,7 +589,7 @@ namespace PROJET_PIIA.View {
             meubleListPanel = new FlowLayoutPanel {
                 Dock = DockStyle.Fill,
                 FlowDirection = FlowDirection.TopDown,
-                Width = splitContainer1.Panel1.Width - 20, 
+                Width = splitContainer1.Panel1.Width - 20,
                 AutoScroll = true,
                 WrapContents = false,
                 Padding = new Padding(5, 40, 5, 5),
@@ -656,10 +725,10 @@ namespace PROJET_PIIA.View {
             int rowHeight = 40; // Height of each tag + margin
             int minRows = 1;
             int maxRows = 5;
-            int tagsPerRow = splitContainer1.Panel1.Width > 200 ? 3 : 2; 
+            int tagsPerRow = splitContainer1.Panel1.Width > 200 ? 3 : 2;
 
             int rows = Math.Min(maxRows, Math.Max(minRows, (int)Math.Ceiling((double)selectedTagsCount / tagsPerRow)));
-            int selectedPanelHeight = (rows+1) * rowHeight;
+            int selectedPanelHeight = (rows + 1) * rowHeight;
 
             // Update selected tags panel height
             selectedTagsPanel.Height = selectedPanelHeight;
@@ -812,8 +881,8 @@ namespace PROJET_PIIA.View {
 
         private void ApplyTagFilters() {
             selectedMeubles = new List<Meuble>();
-            foreach(Meuble m in ctrg.catalogue.Meubles) {
-                if(IsMeubleVisibleWithCurrentTags(m)) selectedMeubles.Add(m);
+            foreach (Meuble m in ctrg.catalogue.Meubles) {
+                if (IsMeubleVisibleWithCurrentTags(m)) selectedMeubles.Add(m);
             }
         }
 
@@ -874,13 +943,35 @@ namespace PROJET_PIIA.View {
             if (selectedTags.Count == 0) return true;
             if (meuble.tags.Count == 0) return true;
 
-            foreach(Tags t in meuble.tags) {
+            foreach (Tags t in meuble.tags) {
                 if (selectedTags.Contains(t.GetDisplayName())) return true;
             }
 
             return false;
         }
 
+        private void Redo_Click(object sender, EventArgs e) {
 
+        }
+
+        private void splitContainer1_SplitterMoved(object sender, SplitterEventArgs e) {
+
+        }
+
+        private void mainToolStrip_ItemClicked(object sender, ToolStripItemClickedEventArgs e) {
+
+        }
+
+        private void mainToolStrip_ItemClicked_1(object sender, ToolStripItemClickedEventArgs e) {
+
+        }
+
+        private void mainToolStrip_ItemClicked_2(object sender, ToolStripItemClickedEventArgs e) {
+
+        }
+
+        private void searchToolBox_Click(object sender, EventArgs e) {
+
+        }
     }
 }
