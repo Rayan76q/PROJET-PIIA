@@ -2,15 +2,39 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+//using System.Threading.Tasks;
+using System.Drawing;
 using System.Windows.Forms;
+using Microsoft.VisualBasic.ApplicationServices;
 
 namespace PROJET_PIIA.View {
     internal class LoginView : Form {
         private System.ComponentModel.IContainer components = null;
 
+        private readonly Dictionary<string, string> validCredentials;
+        private readonly Color defaultBoxColor;
+        private readonly System.Windows.Forms.Timer shakeTimer;
+        private readonly int shakeTotalSteps = 10;
+        private Point originalBoxLocation;
+        private int shakeStep;
+
         public LoginView() {
             InitializeComponent();
+
+            validCredentials = new Dictionary<string, string>
+            {
+                { "admin", "admin123" },
+                { "rlalaoui", "password1" },
+                { "asaillant", "password2" },
+                { "lraleigh", "password3" },
+                { "jdoe", "password4" },
+            };
+
+            defaultBoxColor = boxPanel.BackColor;
+            originalBoxLocation = boxPanel.Location;
+
+            shakeTimer = new System.Windows.Forms.Timer { Interval = 20 };
+            shakeTimer.Tick += ShakeTimer_Tick;
         }
 
         /// <summary>
@@ -156,7 +180,7 @@ namespace PROJET_PIIA.View {
             connectButton.TabIndex = 4;
             connectButton.Text = "Se connecter";
             connectButton.UseVisualStyleBackColor = false;
-            connectButton.Click += new EventHandler(connectButton_Click_1); // Replace the existing line
+            connectButton.Click += connectButton_Click_1;
             // 
             // forgotPasswordText
             // 
@@ -255,13 +279,38 @@ namespace PROJET_PIIA.View {
 
         private void connectButton_Click_1(object sender, EventArgs e) {
             // Add your authentication logic here (e.g., validate username/password)
-            bool isAuthenticated = true; // Replace with actual validation
+            errorText.Visible = false;
+            boxPanel.BackColor = defaultBoxColor;
+            boxPanel.Location = originalBoxLocation;
+
+            string user = txtUsername.Text.Trim();
+            string pass = textPassword.Text;
+            bool isAuthenticated = validCredentials.TryGetValue(user, out string validPass) && pass == validPass; // Replace with actual validation
 
             if (isAuthenticated) {
-                this.DialogResult = DialogResult.OK; // Signal success
-                this.Close(); // Close the login form
+                this.DialogResult = DialogResult.OK;
+                this.Close();
             } else {
-                errorText.Visible = true; // Show error message
+                errorText.Visible = true;
+                boxPanel.BackColor = errorText.ForeColor;
+                shakeStep = 0;
+                shakeTimer.Start();
+            }
+        }
+
+        private void ShakeTimer_Tick(object sender, EventArgs e) {
+            shakeStep++;
+            // amplitude de 5px, oscillation sinusoïdale
+            int amplitude = 5;
+            double angle = shakeStep * Math.PI * 2 / shakeTotalSteps;
+            int offsetX = (int)(amplitude * Math.Sin(angle));
+
+            boxPanel.Location = new Point(originalBoxLocation.X + offsetX, originalBoxLocation.Y);
+
+            if (shakeStep >= shakeTotalSteps) {
+                // fin de l’animation → retour à la position d’origine
+                shakeTimer.Stop();
+                boxPanel.Location = originalBoxLocation;
             }
         }
     }
