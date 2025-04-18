@@ -410,12 +410,20 @@ namespace PROJET_PIIA.View {
 
         private void PlanView_MouseDown(object sender, MouseEventArgs e) {
             if (e.Button == MouseButtons.Left) {
+                // Shift + Left Click: Force panning in any mode
+                if ((Control.ModifierKeys & Keys.Shift) != 0) {
+                    _dragging = true;
+                    _dragStart = e.Location;
+                    this.Cursor = Cursors.SizeAll;
+                    return; // Exit early to override other logic
+                }
+
                 if (_showCarousel) {
                     // If carousel is shown, we handle it in MouseClick
                     return;
                 }
 
-                if (ctrg.ModeEdition == PlanMode.Deplacement) {
+                if (ctrg.ModeEdition == PlanMode.Normal) {
                     // Check if we clicked on a meuble first
                     Point planPoint = ScreenToPlan(e.Location);
                     Meuble clickedMeuble = FindMeubleAtPoint(planPoint);
@@ -473,6 +481,17 @@ namespace PROJET_PIIA.View {
 
         private void PlanView_MouseMove(object sender, MouseEventArgs e) {
             _mousePosition = e.Location;
+
+            if (_dragging) {
+                int dx = e.X - _dragStart.X;
+                int dy = e.Y - _dragStart.Y;
+                _offset.X += dx;
+                _offset.Y += dy;
+                _dragStart = e.Location;
+                this.Invalidate();
+                this.Cursor = Cursors.SizeAll; // Ensure cursor stays as hand during pan
+                return; // Exit early to override other interactions
+            }
 
             // If in rotation mode, update the rotation continuously.
             if (_rotating && _selectedMeuble != null) {
@@ -570,7 +589,7 @@ namespace PROJET_PIIA.View {
             }
 
             // Si on est en resizing, agir sur le périmètre :
-            if (_resizing && _segmentResize.HasValue && !ctrg.ModeMeuble) {
+            if (_resizing && _segmentResize.HasValue && !(ctrg.ModeEdition == PlanMode.Meuble)) {
                 Point current = ScreenToPlan(e.Location);
                 Point delta = new Point(current.X - _resizeStart.X, current.Y - _resizeStart.Y);
 
@@ -609,7 +628,7 @@ namespace PROJET_PIIA.View {
             }
 
             // Sinon, traiter la détection de segment et le déplacement de la vue si nécessaire
-            if (ctrg.ModeEdition == PlanMode.Deplacement) {
+            if (ctrg.ModeEdition == PlanMode.Normal) {
                 // Check if mouse is over a wall or meuble for the green cursor
                 bool isOverElement = false;
 
@@ -625,27 +644,19 @@ namespace PROJET_PIIA.View {
                     var ancienSegment = segmentProche;
                     segmentProche = TrouverSegmentProche(e.Location, perimetre);
 
-                    if (segmentProche != null && !ctrg.ModeMeuble) {
+                    if (segmentProche != null && !(ctrg.ModeEdition == PlanMode.Meuble) ) {
                         this.Cursor = Cursors.Hand;
                         isOverElement = true;
                     } else if (this.Cursor != Cursors.SizeAll && this.Cursor != Cursors.Hand && !isOverElement) {
                         this.Cursor = Cursors.Default;
                     }
 
-                    if (ancienSegment != segmentProche && !ctrg.ModeMeuble) {
+                    if (ancienSegment != segmentProche && !(ctrg.ModeEdition == PlanMode.Meuble)) {
                         this.Invalidate();
                     }
                 }
 
-                // Déplacement de la vue si l'utilisateur fait un drag classique (et pas resizing)
-                if (_dragging) {
-                    int dx = e.X - _dragStart.X;
-                    int dy = e.Y - _dragStart.Y;
-                    _offset.X += dx;
-                    _offset.Y += dy;
-                    _dragStart = e.Location;
-                    this.Invalidate();
-                }
+                
             }
             // Autres modes (ex. dessin polygone)…
             else if (ctrg.ModeEdition == PlanMode.DessinPolygone && _currentStart != null) {
@@ -712,7 +723,7 @@ namespace PROJET_PIIA.View {
                 g.DrawLine(Pens.Red, PlanToScreen(_currentStart.Value), _mousePosition);
             }
 
-            if (ctrg.ModeEdition == PlanMode.Deplacement && segmentProche != null) {
+            if (ctrg.ModeEdition == PlanMode.Normal && segmentProche != null) {
                 List<Point> p = ctrg.ObtenirPerimetre();
                 Point p1 = p[segmentProche.Value];
                 Point p2 = p[(segmentProche.Value + 1) % p.Count];
