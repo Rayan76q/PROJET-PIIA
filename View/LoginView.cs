@@ -156,7 +156,7 @@ namespace PROJET_PIIA.View {
             connectButton.TabIndex = 4;
             connectButton.Text = "Se connecter";
             connectButton.UseVisualStyleBackColor = false;
-            connectButton.Click += button2_Click_1;
+            connectButton.Click += new EventHandler(connectButton_Click_1); // Replace the existing line
             // 
             // forgotPasswordText
             // 
@@ -243,6 +243,26 @@ namespace PROJET_PIIA.View {
 
         private void panel1_Paint(object sender, PaintEventArgs e) {
 
+        }
+
+
+
+
+
+
+
+
+
+        private void connectButton_Click_1(object sender, EventArgs e) {
+            // Add your authentication logic here (e.g., validate username/password)
+            bool isAuthenticated = true; // Replace with actual validation
+
+            if (isAuthenticated) {
+                this.DialogResult = DialogResult.OK; // Signal success
+                this.Close(); // Close the login form
+            } else {
+                errorText.Visible = true; // Show error message
+            }
         }
     }
 }

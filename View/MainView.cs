@@ -984,13 +984,15 @@ namespace PROJET_PIIA.View {
 
 
         private void LoginMenuItem_Click(object sender, EventArgs e) {
-            // Open login dialog or form
-            MessageBox.Show("Login functionality will be implemented here");
+            // Create and show the LoginView as a modal dialog
+            using (LoginView loginDialog = new LoginView()) {
+                DialogResult result = loginDialog.ShowDialog(this); // 'this' refers to MainView as the owner
 
-            // After successful login, you could:
-            // 1. Change the avatar icon to user's profile image
-            // 2. Change the dropdown items to show user-specific options
-            UpdateAvatarForLoggedInUser();
+                // Check if login was successful (DialogResult.OK)
+                if (result == DialogResult.OK) {
+                    UpdateAvatarForLoggedInUser(); // Update UI after successful login
+                }
+            }
         }
 
         private void SignupMenuItem_Click(object sender, EventArgs e) {
