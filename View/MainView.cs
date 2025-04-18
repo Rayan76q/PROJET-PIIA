@@ -54,6 +54,9 @@ namespace PROJET_PIIA.View {
         private ToolStripButton emailButton;
         private ToolStrip mainToolStrip;
         private ToolStripLabel appNameLabel;
+        private ToolStripDropDownButton avatarButton;
+        private ToolStripMenuItem loginMenuItem;
+        private ToolStripMenuItem signupMenuItem;
 
 
         public MainView(Modele m) {
@@ -108,6 +111,8 @@ namespace PROJET_PIIA.View {
             Undo = new Button();
             toggleButton = new Button();
             fontDialog1 = new FontDialog();
+            ToolStripSeparator rightAlignSeparator = new ToolStripSeparator();
+            avatarButton = new ToolStripDropDownButton();
             mainToolStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
@@ -118,7 +123,7 @@ namespace PROJET_PIIA.View {
             // 
             // mainToolStrip
             // 
-            mainToolStrip.Items.AddRange(new ToolStripItem[] { appNameLabel, newButton, modifyButton, convertButton, searchToolBox, searchButton, downloadButton, shareButton, commentButton, emailButton });
+            mainToolStrip.Items.AddRange(new ToolStripItem[] { appNameLabel, newButton, modifyButton, convertButton, searchToolBox, searchButton, downloadButton, shareButton, commentButton, emailButton, rightAlignSeparator, avatarButton });
             mainToolStrip.Location = new Point(0, 0);
             mainToolStrip.Name = "mainToolStrip";
             mainToolStrip.RenderMode = ToolStripRenderMode.System;
@@ -186,6 +191,33 @@ namespace PROJET_PIIA.View {
             emailButton.Name = "emailButton";
             emailButton.Size = new Size(23, 22);
             emailButton.Text = "✉";
+            // 
+            // avatarbutton
+            //
+            avatarButton.Name = "avatarButton";
+            avatarButton.Text = "👤"; // Unicode character for user icon
+            avatarButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            avatarButton.Font = new Font("Segoe UI", 12f);
+            avatarButton.Alignment = ToolStripItemAlignment.Right;
+            avatarButton.ToolTipText = "Account options";
+            // 
+            // avataritems
+            //
+            loginMenuItem = new ToolStripMenuItem("Login");
+            loginMenuItem.Name = "loginMenuItem";
+            loginMenuItem.Click += LoginMenuItem_Click;
+
+            signupMenuItem = new ToolStripMenuItem("Sign Up");
+            signupMenuItem.Name = "signupMenuItem";
+            signupMenuItem.Click += SignupMenuItem_Click;
+
+            avatarButton.DropDownItems.Add(loginMenuItem);
+            avatarButton.DropDownItems.Add(signupMenuItem);
+            // 
+            // rightalignseparator
+            //
+            rightAlignSeparator.Name = "rightAlignSeparator";
+            rightAlignSeparator.Alignment = ToolStripItemAlignment.Right;
             // 
             // splitContainer1
             // 
@@ -950,6 +982,98 @@ namespace PROJET_PIIA.View {
             return false;
         }
 
+
+        private void LoginMenuItem_Click(object sender, EventArgs e) {
+            // Open login dialog or form
+            MessageBox.Show("Login functionality will be implemented here");
+
+            // After successful login, you could:
+            // 1. Change the avatar icon to user's profile image
+            // 2. Change the dropdown items to show user-specific options
+            UpdateAvatarForLoggedInUser();
+        }
+
+        private void SignupMenuItem_Click(object sender, EventArgs e) {
+            // Open sign up dialog or form
+            MessageBox.Show("Sign up functionality will be implemented here");
+        }
+
+        // Method to update avatar after successful login
+        private void UpdateAvatarForLoggedInUser() {
+            // Find the avatar button
+            ToolStripDropDownButton avatarButton = null;
+            foreach (ToolStripItem item in mainToolStrip.Items) {
+                if (item is ToolStripDropDownButton && item.Name == "avatarButton") {
+                    avatarButton = (ToolStripDropDownButton)item;
+                    break;
+                }
+            }
+
+            if (avatarButton != null) {
+                // Change icon or text for logged in state
+                // avatarButton.Text = "👤 User"; // Example with username
+                // Or set an image instead:
+                // avatarButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
+                // avatarButton.Image = Properties.Resources.UserAvatar;
+
+                // Clear existing dropdown items
+                avatarButton.DropDownItems.Clear();
+
+                // Add user-specific menu items
+                ToolStripMenuItem profileMenuItem = new ToolStripMenuItem("My Profile");
+                profileMenuItem.Click += (s, e) => MessageBox.Show("Profile page will be shown");
+
+                ToolStripMenuItem settingsMenuItem = new ToolStripMenuItem("Settings");
+                settingsMenuItem.Click += (s, e) => MessageBox.Show("Settings page will be shown");
+
+                ToolStripMenuItem logoutMenuItem = new ToolStripMenuItem("Logout");
+                logoutMenuItem.Click += (s, e) => {
+                    // Logout logic
+                    MessageBox.Show("Logging out...");
+                    ResetAvatarForLoggedOutUser();
+                };
+
+                // Add items to dropdown
+                avatarButton.DropDownItems.Add(profileMenuItem);
+                avatarButton.DropDownItems.Add(settingsMenuItem);
+                avatarButton.DropDownItems.Add(new ToolStripSeparator());
+                avatarButton.DropDownItems.Add(logoutMenuItem);
+            }
+        }
+
+        // Method to reset avatar after logout
+        private void ResetAvatarForLoggedOutUser() {
+            // Find the avatar button
+            ToolStripDropDownButton avatarButton = null;
+            foreach (ToolStripItem item in mainToolStrip.Items) {
+                if (item is ToolStripDropDownButton && item.Name == "avatarButton") {
+                    avatarButton = (ToolStripDropDownButton)item;
+                    break;
+                }
+            }
+
+            if (avatarButton != null) {
+                // Reset to default state
+                avatarButton.Text = "👤";
+                avatarButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
+                avatarButton.Image = null;
+
+                // Clear existing dropdown items
+                avatarButton.DropDownItems.Clear();
+
+                // Add default menu items for non-logged in users
+                ToolStripMenuItem loginMenuItem = new ToolStripMenuItem("Login");
+                loginMenuItem.Click += LoginMenuItem_Click;
+
+                ToolStripMenuItem signupMenuItem = new ToolStripMenuItem("Sign Up");
+                signupMenuItem.Click += SignupMenuItem_Click;
+
+                // Add items to dropdown
+                avatarButton.DropDownItems.Add(loginMenuItem);
+                avatarButton.DropDownItems.Add(signupMenuItem);
+            }
+        }
+
         private void Redo_Click(object sender, EventArgs e) {
 
         }
@@ -973,5 +1097,8 @@ namespace PROJET_PIIA.View {
         private void searchToolBox_Click(object sender, EventArgs e) {
 
         }
+
+
+
     }
 }
