@@ -24,19 +24,19 @@ namespace PROJET_PIIA.Model {
 
             meuble.Position = position;
 
-            if (meuble.ChevaucheMur(Murs)) {
-                meuble.Position = oldPos;
-                throw new ArgumentException("Le meuble ne peut pas être placé à cette position car il chevauche un mur.");
-            }
+            //if (meuble.ChevaucheMur(Murs)) {
+            //    meuble.Position = oldPos;
+            //    throw new ArgumentException("Le meuble ne peut pas être placé à cette position car il chevauche un mur.");
+            //}
 
-            foreach (var other in Meubles) {
-                if (other != meuble && meuble.ChevaucheMeuble(other)) {
-                    meuble.Position = oldPos;
-                    throw new ArgumentException("Le meuble ne peut pas être placé ici car il chevauche un autre meuble.");
-                }
-            }
+            //foreach (var other in Meubles) {
+            //    if (other != meuble && meuble.ChevaucheMeuble(other)) {
+            //        meuble.Position = oldPos;
+            //        throw new ArgumentException("Le meuble ne peut pas être placé ici car il chevauche un autre meuble.");
+            //    }
+            //}
 
-                Meubles.Add(meuble);
+            Meubles.Add(meuble);
         }
 
 
