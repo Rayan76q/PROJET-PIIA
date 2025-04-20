@@ -159,7 +159,6 @@ namespace PROJET_PIIA.View {
                 g.DrawLine(Pens.Blue, PlanToScreen(points.Last()), PlanToScreen(points.First()));
             }
 
-            DrawMeubles(g);
 
             // dessin de la poignée de rotation
             if (_selectedMeuble != null) {
@@ -187,17 +186,15 @@ namespace PROJET_PIIA.View {
             }*/
 
             // dessine les meubles
-            
-            
+            DrawMeubles(g);
 
         }
 
-        private (Brush, Pen) GetMeubleStyle(Meuble m) {
+        private Pen GetMeubleBorderStyle(Meuble m) {
             bool isSelected = _selectedMeuble == m;
             bool isColliding = m.CheckMeubleCollision(ctrg.ObtenirMeubles(), ctrg.ObtenirMurs());
-            var fill = isColliding ? Color.Red : isSelected ? Color.LightGreen : Color.LightBlue;
             var border = isColliding ? Color.DarkRed : isSelected ? Color.Green : Color.Blue;
-            return (new SolidBrush(fill), new Pen(border, 2));
+            return new Pen(border, 2);
         }
 
 
@@ -217,8 +214,8 @@ namespace PROJET_PIIA.View {
             Point screenPos = PlanToScreen(p);
             PointF center = meuble.GetCenter();
 
-            var (brush, pen) = GetMeubleStyle(meuble);
-            using (brush)
+            var pen = GetMeubleBorderStyle(meuble);
+            
             using (pen)
             using (Font font = new Font("Arial", 8)) {
 
@@ -227,17 +224,25 @@ namespace PROJET_PIIA.View {
                     g.RotateTransform(meuble.getAngle());
 
                     PointF draw = new(-meuble.Width / 2, -meuble.Height / 2);
-
-                    // Obtenir l'image du meuble ou une image d'erreur si nécessaire
                     Image img = ImageLoader.GetImageOfMeuble(meuble);
-
-                    // Dessiner l'image redimensionnée ou l'image d'erreur
                     g.DrawImage(img, draw.X, draw.Y, meuble.Width, meuble.Height);
+
+                    // 🎯 Overlay status : selection / collision
+                    bool isSelected = _selectedMeuble == meuble;
+                    bool isColliding = meuble.CheckMeubleCollision(ctrg.ObtenirMeubles(), ctrg.ObtenirMurs());
+
+                    if (isColliding || isSelected) {
+                        Color overlayColor = isColliding ? Color.FromArgb(100, Color.Red) : Color.FromArgb(100, Color.Green);
+                        using SolidBrush overlay = new SolidBrush(overlayColor);
+                        g.FillRectangle(overlay, draw.X, draw.Y, meuble.Width, meuble.Height);
+                    }
+
+                    g.DrawRectangle(pen, draw.X, draw.Y, meuble.Width, meuble.Height);
                 } finally {
                     g.Restore(state);
                 }
 
-                // Dessiner le nom du meuble s'il est disponible
+                // nom du meuble
                 if (!string.IsNullOrEmpty(meuble.Nom)) {
                     g.DrawString(meuble.Nom, font, Brushes.Black, screenPos.X, screenPos.Y - 15);
                 }
