@@ -24,8 +24,6 @@
         }*/
 
         public static bool is_valid(this Point p) {
-
-            // Exemple de validité : coordonnées finies
             return !float.IsNaN(p.X) && !float.IsNaN(p.Y)
                 && !float.IsInfinity(p.X) && !float.IsInfinity(p.Y);
         }
@@ -44,6 +42,40 @@
             float finalY = rotatedY + origin.Item2;
 
             return new Point((int)finalX, (int)finalY);
+        }
+
+        public static float DistancePointSegment(this Point p, Point a, Point b) {
+            float dx = b.X - a.X;
+            float dy = b.Y - a.Y;
+
+            if (dx == 0 && dy == 0) return p.DistanceTo(a);
+
+            float t = ((p.X - a.X) * dx + (p.Y - a.Y) * dy) / (dx * dx + dy * dy);
+            t = Math.Max(0, Math.Min(1, t));
+
+            float projX = a.X + t * dx;
+            float projY = a.Y + t * dy;
+
+            float distX = p.X - projX;
+            float distY = p.Y - projY;
+
+            return MathF.Sqrt(distX * distX + distY * distY);
+        }
+
+        public static int? TrouverSegmentProche(this Point sourisPlan, List<Point> perimetre, float seuilProximité = 10f) {
+            if (perimetre == null || perimetre.Count < 2) return null;
+
+            for (int i = 0; i < perimetre.Count; i++) {
+                Point p1 = perimetre[i];
+                Point p2 = perimetre[(i + 1) % perimetre.Count];
+
+                float distance = sourisPlan.DistancePointSegment(p1, p2);
+                if (distance < seuilProximité) {
+                    return i;
+                }
+            }
+
+            return null;
         }
     }
 }

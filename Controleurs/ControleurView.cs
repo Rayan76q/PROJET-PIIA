@@ -2,20 +2,16 @@
 using PROJET_PIIA.Model;
 using PROJET_PIIA.View;
 namespace PROJET_PIIA.Controleurs {
-    public class ControleurMainView : Control {
-        public event Action ModeChanged;
-        public event Action PerimeterChanged;
+    public class ControleurMainView(Modele m) : Control {
+        public event Action ModeChanged = delegate { };
+        public event Action PerimeterChanged = delegate { };
         public PlanMode ModeEdition { get; private set; } = PlanMode.Normal;
-        public Plan plan { get; private set; }
-        public Catalogue catalogue { get; private set; }
+        public Plan plan { get; private set; } = m.planActuel;
+        public Catalogue catalogue { get; private set; } = m.Catalogue;
 
         // Property that indicates if wall interactions should be allowed
         public bool WallInteractionsAllowed => !(ModeEdition == PlanMode.Meuble);
 
-        public ControleurMainView(Modele m) {
-            this.plan = m.planActuel;
-            this.catalogue = m.Catalogue;
-        }
 
         public void ChangerMode() {
             // Only allow changing drawing mode if not in furniture mode
@@ -33,8 +29,12 @@ namespace PROJET_PIIA.Controleurs {
             ModeChanged?.Invoke();
         }
 
-        public List<Point> ObtenirPerimetre() {
-            return plan.Murs.Perimetre;
+        public Murs ObtenirMurs() {
+            return plan.Murs;
+        }
+
+        public Meuble? FindMeubleAtPoint(Point planPoint) {
+            return plan.FindMeubleAtPoint(planPoint);
         }
 
         public void setMurs(List<Point> p) {
@@ -59,7 +59,7 @@ namespace PROJET_PIIA.Controleurs {
 
        
         public void PlaceMeubleAtPosition(Meuble m, Point position) {
-            this.plan.placerMeuble(m, position);
+            this.plan.PlacerMeuble(m, position);
         }
 
         public List<Meuble> ObtenirMeubles() {

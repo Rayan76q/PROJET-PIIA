@@ -5,74 +5,58 @@ namespace PROJET_PIIA.Model {
         private static int _idCounter = 0;
 
         public int Id { get; }
+        public string Nom { get; set; }
+        public Murs Murs { get; set;  }
+        public List<Meuble> Meubles { get; }
 
-        string nom;
-        Murs murs;
-        List<Meuble> meubles;
+        public Plan(string nom = "") {
+            Id = _idCounter++;
+            Nom = nom ?? $"Plan N°{Id}";
+            Murs = new Murs();
+            Meubles = new List<Meuble>();
+        }
 
-        public List<Meuble> Meubles {
-            get => meubles;
-            set {
-                if (value != null) {
-                    meubles = new List<Meuble>(value);
-                } else {
-                    meubles = new List<Meuble>();
+
+
+        public void PlacerMeuble(Meuble meuble, Point position) {
+            // Sauvegarder la position initiale s'il était déjà placé
+            var oldPos = meuble.Position;
+
+            meuble.Position = position;
+
+            if (meuble.ChevaucheMur(Murs)) {
+                meuble.Position = oldPos;
+                throw new ArgumentException("Le meuble ne peut pas être placé à cette position car il chevauche un mur.");
+            }
+
+            foreach (var other in Meubles) {
+                if (other != meuble && meuble.ChevaucheMeuble(other)) {
+                    meuble.Position = oldPos;
+                    throw new ArgumentException("Le meuble ne peut pas être placé ici car il chevauche un autre meuble.");
                 }
             }
-        }
-        public Murs Murs {
-            get => murs;
-            set => murs = value;
-        }
 
-        // Constructeur
-        public Plan() {
-            this.nom = "Plan N°" + _idCounter;
-            this.murs = new();
-            meubles = new List<Meuble>();
-            this.Id = _idCounter++;
-        }
-        public Plan(string nom) : this() {  // Appel constructeur par défaut
-            this.nom = nom;
+                Meubles.Add(meuble);
         }
 
 
+        // find a meuble at a specific point
+        public Meuble? FindMeubleAtPoint(Point planPoint) {
+            if (Meubles == null || Meubles.Count == 0) return null;
 
-        public void placerMeuble(Meuble meuble, Point position) {
-            //place un meuble qui a été ajouté au plan
-            bool placing = false;
-
-            if (meuble.Position == new Point(-1,-1)) {
-                meubles.Add(meuble);
-                meuble.Position = position;
-                placing = true;
-            } else {
-                Point old_pos = meuble.Position;
-                meuble.Position = position;
-
-                if (!meuble.ChevaucheMur(murs)) {
-
-                    foreach (Meuble other in meubles) {
-                        if (other != meuble && meuble.chevaucheMeuble(other)) {
-                            meuble.Position = old_pos; // Revert to old position
-                            if (placing) {
-                                meubles.Remove(meuble); // Remove if it was just added
-                            }
-                            throw new ArgumentException("Le meuble ne peut pas être déplacé à cette position car il chevauche un autre meuble.");
-                        }
-                    }
-                    return;
-
-                } else {
-                    throw new ArgumentException("Le meuble ne peut pas être déplacé à cette position car il chevauche un mur.");
+            // Check each meuble in reverse order (so topmost is selected first)
+            for (int i = Meubles.Count - 1; i >= 0; i--) {
+                Meuble meuble = Meubles[i];
+                if (meuble.IsPointInMeuble(planPoint)) {
+                    return meuble;
                 }
             }
+            return null;
         }
 
-
-        public void tournerMeuble(Meuble meuble, float angle) {
-            if (meubles.Contains(meuble)) {
-                meuble.tourner(angle);
+        public void tournerMeuble(Meuble meuble, float angle, bool fixeddirection) {
+            if (Meubles.Contains(meuble)) {
+                meuble.tourner(angle, fixeddirection);
             } else {
                 throw new ArgumentException("Le meuble n'est pas présent dans le plan.");
             }
@@ -80,10 +64,10 @@ namespace PROJET_PIIA.Model {
 
 
         public void supprimerMeuble(Meuble m) {
-            if (meubles.Contains(m)) {
+            if (Meubles.Contains(m)) {
                 m.Position = new Point(-1, -1);
                 m.Orientation = (1, 0);
-                meubles.Remove(m);
+                Meubles.Remove(m);
             } else {
                 throw new ArgumentException("Le meuble n'est pas présent dans le plan.");
             }
@@ -92,15 +76,15 @@ namespace PROJET_PIIA.Model {
         public override string ToString() {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"Plan ID: {Id}");
-            sb.AppendLine($"Nom: {nom}");
+            sb.AppendLine($"Nom: {Nom}");
             sb.AppendLine("Murs: ");
-            sb.AppendLine(murs.ToString());  // Assuming Murs has a ToString method
+            sb.AppendLine(Murs.ToString());  // Assuming Murs has a ToString method
 
             sb.AppendLine("Meubles: ");
-            if (meubles.Count == 0) {
+            if (Meubles.Count == 0) {
                 sb.AppendLine("  Aucun meuble");
             } else {
-                foreach (var meuble in meubles) {
+                foreach (var meuble in Meubles) {
                     sb.AppendLine($"  - {meuble.ToString()}");
                 }
             }

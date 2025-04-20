@@ -2,60 +2,22 @@
 
 namespace PROJET_PIIA.Model {
     public class Meuble {
-        public List<Tags> tags { get; }
+        public List<Tags> tags { get; } = new();
 
-        private float? _prix = null;
-        public float? Prix {
-            get => _prix;
-            set {
-                if (value.HasValue && IsValidPositive(value.Value)) _prix = value;
-                else _prix = _prix;
-            }
-        }
-
+        public float? Prix { get; set; }
         public string Description { get; set; } = "";
-
-        private string _nom;
-        public string Nom {
-            get => _nom;
-            set => _nom = IsNonEmpty(value) ? value : _nom;
-        }
-
+        public string Nom { get; }
         public string? ImagePath = null;
 
-        // si doit etre posé contre un mur
-        public bool IsMural = false;
-        
+        public bool IsMural = false; // si doit etre posé contre un mur
+        public Point? Position { get; set; } = null;
 
-        private Point _position;
-        public Point Position {
-            get => _position;
-            set {
-                    _position = value;
-            }
-        }
+        public (float, float) Dimensions { get; set; }
+        public float Width => Dimensions.Item1;
+        public float Height => Dimensions.Item2;
 
-        private (float, float) _dimensions;
-        // verbeux les fonction imo
-        public (float, float) Dimensions {
-            get => _dimensions;
-            set => _dimensions = IsValidPositive(value.Item1) && IsValidPositive(value.Item2) ? value : _dimensions;
-        }
 
-        private (float, float) _orientation = (1, 0);
-        public (float, float) Orientation {
-            get => _orientation;
-            set {
-                // Add vector magnitude check
-                float magnitude = (float)Math.Sqrt(value.Item1 * value.Item1 + value.Item2 * value.Item2);
-                if (magnitude > 0.9f && magnitude < 1.1f) { // Allow slight floating point imprecision
-                    _orientation = value;
-                }
-            }
-        }
-
-        // en vrai je ne comprends pas à  100% de creer plusieurs attribut qui en englobe un
-
+        public (float, float) Orientation { get; set; } = (1, 0);
 
         private bool IsValidPositive(float value) => value > 0;
         private bool IsNonEmpty(string value) => !string.IsNullOrEmpty(value);
@@ -63,121 +25,98 @@ namespace PROJET_PIIA.Model {
 
         //Constructeur
         public Meuble(string nom, (float, float) dim) {
-            Nom = nom;
+            Nom = nom ?? throw new ArgumentNullException(nameof(nom));
+
             Dimensions = dim;
         }
         //Full
-        public Meuble(string nom, List<Tags> tags, float prix, string description, string image,  (float, float) dim) {
+        public Meuble(string nom, List<Tags> tags, float prix, string description, string image, (float, float) dim) {
             Nom = nom;
-            this.tags = tags ?? new List<Tags>(); 
+            this.tags = tags ?? new List<Tags>();
             Prix = prix;
             Description = description;
             this.ImagePath = image;
-            Position = new Point(-1,-1);  //pas encore placé dans le plan
+            Position = new Point(-1, -1);  //pas encore placé dans le plan
             Dimensions = dim;
-            Orientation = (0, 0);
         }
 
 
+        // Helper method to check if a point is inside a meuble
+        public bool IsPointInMeuble(Point point) {
+            if (Position == null) return false;
+            var pos = Position.Value;
+            return point.X >= pos.X &&
+                   point.X <= pos.X + Width &&
+                   point.Y >= pos.Y &&
+                   point.Y <= pos.Y + Height;
+        }
 
-        // a mettre dans un controleur ?
         public bool ChevaucheMur(Murs murs) {
-            if (Position == new Point(-1,-1))
-                return false; // pas encore placé
+            if (!Position.HasValue) return false;
 
-            Point meublePos = Position;
-            float largeur = Dimensions.Item1;
-            float hauteur = Dimensions.Item2;
-
-
-            float angleRad = (float)Math.Atan2(Orientation.Item2, Orientation.Item1);
-
-
-            List<Point> corners = new List<Point> {
-            meublePos, // Top-left
-            new Point((int)(meublePos.X + largeur), meublePos.Y), // Top-right
-            new Point((int)(meublePos.X + largeur), (int)(meublePos.Y + hauteur)), // Bottom-right
-            new Point(meublePos.X, (int)(meublePos.Y + hauteur)) // Bottom-left
-         };
-
-
-            var meubleSegments = new List<(Point, Point)>
-            {
+            var pos = Position.Value;
+            var angleRad = (float)Math.Atan2(Orientation.Item2, Orientation.Item1);
+            var corners = new List<Point> {
+                pos,
+                new ((int)(pos.X + Width), pos.Y),
+                new ((int)(pos.X + Width), (int)(pos.Y + Height)),
+                new (pos.X, (int)(pos.Y + Height))
+               };
+            var meubleSegments = new List<(Point, Point)> {
                 (corners[0], corners[1]),
                 (corners[1], corners[2]),
                 (corners[2], corners[3]),
                 (corners[3], corners[0])
             };
-
-
-            var mursSegments = murs.GetSegments();
-
-
-            foreach (var segMeuble in meubleSegments) {
-                foreach (var segMur in mursSegments) {
-                    if (Murs.SegmentsIntersect(segMeuble.Item1, segMeuble.Item2, segMur.Item1, segMur.Item2))
-                        return true;
-                }
-            }
-
-            return false;
+            return meubleSegments
+                .Any(segMeuble => murs.GetSegments()
+                    .Any(segMur => Murs.SegmentsIntersect(segMeuble.Item1, segMeuble.Item2, segMur.Item1, segMur.Item2)));
         }
 
-        // a mettre dans un controleur ?
-        public bool chevaucheMeuble(Meuble autre) {
-            if (Position == null || autre.Position == null)
-                return false; // au moins un meuble n'est pas placé
+        public bool ChevaucheMeuble(Meuble autre) {
+            if (!Position.HasValue || !autre.Position.HasValue) return false;
 
-            var (x1, y1) = (Position.X, Position.Y);
-            var (w1, h1) = Dimensions;
+            var p1 = Position.Value;
+            var p2 = autre.Position.Value;
 
-            var (x2, y2) = (autre.Position.X, autre.Position.Y);
-            var (w2, h2) = autre.Dimensions;
-
-            bool overlapX = x1 < x2 + w2 && x1 + w1 > x2;
-            bool overlapY = y1 < y2 + h2 && y1 + h1 > y2;
-
-            return overlapX && overlapY;
+            return p1.X < p2.X + autre.Width && p1.X + Width > p2.X &&
+                   p1.Y < p2.Y + autre.Height && p1.Y + Height > p2.Y;
         }
 
-        // a mettre dans un controleur ?
         public void deplacer(Point nouvellePos) {
-            if (nouvellePos.is_valid()) {
-                Position = nouvellePos;
+            if (nouvellePos.is_valid()) Position = nouvellePos;
+            else throw new ArgumentException("La nouvelle position n'est pas valide.");
+        }
+
+
+
+        public void tourner(float deltaAngleDegrees, bool fixedDirection) {
+            float angleRad = deltaAngleDegrees * (float)Math.PI / 180f;
+            float x = (float)Math.Cos(angleRad);
+            float y = (float)Math.Sin(angleRad);
+            if (fixedDirection) {
+                var directions = new (float, float)[]{
+                    (-1, -1), (0, -1),(1, -1),  // NW, N, NE
+                    (-1, 0), /*   */ (1, 0),    //  W,  , E
+                    (-1, 1), (0, 1), (1, 1),   //  SW, S, SE
+                };
+                (float bestX, float bestY) = directions
+                    .OrderBy(dir => Math.Abs(dir.Item1 - x) + Math.Abs(dir.Item2 - y)) 
+                    .First();
+                Orientation = (bestX, bestY);
             } else {
-                throw new ArgumentException("La nouvelle position n'est pas valide.");
+                (float ox,float oy) = (Orientation.Item1,  Orientation.Item2);
+                if (Math.Abs(ox) < 0.001f && Math.Abs(oy) < 0.001f) {
+                    ox = 1;
+                    oy = 0;
+                }
+                (float newX, float newY) = (ox * x - oy * y, ox *y + oy * x);
+                float magnitude = (float)Math.Sqrt(newX * newX + newY * newY);
+                newX /= magnitude; newY /= magnitude;
+                Orientation = (newX, newY);
             }
         }
 
-        // a mettre dans un controleur ?
-        // In the Meuble.cs file, modify the tourner method:
-        public void tourner(float deltaAngleDegrees) {
-            float deltaAngleRad = deltaAngleDegrees * (float)Math.PI / 180f;
-
-            // Get current orientation with fallback to (1,0)
-            float ox = Orientation.Item1;
-            float oy = Orientation.Item2;
-
-            // Handle zero-vector edge case
-            if (Math.Abs(ox) < 0.001f && Math.Abs(oy) < 0.001f) {
-                ox = 1;
-                oy = 0;
-            }
-
-            // Apply rotation matrix
-            float cos = (float)Math.Cos(deltaAngleRad);
-            float sin = (float)Math.Sin(deltaAngleRad);
-
-            float newX = ox * cos - oy * sin;
-            float newY = ox * sin + oy * cos;
-
-            // Normalize vector
-            float magnitude = (float)Math.Sqrt(newX * newX + newY * newY);
-            newX /= magnitude;
-            newY /= magnitude;
-
-            Orientation = (newX, newY);
-        }
 
         public float getAngle() {
             // Handle invalid orientation
@@ -194,6 +133,41 @@ namespace PROJET_PIIA.Model {
             return angleDeg;
         }
 
+        // Check if a meuble collides with walls or other meubles
+        public bool CheckMeubleCollision(List<Meuble> meubles, Murs murs) {
+            // Check collision with walls
+            if (this.ChevaucheMur(murs)) {
+                return true;
+            }
+
+            // Check collision with other meubles
+            foreach (var otherMeuble in meubles) {
+                if (otherMeuble != this && this.ChevaucheMeuble(otherMeuble)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public PointF GetCenter() {
+            if (Position == null) throw new InvalidOperationException("GetCenter() : Position non définie.");
+            return new PointF(Position.Value.X + Width / 2f, Position.Value.Y + Height / 2f);
+        }
+
+        public Meuble Copier() {
+            return new Meuble(
+                this.Nom,
+                new List<Tags>(this.tags), 
+                this.Prix ?? 0,
+                this.Description,
+                this.ImagePath,
+                this.Dimensions
+            ) {
+                Position = this.Position,  
+                Orientation = this.Orientation 
+            };
+        }
 
 
         public override string ToString() {

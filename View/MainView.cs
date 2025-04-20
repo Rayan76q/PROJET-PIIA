@@ -1,4 +1,6 @@
-﻿using PROJET_PIIA.Controleurs;
+﻿#nullable disable
+
+using PROJET_PIIA.Controleurs;
 using PROJET_PIIA.Model;
 using System.Drawing;
 using System.Windows.Forms;
@@ -24,7 +26,7 @@ namespace PROJET_PIIA.View {
         private Panel filterPanel;
         private Button filterButton;
         private FlowLayoutPanel meubleListPanel;
-        private FlowLayoutPanel tagsPanel;
+        //private FlowLayoutPanel tagsPanel;
         private bool isFilterPanelVisible = false;
         private List<string> availableTags = TagExtensions.allStrings();
         private List<string> selectedTags = new List<string>();

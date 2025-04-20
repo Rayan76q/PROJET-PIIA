@@ -14,8 +14,8 @@ namespace PROJET_PIIA.Model {
             try {
                 Compte compte = new Compte(nom, password);
                 return compte;
-            } catch (ArgumentException e) {
-                throw e;
+            } catch {
+                throw;
             }
         }
 
