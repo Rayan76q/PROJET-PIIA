@@ -18,24 +18,8 @@ namespace PROJET_PIIA.Model {
 
 
 
-        public void PlacerMeuble(Meuble meuble, Point position) {
-            // Sauvegarder la position initiale s'il était déjà placé
-            var oldPos = meuble.Position;
-
+        public void PlacerMeuble(Meuble meuble, Point position) { 
             meuble.Position = position;
-
-            //if (meuble.ChevaucheMur(Murs)) {
-            //    meuble.Position = oldPos;
-            //    throw new ArgumentException("Le meuble ne peut pas être placé à cette position car il chevauche un mur.");
-            //}
-
-            //foreach (var other in Meubles) {
-            //    if (other != meuble && meuble.ChevaucheMeuble(other)) {
-            //        meuble.Position = oldPos;
-            //        throw new ArgumentException("Le meuble ne peut pas être placé ici car il chevauche un autre meuble.");
-            //    }
-            //}
-
             Meubles.Add(meuble);
         }
 
@@ -63,7 +47,7 @@ namespace PROJET_PIIA.Model {
         }
 
 
-        public void supprimerMeuble(Meuble m) {
+        public void SupprimerMeuble(Meuble m) {
             if (Meubles.Contains(m)) {
                 m.Position = new Point(-1, -1);
                 m.Orientation = (1, 0);

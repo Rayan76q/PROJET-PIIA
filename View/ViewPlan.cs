@@ -256,9 +256,15 @@ namespace PROJET_PIIA.View {
             base.Dispose(disposing);
         }
 
+        private void SupprimeMeubleSelection() {
+            if (_selectedMeuble != null) {
+                ctrg.SupprimerMeuble(_selectedMeuble);
+            }
+        }
+
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData) {
             if (keyData == Keys.Delete && _selectedMeuble != null) {
-                //DeleteMeuble(_selectedMeuble);
+                SupprimeMeubleSelection();
                 _selectedMeuble = null;
                 Invalidate();
                 return true;

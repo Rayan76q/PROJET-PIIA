@@ -62,6 +62,10 @@ namespace PROJET_PIIA.Controleurs {
             this.plan.PlacerMeuble(m, position);
         }
 
+        public void SupprimerMeuble(Meuble m) {
+            this.plan.SupprimerMeuble(m);
+        }
+
         public List<Meuble> ObtenirMeubles() {
             return this.plan.Meubles;
         }
