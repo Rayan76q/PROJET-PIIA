@@ -70,7 +70,7 @@ namespace PROJET_PIIA.View {
             //ctrg = new ControleurMainView(m);
             planView = new PlanView(new PlanControleur(m));
 
-            MubleSidePanel = new SidePanelMeuble();
+            MubleSidePanel = new SidePanelMeuble(m);
             MurSidePanel = new MurSidePanel();
             _currentEditor = MubleSidePanel;
             _currentEditor.Dock = DockStyle.Fill;
@@ -149,7 +149,6 @@ namespace PROJET_PIIA.View {
             spliterSidePlan = new SplitContainer();
             modeSelector1 = new ModeSelector();
             button1 = new Button();
-            //button2 = new Button();
             label1 = new Label();
             labelsurface = new Label();
             zoombar = new TrackBar();
@@ -175,7 +174,6 @@ namespace PROJET_PIIA.View {
             mainToolStrip.RenderMode = ToolStripRenderMode.System;
             mainToolStrip.Size = new Size(1128, 35);
             mainToolStrip.TabIndex = 0;
-            //mainToolStrip.ItemClicked += mainToolStrip_ItemClicked_2;
             // 
             // appNameLabel
             // 
@@ -206,7 +204,6 @@ namespace PROJET_PIIA.View {
             // 
             searchToolBox.Name = "searchToolBox";
             searchToolBox.Size = new Size(114, 35);
-            //searchToolBox.Click += searchToolBox_Click;
             // 
             // searchButton
             // 
@@ -260,19 +257,16 @@ namespace PROJET_PIIA.View {
             loginMenuItem.Name = "loginMenuItem";
             loginMenuItem.Size = new Size(168, 32);
             loginMenuItem.Text = "Login";
-            //loginMenuItem.Click += LoginMenuItem_Click;
             // 
             // signupMenuItem
             // 
             signupMenuItem.Name = "signupMenuItem";
             signupMenuItem.Size = new Size(168, 32);
             signupMenuItem.Text = "Sign Up";
-            //signupMenuItem.Click += SignupMenuItem_Click;
             // 
             // spliterSidePlan
             // 
             spliterSidePlan.Dock = DockStyle.Fill;
-            spliterSidePlan.IsSplitterFixed = true;
             spliterSidePlan.Location = new Point(0, 35);
             spliterSidePlan.Margin = new Padding(3, 4, 3, 4);
             spliterSidePlan.Name = "spliterSidePlan";
@@ -281,7 +275,6 @@ namespace PROJET_PIIA.View {
             // 
             spliterSidePlan.Panel2.Controls.Add(modeSelector1);
             spliterSidePlan.Panel2.Controls.Add(button1);
-            //spliterSidePlan.Panel2.Controls.Add(button2);
             spliterSidePlan.Panel2.Controls.Add(label1);
             spliterSidePlan.Panel2.Controls.Add(labelsurface);
             spliterSidePlan.Panel2.Controls.Add(zoombar);
@@ -290,43 +283,41 @@ namespace PROJET_PIIA.View {
             spliterSidePlan.Panel2.Controls.Add(Redo);
             spliterSidePlan.Panel2.Controls.Add(Undo);
             spliterSidePlan.Panel2.Controls.Add(toggleButton);
-            //spliterSidePlan.Panel2.Paint += splitContainer1_Panel2_Paint;
             spliterSidePlan.Size = new Size(1128, 585);
             spliterSidePlan.SplitterDistance = 270;
             spliterSidePlan.SplitterWidth = 5;
             spliterSidePlan.TabIndex = 1;
             spliterSidePlan.TabStop = false;
-            //spliterSidePlan.SplitterMoved += splitContainer1_SplitterMoved;
             // 
             // modeSelector1
             // 
+            modeSelector1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             modeSelector1.BackColor = Color.LightGray;
             modeSelector1.Location = new Point(642, 525);
             modeSelector1.Modes.Add("Meublage");
             modeSelector1.Modes.Add("Murage");
             modeSelector1.Name = "modeSelector1";
             modeSelector1.SelectedIndex = 0;
-            modeSelector1.Size = new Size(188, 38);
+            modeSelector1.Size = new Size(187, 38);
             modeSelector1.TabIndex = 12;
             modeSelector1.Click += modeSelector1_Click;
             // 
             // button1
             // 
             button1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            button1.Location = new Point(776, 445);
+            button1.Location = new Point(774, 445);
             button1.Margin = new Padding(3, 4, 3, 4);
             button1.Name = "button1";
             button1.Size = new Size(50, 52);
             button1.TabIndex = 11;
             button1.Text = "🖊️";
             button1.UseVisualStyleBackColor = false;
-            //button1.Click += button1_Click_1;
             // 
             // label1
             // 
             label1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             label1.AutoSize = true;
-            label1.Location = new Point(632, 37);
+            label1.Location = new Point(630, 37);
             label1.Name = "label1";
             label1.Size = new Size(45, 20);
             label1.TabIndex = 8;
@@ -336,7 +327,7 @@ namespace PROJET_PIIA.View {
             // 
             labelsurface.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             labelsurface.AutoSize = true;
-            labelsurface.Location = new Point(632, 19);
+            labelsurface.Location = new Point(630, 19);
             labelsurface.Name = "labelsurface";
             labelsurface.Size = new Size(82, 20);
             labelsurface.TabIndex = 7;
@@ -353,7 +344,7 @@ namespace PROJET_PIIA.View {
             // showgrid
             // 
             showgrid.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            showgrid.Location = new Point(683, 347);
+            showgrid.Location = new Point(681, 347);
             showgrid.Name = "showgrid";
             showgrid.Size = new Size(50, 51);
             showgrid.TabIndex = 4;

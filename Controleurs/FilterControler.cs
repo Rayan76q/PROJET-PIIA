@@ -3,8 +3,10 @@
 namespace PROJET_PIIA.Controleurs {
     public class FilterControler {
         Catalogue cataloge;
-        List<Tag> tagsSelection;
-        List<Tag> tagsDisponible;
+        public List<Tag> tagsSelection;
+        public List<Tag> tagsDisponible;
+
+        public event Action TagsModifies;
 
         public FilterControler(Modele m) { 
             cataloge = m.Catalogue;
@@ -12,13 +14,18 @@ namespace PROJET_PIIA.Controleurs {
             tagsDisponible = Enum.GetValues(typeof(Tag)).Cast<Tag>().ToList();
         }
 
-        void getMeubleToDisplay() {
-            cataloge.getWithTags(tagsSelection);
+        public List<Meuble> getMeubleToDisplay() {
+            if (tagsSelection.Count == 0) {
+                return cataloge.Meubles;
+            }
+            return cataloge.getWithTags(tagsSelection);
         }
 
-        void toggleTag(Tag tag) {
+        public void toggleTag(Tag tag) {
             tagsDisponible.Remove(tag);
             tagsSelection.Add(tag);
         }
+
+        public bool EstActif(Tag tag) => tagsSelection.Contains(tag);
     }
 }
