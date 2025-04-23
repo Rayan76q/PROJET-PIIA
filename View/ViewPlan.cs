@@ -213,6 +213,7 @@ namespace PROJET_PIIA.View {
             PointF p = meuble.Position.Value;
             PointF screenPos = PlanToScreen(p);
             PointF center = meuble.GetCenter();
+            PointF screenCenter = PlanToScreen(center);
 
             var pen = GetMeubleBorderStyle(meuble);
             
@@ -220,7 +221,7 @@ namespace PROJET_PIIA.View {
             using (Font font = new Font("Arial", 8)) {
 
                 try {
-                    g.TranslateTransform(center.X, center.Y);
+                    g.TranslateTransform(screenCenter.X, screenCenter.Y);
                     g.RotateTransform(meuble.getAngle());
 
                     PointF draw = new(-meuble.Width / 2, -meuble.Height / 2);
@@ -256,6 +257,7 @@ namespace PROJET_PIIA.View {
             base.Dispose(disposing);
         }
 
+        // Ajouter un botonrouge quin'est visible que quand un meuble est selectionné
         private void SupprimeMeubleSelection() {
             if (_selectedMeuble != null) {
                 planController.SupprimerMeuble(_selectedMeuble);
