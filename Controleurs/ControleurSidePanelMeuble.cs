@@ -28,19 +28,7 @@ namespace PROJET_PIIA.Controleurs {
         //}
 
 
-        //public List<Meuble> GetFilteredMeubles(string searchQuery = "") {
-        //    return cata.Meubles
-        //               .Where(m =>
-        //                   IsMeubleVisibleWithCurrentTags(m) &&
-        //                   (string.IsNullOrEmpty(searchQuery) || m.Nom.ToLower().Contains(searchQuery.ToLower()))
-        //               )
-        //               .ToList();
-        //}
-
-        //private bool IsMeubleVisibleWithCurrentTags(Meuble m) {
-        //    // Ta logique de filtre de tags ici
-        //    return true;
-        //}
+        
 
 
 

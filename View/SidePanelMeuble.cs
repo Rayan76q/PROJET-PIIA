@@ -15,14 +15,14 @@ namespace PROJET_PIIA.View {
     public partial class SidePanelMeuble : UserControl {
 
         ControleurSidePanelMeuble ctr;
-        
+
         public SidePanelMeuble(Modele m) {
             this.ctr = new ControleurSidePanelMeuble(m);
             InitializeComponent();
             var fcontroleur = new FilterControler(m);
             fcontroleur.TagsModifies += update_meubles;
             filterPanel1 = new FilterPanel(fcontroleur);
-            layout.Controls.Add(filterPanel1, 0, 1); 
+            layout.Controls.Add(filterPanel1, 0, 1);
             filterPanel1.Dock = DockStyle.Fill;
             update_meubles();
             flowLayoutPanel1.VerticalScroll.Visible = true; // metre via designer ?
@@ -32,15 +32,18 @@ namespace PROJET_PIIA.View {
             ctr.CollapseFilterSelection();
             if (!ctr.filterSelectionColapsed) {
                 layout.RowStyles[1].SizeType = SizeType.AutoSize;
-                layout.RowStyles[1].Height = 40; // hauteur par defaut au cas ou autosize ne fais rien
+                layout.RowStyles[1].Height = 20; // hauteur par defaut au cas ou autosize ne fais rien
+                layout.RowStyles[2].Height = 80;
             } else {
                 layout.RowStyles[1].SizeType = SizeType.Absolute;
                 layout.RowStyles[1].Height = 0;
+                layout.RowStyles[2].Height = 0;
             }
         }
 
         private void update_meubles() {
-            foreach (var m in filterPanel1.controller.getMeubleToDisplay()) {
+            flowLayoutPanel1.Controls.Clear();
+            foreach (var m in filterPanel1.controller.getMeubleToDisplay(textBox1.Text)) {
                 AddMeubleToPanel(m);
             }
             Invalidate();
@@ -57,7 +60,14 @@ namespace PROJET_PIIA.View {
             flowLayoutPanel1.Controls.Add(meublePanel);
         }
 
+        private void buttonSearch_Click(object sender, EventArgs e) {
+            update_meubles();
+        }
 
+        private void textBox1_TextChanged(object sender, EventArgs e) {
+            update_meubles();
+        }
 
+        
     }
 }

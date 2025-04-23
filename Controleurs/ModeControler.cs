@@ -13,7 +13,7 @@ namespace PROJET_PIIA.Controleurs {
     public class ModeControler {
 
         public event Action ModeChangedActions = delegate { };
-        public EditMode ModeEdition { get; private set; } = EditMode.Meuble;
+        public EditMode ModeEdition { get; private set; } = EditMode.Mur;
 
         public void SwitchMode() {
             ModeEdition = (ModeEdition == EditMode.Meuble) ? EditMode.Mur : EditMode.Meuble;

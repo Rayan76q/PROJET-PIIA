@@ -59,10 +59,10 @@ namespace PROJET_PIIA.View {
             _currentEditor = MubleSidePanel;
             _currentEditor.Dock = DockStyle.Fill;
 
-            spliterSidePlan.Panel1.Controls.Add(MubleSidePanel);
+            spliterSidePlan.Panel1.Controls.Add(MurSidePanel);
             spliterSidePlan.Panel2.Controls.Add(planView);
             modeControler.ModeChangedActions += SwitchSidePanel;
-            
+
 
         }
 
@@ -77,12 +77,12 @@ namespace PROJET_PIIA.View {
             base.Dispose(disposing);
         }
 
-        
+
 
         private void SwitchSidePanel() {
             spliterSidePlan.Panel1.Controls.Clear();
             switch (modeControler.ModeEdition) {
-                case EditMode.Meuble :
+                case EditMode.Meuble:
                     _currentEditor = MubleSidePanel;
                     break;
                 case EditMode.Mur:
@@ -143,74 +143,74 @@ namespace PROJET_PIIA.View {
             mainToolStrip.Location = new Point(0, 0);
             mainToolStrip.Name = "mainToolStrip";
             mainToolStrip.RenderMode = ToolStripRenderMode.System;
-            mainToolStrip.Size = new Size(1128, 35);
+            mainToolStrip.Size = new Size(987, 28);
             mainToolStrip.TabIndex = 0;
             // 
             // appNameLabel
             // 
             appNameLabel.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             appNameLabel.Name = "appNameLabel";
-            appNameLabel.Size = new Size(85, 32);
+            appNameLabel.Size = new Size(65, 25);
             appNameLabel.Text = "PLANCHA!";
             // 
             // newButton
             // 
             newButton.Name = "newButton";
-            newButton.Size = new Size(72, 32);
+            newButton.Size = new Size(59, 25);
             newButton.Text = "Nouveau";
             // 
             // modifyButton
             // 
             modifyButton.Name = "modifyButton";
-            modifyButton.Size = new Size(70, 32);
+            modifyButton.Size = new Size(56, 25);
             modifyButton.Text = "Modifier";
             // 
             // convertButton
             // 
             convertButton.Name = "convertButton";
-            convertButton.Size = new Size(73, 32);
+            convertButton.Size = new Size(60, 25);
             convertButton.Text = "Convertir";
             // 
             // searchToolBox
             // 
             searchToolBox.Name = "searchToolBox";
-            searchToolBox.Size = new Size(114, 35);
+            searchToolBox.Size = new Size(100, 28);
             // 
             // searchButton
             // 
             searchButton.Name = "searchButton";
-            searchButton.Size = new Size(34, 32);
+            searchButton.Size = new Size(23, 25);
             searchButton.Text = "🔍";
             // 
             // downloadButton
             // 
             downloadButton.Name = "downloadButton";
-            downloadButton.Size = new Size(29, 32);
+            downloadButton.Size = new Size(23, 25);
             downloadButton.Text = "⬇";
             // 
             // shareButton
             // 
             shareButton.Name = "shareButton";
-            shareButton.Size = new Size(29, 32);
+            shareButton.Size = new Size(23, 25);
             shareButton.Text = "↗";
             // 
             // commentButton
             // 
             commentButton.Name = "commentButton";
-            commentButton.Size = new Size(34, 32);
+            commentButton.Size = new Size(23, 25);
             commentButton.Text = "💬";
             // 
             // emailButton
             // 
             emailButton.Name = "emailButton";
-            emailButton.Size = new Size(34, 32);
+            emailButton.Size = new Size(23, 25);
             emailButton.Text = "✉";
             // 
             // rightAlignSeparator
             // 
             rightAlignSeparator.Alignment = ToolStripItemAlignment.Right;
             rightAlignSeparator.Name = "rightAlignSeparator";
-            rightAlignSeparator.Size = new Size(6, 35);
+            rightAlignSeparator.Size = new Size(6, 28);
             // 
             // avatarButton
             // 
@@ -219,27 +219,26 @@ namespace PROJET_PIIA.View {
             avatarButton.DropDownItems.AddRange(new ToolStripItem[] { loginMenuItem, signupMenuItem });
             avatarButton.Font = new Font("Segoe UI", 12F);
             avatarButton.Name = "avatarButton";
-            avatarButton.Size = new Size(49, 32);
+            avatarButton.Size = new Size(45, 25);
             avatarButton.Text = "👤";
             avatarButton.ToolTipText = "Account options";
             // 
             // loginMenuItem
             // 
             loginMenuItem.Name = "loginMenuItem";
-            loginMenuItem.Size = new Size(168, 32);
+            loginMenuItem.Size = new Size(135, 26);
             loginMenuItem.Text = "Login";
             // 
             // signupMenuItem
             // 
             signupMenuItem.Name = "signupMenuItem";
-            signupMenuItem.Size = new Size(168, 32);
+            signupMenuItem.Size = new Size(135, 26);
             signupMenuItem.Text = "Sign Up";
             // 
             // spliterSidePlan
             // 
             spliterSidePlan.Dock = DockStyle.Fill;
-            spliterSidePlan.Location = new Point(0, 35);
-            spliterSidePlan.Margin = new Padding(3, 4, 3, 4);
+            spliterSidePlan.Location = new Point(0, 28);
             spliterSidePlan.Name = "spliterSidePlan";
             // 
             // spliterSidePlan.Panel2
@@ -252,32 +251,33 @@ namespace PROJET_PIIA.View {
             spliterSidePlan.Panel2.Controls.Add(Redo);
             spliterSidePlan.Panel2.Controls.Add(Undo);
             spliterSidePlan.Panel2.Controls.Add(toggleButton);
-            spliterSidePlan.Size = new Size(1128, 585);
-            spliterSidePlan.SplitterDistance = 270;
-            spliterSidePlan.SplitterWidth = 5;
+            spliterSidePlan.Size = new Size(987, 437);
+            spliterSidePlan.SplitterDistance = 236;
             spliterSidePlan.TabIndex = 1;
             spliterSidePlan.TabStop = false;
             // 
             // modeSelector1
             // 
-            modeSelector1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            modeSelector1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             modeSelector1.BackColor = Color.LightGray;
-            modeSelector1.Location = new Point(642, 525);
-            modeSelector1.Modes.Add("Meublage");
+            modeSelector1.Location = new Point(562, 394);
+            modeSelector1.Margin = new Padding(3, 2, 3, 2);
             modeSelector1.Modes.Add("Murage");
+            modeSelector1.Modes.Add("Meublage");
             modeSelector1.Name = "modeSelector1";
             modeSelector1.SelectedIndex = 0;
-            modeSelector1.Size = new Size(186, 38);
+            modeSelector1.Size = new Size(163, 26);
             modeSelector1.TabIndex = 12;
+            modeSelector1.Load += modeSelector1_Load;
             modeSelector1.Click += modeSelector1_Click;
             // 
             // label1
             // 
             label1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             label1.AutoSize = true;
-            label1.Location = new Point(629, 37);
+            label1.Location = new Point(551, 28);
             label1.Name = "label1";
-            label1.Size = new Size(45, 20);
+            label1.Size = new Size(36, 15);
             label1.TabIndex = 8;
             label1.Text = "utile :";
             // 
@@ -285,44 +285,48 @@ namespace PROJET_PIIA.View {
             // 
             labelsurface.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             labelsurface.AutoSize = true;
-            labelsurface.Location = new Point(629, 19);
+            labelsurface.Location = new Point(551, 14);
             labelsurface.Name = "labelsurface";
-            labelsurface.Size = new Size(82, 20);
+            labelsurface.Size = new Size(65, 15);
             labelsurface.TabIndex = 7;
             labelsurface.Text = "Superficie :";
             // 
             // zoombar
             // 
             zoombar.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            zoombar.Location = new Point(3, 507);
+            zoombar.Location = new Point(3, 378);
+            zoombar.Margin = new Padding(3, 2, 3, 2);
             zoombar.Name = "zoombar";
-            zoombar.Size = new Size(150, 56);
+            zoombar.Size = new Size(131, 45);
             zoombar.TabIndex = 5;
             // 
             // showgrid
             // 
             showgrid.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            showgrid.Location = new Point(778, 468);
+            showgrid.Location = new Point(681, 349);
+            showgrid.Margin = new Padding(3, 2, 3, 2);
             showgrid.Name = "showgrid";
-            showgrid.Size = new Size(50, 51);
+            showgrid.Size = new Size(44, 38);
             showgrid.TabIndex = 4;
             showgrid.Text = "⊞";
             showgrid.UseVisualStyleBackColor = true;
             // 
             // Redo
             // 
-            Redo.Location = new Point(78, 7);
+            Redo.Location = new Point(68, 5);
+            Redo.Margin = new Padding(3, 2, 3, 2);
             Redo.Name = "Redo";
-            Redo.Size = new Size(50, 51);
+            Redo.Size = new Size(44, 38);
             Redo.TabIndex = 2;
             Redo.Text = "↪";
             Redo.UseVisualStyleBackColor = true;
             // 
             // Undo
             // 
-            Undo.Location = new Point(3, 7);
+            Undo.Location = new Point(3, 5);
+            Undo.Margin = new Padding(3, 2, 3, 2);
             Undo.Name = "Undo";
-            Undo.Size = new Size(50, 51);
+            Undo.Size = new Size(44, 38);
             Undo.TabIndex = 1;
             Undo.Text = "↩";
             Undo.UseVisualStyleBackColor = true;
@@ -331,9 +335,10 @@ namespace PROJET_PIIA.View {
             // 
             toggleButton.Anchor = AnchorStyles.Left;
             toggleButton.CausesValidation = false;
-            toggleButton.Location = new Point(3, 252);
+            toggleButton.Location = new Point(3, 188);
+            toggleButton.Margin = new Padding(3, 2, 3, 2);
             toggleButton.Name = "toggleButton";
-            toggleButton.Size = new Size(32, 101);
+            toggleButton.Size = new Size(28, 76);
             toggleButton.TabIndex = 0;
             toggleButton.Text = "<";
             toggleButton.UseVisualStyleBackColor = true;
@@ -341,11 +346,12 @@ namespace PROJET_PIIA.View {
             // 
             // MainView
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1128, 620);
+            ClientSize = new Size(987, 465);
             Controls.Add(spliterSidePlan);
             Controls.Add(mainToolStrip);
+            Margin = new Padding(3, 2, 3, 2);
             Name = "MainView";
             Text = "Kitchen Design App";
             mainToolStrip.ResumeLayout(false);
@@ -379,10 +385,10 @@ namespace PROJET_PIIA.View {
         private Label labelsurface;
         private Label label1;
         private Button toggleButton;
-        
 
 
-       // a metre dans un usercontrol/ controleur spé 
+
+        // a metre dans un usercontrol/ controleur spé 
         private void LoginMenuItem_Click(object sender, EventArgs e) {
             using (LoginView loginDialog = new LoginView()) {
                 DialogResult result = loginDialog.ShowDialog(this);
@@ -476,6 +482,10 @@ namespace PROJET_PIIA.View {
 
         private void modeSelector1_Click(object sender, EventArgs e) {
             modeControler.SwitchMode();
+        }
+
+        private void modeSelector1_Load(object sender, EventArgs e) {
+
         }
     }
 }
