@@ -114,6 +114,7 @@ namespace PROJET_PIIA.Model {
             return sb.ToString();
         }
 
+        // TDOOOOO ça ne marche pas
         public List<Meuble> getWithTags(List<Tag> tags) {
             return Meubles.Where(meuble => tags.All(tag => meuble.tags.Contains(tag))).ToList();
         }

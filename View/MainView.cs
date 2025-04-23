@@ -50,7 +50,6 @@ namespace PROJET_PIIA.View {
         private ToolStripDropDownButton avatarButton;
         private ToolStripMenuItem loginMenuItem;
         private ToolStripSeparator rightAlignSeparator;
-        private Button button1;
         private ToolStripMenuItem signupMenuItem;
 
         private CustomControls.ModeSelector modeSelector1;
@@ -71,7 +70,7 @@ namespace PROJET_PIIA.View {
             planView = new PlanView(new PlanControleur(m));
 
             MubleSidePanel = new SidePanelMeuble(m);
-            MurSidePanel = new MurSidePanel();
+            MurSidePanel = new MurSidePanel(m, planView);
             _currentEditor = MubleSidePanel;
             _currentEditor.Dock = DockStyle.Fill;
 
@@ -108,12 +107,6 @@ namespace PROJET_PIIA.View {
                     break;
                 case EditMode.Mur:
                     _currentEditor = MurSidePanel;
-                    var murPanel = (MurSidePanel)_currentEditor;
-
-                    murPanel.PresetSelected += (preset) => {
-                        Debug.WriteLine($"Preset sélectionné : {preset}");
-                        //TODO
-                    };
                     break;
             }
             spliterSidePlan.Panel1.Controls.Add(_currentEditor);
@@ -148,12 +141,10 @@ namespace PROJET_PIIA.View {
             signupMenuItem = new ToolStripMenuItem();
             spliterSidePlan = new SplitContainer();
             modeSelector1 = new ModeSelector();
-            button1 = new Button();
             label1 = new Label();
             labelsurface = new Label();
             zoombar = new TrackBar();
             showgrid = new Button();
-            button3 = new Button();
             Redo = new Button();
             Undo = new Button();
             toggleButton = new Button();
@@ -274,12 +265,10 @@ namespace PROJET_PIIA.View {
             // spliterSidePlan.Panel2
             // 
             spliterSidePlan.Panel2.Controls.Add(modeSelector1);
-            spliterSidePlan.Panel2.Controls.Add(button1);
             spliterSidePlan.Panel2.Controls.Add(label1);
             spliterSidePlan.Panel2.Controls.Add(labelsurface);
             spliterSidePlan.Panel2.Controls.Add(zoombar);
             spliterSidePlan.Panel2.Controls.Add(showgrid);
-            spliterSidePlan.Panel2.Controls.Add(button3);
             spliterSidePlan.Panel2.Controls.Add(Redo);
             spliterSidePlan.Panel2.Controls.Add(Undo);
             spliterSidePlan.Panel2.Controls.Add(toggleButton);
@@ -298,26 +287,15 @@ namespace PROJET_PIIA.View {
             modeSelector1.Modes.Add("Murage");
             modeSelector1.Name = "modeSelector1";
             modeSelector1.SelectedIndex = 0;
-            modeSelector1.Size = new Size(187, 38);
+            modeSelector1.Size = new Size(186, 38);
             modeSelector1.TabIndex = 12;
             modeSelector1.Click += modeSelector1_Click;
-            // 
-            // button1
-            // 
-            button1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            button1.Location = new Point(774, 445);
-            button1.Margin = new Padding(3, 4, 3, 4);
-            button1.Name = "button1";
-            button1.Size = new Size(50, 52);
-            button1.TabIndex = 11;
-            button1.Text = "🖊️";
-            button1.UseVisualStyleBackColor = false;
             // 
             // label1
             // 
             label1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             label1.AutoSize = true;
-            label1.Location = new Point(630, 37);
+            label1.Location = new Point(629, 37);
             label1.Name = "label1";
             label1.Size = new Size(45, 20);
             label1.TabIndex = 8;
@@ -327,7 +305,7 @@ namespace PROJET_PIIA.View {
             // 
             labelsurface.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             labelsurface.AutoSize = true;
-            labelsurface.Location = new Point(630, 19);
+            labelsurface.Location = new Point(629, 19);
             labelsurface.Name = "labelsurface";
             labelsurface.Size = new Size(82, 20);
             labelsurface.TabIndex = 7;
@@ -344,21 +322,12 @@ namespace PROJET_PIIA.View {
             // showgrid
             // 
             showgrid.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            showgrid.Location = new Point(681, 347);
+            showgrid.Location = new Point(778, 468);
             showgrid.Name = "showgrid";
             showgrid.Size = new Size(50, 51);
             showgrid.TabIndex = 4;
             showgrid.Text = "⊞";
             showgrid.UseVisualStyleBackColor = true;
-            // 
-            // button3
-            // 
-            button3.Location = new Point(3, 63);
-            button3.Name = "button3";
-            button3.Size = new Size(125, 51);
-            button3.TabIndex = 3;
-            button3.Text = "Meuble";
-            button3.UseVisualStyleBackColor = true;
             // 
             // Redo
             // 
@@ -423,7 +392,6 @@ namespace PROJET_PIIA.View {
         }
         private SplitContainer spliterSidePlan;
         private FontDialog fontDialog1;
-        private Button button3;
         private Button Redo;
         private Button Undo;
         private Button showgrid;

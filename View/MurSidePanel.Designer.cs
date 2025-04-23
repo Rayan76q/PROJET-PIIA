@@ -25,7 +25,7 @@
         private void InitializeComponent() {
             flowLayoutPanel1 = new FlowLayoutPanel();
             splitContainer1 = new SplitContainer();
-            textBox1 = new TextBox();
+            searchBox = new TextBox();
             label1 = new Label();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
@@ -53,7 +53,7 @@
             // 
             // splitContainer1.Panel1
             // 
-            splitContainer1.Panel1.Controls.Add(textBox1);
+            splitContainer1.Panel1.Controls.Add(searchBox);
             splitContainer1.Panel1.Controls.Add(label1);
             // 
             // splitContainer1.Panel2
@@ -63,12 +63,12 @@
             splitContainer1.SplitterDistance = 110;
             splitContainer1.TabIndex = 2;
             // 
-            // textBox1
+            // searchBox
             // 
-            textBox1.Location = new Point(112, 25);
-            textBox1.Name = "textBox1";
-            textBox1.Size = new Size(118, 27);
-            textBox1.TabIndex = 1;
+            searchBox.Location = new Point(112, 25);
+            searchBox.Name = "searchBox";
+            searchBox.Size = new Size(118, 27);
+            searchBox.TabIndex = 1;
             // 
             // label1
             // 
@@ -98,7 +98,7 @@
 
         private FlowLayoutPanel flowLayoutPanel1;
         private SplitContainer splitContainer1;
-        private TextBox textBox1;
+        private TextBox searchBox;
         private Label label1;
     }
 }

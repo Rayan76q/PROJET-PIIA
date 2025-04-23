@@ -19,9 +19,12 @@ namespace PROJET_PIIA.View {
         public SidePanelMeuble(Modele m) {
             this.ctr = new ControleurSidePanelMeuble(m);
             InitializeComponent();
-            filterPanel1 = new FilterPanel(new FilterControler(m));
-            layout.Controls.Add(filterPanel1, 0, 1);
-            update_meubles();
+            var fcontroleur = new FilterControler(m);
+            fcontroleur.TagsModifies += update_meubles;
+            filterPanel1 = new FilterPanel(fcontroleur);
+            layout.Controls.Add(filterPanel1, 0, 1); 
+            filterPanel1.Dock = DockStyle.Fill;
+            
             flowLayoutPanel1.VerticalScroll.Visible = true;
         }
 
@@ -45,9 +48,9 @@ namespace PROJET_PIIA.View {
 
         private void AddMeubleToPanel(Meuble m) {
             MeublePanel meublePanel = new MeublePanel(m, new(ctr.compte));
-            int verticalScrollBarWidth = flowLayoutPanel1.VerticalScroll.Visible ? SystemInformation.VerticalScrollBarWidth : 0;
 
-            // Calcul de la largeur en tenant compte de la barre de défilement et des marges
+            // ça ne marche pas wtf
+            int verticalScrollBarWidth = flowLayoutPanel1.VerticalScroll.Visible ? SystemInformation.VerticalScrollBarWidth : 0;
             int availableWidth = flowLayoutPanel1.ClientSize.Width - verticalScrollBarWidth - flowLayoutPanel1.Margin.Left - flowLayoutPanel1.Margin.Right;
 
             meublePanel.Width = availableWidth;

@@ -8,16 +8,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using PROJET_PIIA.Controleurs;
+using PROJET_PIIA.Model;
 
 namespace PROJET_PIIA.View {
     public partial class MurSidePanel : UserControl {
-        public MurSidePanel() {
+
+        MurSidePanelControler ctr;
+        public MurSidePanel(Modele m,PlanView pv) {
+            ctr = new MurSidePanelControler(m, pv);
             InitializeComponent();
             InitializePresets();
         }
 
         private readonly List<string> _presets = new List<string> {
-            "Carré","Rectangle","L-Shape","U-Shape"
+            "carre","rectangle","lshape","ushape"
         };
 
         private void InitializePresets() {
@@ -42,9 +47,11 @@ namespace PROJET_PIIA.View {
                     Height = 80,
                     Margin = new Padding(5),
                 };
-                btn.Click += (sender, e) => OnPresetSelected(preset);
+                btn.Click += (sender, e) => {
+                    ApplyPreset(btn.Text);
+                };
 
-                flowLayoutPanel1.Controls.Add(btn);
+                    flowLayoutPanel1.Controls.Add(btn);
             }
 
             flowLayoutPanel1.SizeChanged += (sender, e) => {
@@ -57,11 +64,56 @@ namespace PROJET_PIIA.View {
             this.Invalidate();
         }
 
-        public event Action<string>? PresetSelected;
-
         private void OnPresetSelected(string presetName) {
-            PresetSelected?.Invoke(presetName);
+            //SetMurs(List<PointF> p)
+            this.searchBox.Text = ctr.GetSurperficie().ToString();
         }
+
+        public void ApplyPreset(string type) {
+            List<PointF> points = type.ToLower() switch {
+                "carre" => new List<PointF> {
+            new PointF(0, 0),
+            new PointF(200, 0),
+            new PointF(200, 200),
+            new PointF(0, 200),
+            new PointF(0, 0),
+        },
+                "rectangle" => new List<PointF> {
+            new PointF(0, 0),
+            new PointF(300, 0),
+            new PointF(300, 150),
+            new PointF(0, 150),
+            new PointF(0, 0),
+        },
+                "lshape" => new List<PointF> {
+            new PointF(0, 0),
+            new PointF(200, 0),
+            new PointF(200, 100),
+            new PointF(100, 100),
+            new PointF(100, 200),
+            new PointF(0, 200),
+            new PointF(0, 0),
+        },
+                "ushape" => new List<PointF> {
+            new PointF(0, 0),
+            new PointF(300, 0),
+            new PointF(300, 50),
+            new PointF(200, 50),
+            new PointF(200, 150),
+            new PointF(100, 150),
+            new PointF(100, 50),
+            new PointF(0, 50),
+            new PointF(0, 0),
+        },
+                _ => null
+            };
+
+            if (points != null) {
+                ctr.SetMurs(points);
+                this.searchBox.Text = ctr.GetSurperficie().ToString();
+            }
+        }
+
 
 
     }

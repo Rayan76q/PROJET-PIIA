@@ -27,6 +27,17 @@ namespace PROJET_PIIA.Model {
             this.elemsmuraux = new List<ElemMur>();
         }
 
+        public Murs(List<PointF> perimetre) {
+            //if(perimetre.Count < 3)
+            //    throw new ArgumentOutOfRangeException("Le périmètre doit contenir au moins 3 points.");
+
+            //if (checkMurs(perimetre))
+                //throw new ArgumentOutOfRangeException("Les mures s'intersectent, impossible de générer la cuisine.");
+            this.Perimetre = perimetre;
+            this.elemsmuraux = new List<ElemMur>();
+        }
+
+
 
         public static bool checkMurs(List<PointF> points) {
             for (int i = 0; i < points.Count - 1; i++) {
@@ -77,22 +88,6 @@ namespace PROJET_PIIA.Model {
                    q.Y <= Math.Max(p.Y, r.Y) && q.Y >= Math.Min(p.Y, r.Y);
         }
 
-
-
-
-
-
-
-        public Murs(List<PointF> perimetre) {
-            //if(perimetre.Count < 3)
-            //    throw new ArgumentOutOfRangeException("Le périmètre doit contenir au moins 3 points.");
-
-            if (checkMurs(perimetre))
-                throw new ArgumentOutOfRangeException("Les mures s'intersectent, impossible de générer la cuisine.");
-            this.Perimetre = perimetre;
-            this.elemsmuraux = new List<ElemMur>();
-        }
-
         float GetPerimetreLength() {
             float total = 0;
             for (int i = 0; i < Perimetre.Count; i++) {
@@ -101,6 +96,17 @@ namespace PROJET_PIIA.Model {
                 total += a.DistanceTo(b);
             }
             return total;
+        }
+
+        public float Area() {
+            int n = Perimetre.Count;
+            float area = 0;
+            for (int i = 0; i < n; i++) {
+                PointF p1 = Perimetre[i];
+                PointF p2 = Perimetre[(i + 1) % n];
+                area += (p1.X * p2.Y) - (p2.X * p1.Y);
+            }
+            return Math.Abs(area) / 2;
         }
 
         /// Renvoie l'indice du segment où la porte est placée et la position normalisée (t) de la porte dans ce segment.

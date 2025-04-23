@@ -10,7 +10,7 @@ namespace PROJET_PIIA.Controleurs {
     public class ControleurSidePanelMeuble {
 
         Catalogue cata;
-        public bool filterSelectionColapsed = true;
+        public bool filterSelectionColapsed = false;
         public Compte compte;
         
         public ControleurSidePanelMeuble(Modele m) {

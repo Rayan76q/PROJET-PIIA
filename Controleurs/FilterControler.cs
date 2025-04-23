@@ -22,8 +22,18 @@ namespace PROJET_PIIA.Controleurs {
         }
 
         public void toggleTag(Tag tag) {
-            tagsDisponible.Remove(tag);
-            tagsSelection.Add(tag);
+            if (EstActif(tag)) {
+                tagsDisponible.Add(tag);
+                tagsSelection.Remove(tag);
+            } else {
+                tagsDisponible.Remove(tag);
+                tagsSelection.Add(tag);
+            }
+            notify();
+        }
+
+        private void notify() {
+            TagsModifies?.Invoke();
         }
 
         public bool EstActif(Tag tag) => tagsSelection.Contains(tag);
