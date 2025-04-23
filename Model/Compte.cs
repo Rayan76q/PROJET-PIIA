@@ -2,7 +2,9 @@
     public class Compte {
         private static string DEFAULT_AVATAR = "";
         private static int _idCounter = 0;
-        public static Dictionary<int, Compte> comptes = new Dictionary<int, Compte>();
+        public static Dictionary<int, Compte> comptes = new Dictionary<int, Compte>(); // dans modele ?
+
+        public List<Meuble> Favorites;
 
         public static bool nomDispo(string nom) {
             foreach (Compte compte in comptes.Values) {
@@ -58,25 +60,27 @@
             _plans.Remove(p);
         }
 
-        private string _avatar; // j'aienvie de dire null par defaut pour etre sur qu'il n'y a pas d'image ?
-        public string Avatar {
-            get => _avatar;
-        }
+        public string Avatar { get; set; } // j'aienvie de dire null par defaut pour etre sur qu'il n'y a pas d'image ?
 
-
-        private bool _connected;
-        public bool Connected {
-            get => _connected;
-            set => _connected = value;
-        }
+        public bool Connected {get;set;}
 
 
         public void changeAvatar(string avatar) {
             if (string.IsNullOrEmpty(avatar))
-                _avatar = DEFAULT_AVATAR;
-            _avatar = avatar;
+                Avatar = DEFAULT_AVATAR;
+            Avatar = avatar;
         }
 
+        public Compte() {
+            Id = _idCounter++;
+            Name = "Invité";
+            Password = "1234";
+            _plans = new List<Plan>();
+            Avatar = DEFAULT_AVATAR;
+            comptes.Add(Id, this);
+            Connected = false;
+            Favorites = new();
+        }
 
         public Compte(string name, string password) {
 
@@ -89,9 +93,10 @@
             Name = name;
             Password = password;
             _plans = new List<Plan>();
-            _avatar = DEFAULT_AVATAR;
+            Avatar = DEFAULT_AVATAR;
             comptes.Add(Id, this);
             Connected = false;
+            Favorites = new();
         }
 
 

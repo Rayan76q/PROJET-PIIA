@@ -7,7 +7,7 @@ using PROJET_PIIA.Extensions;
 using PROJET_PIIA.Model;
 
 namespace PROJET_PIIA.View {
-    public partial class PlanView : UserControl {
+    public partial class PlanView {
         private void PlanView_MouseClick(object? sender, MouseEventArgs e) {
             // la selection du meuble de fais quand on souleve le click (MouseUp)
         }
@@ -16,7 +16,7 @@ namespace PROJET_PIIA.View {
 
         private void PlanView_MouseDown(object? sender, MouseEventArgs e) {
             if (e.Button == MouseButtons.Left) {
-                Point planPoint = ScreenToPlan(e.Location);
+                PointF planPoint = ScreenToPlan(e.Location);
 
                 if ((Control.ModifierKeys & Keys.Shift) != 0) {
                     _dragMode = DragMode.Pan;
@@ -25,14 +25,14 @@ namespace PROJET_PIIA.View {
                     return;
                 }
 
-                var meuble = ctrg.FindMeubleAtPoint(planPoint);
+                var meuble = planController.FindMeubleAtPoint(planPoint);
                 if (meuble != null && meuble.Position != null) {
                     _selectedMeuble = meuble;
                     _dragMode = DragMode.MoveMeuble;
                     _dragStart = e.Location;
                     
-                    Point p = meuble.Position.Value;
-                    _meubleOffset = new Point(
+                    PointF p = meuble.Position.Value;
+                    _meubleOffset = new PointF(
                         planPoint.X - p.X,
                         planPoint.Y - p.Y
                     );
@@ -41,14 +41,14 @@ namespace PROJET_PIIA.View {
                 }
 
                 if (_selectedMeuble != null) {
-                    Point screenHandle = PlanToScreen(GetHandleCenter());
+                    PointF screenHandle = PlanToScreen(GetHandleCenter());
                     Rectangle handleRect = new Rectangle(
-                        screenHandle.X - 6, screenHandle.Y - 6, 12, 12);
+                        (int)screenHandle.X - 6, (int)screenHandle.Y - 6, 12, 12);
                     if (handleRect.Contains(e.Location)) {
                         _dragMode = DragMode.RotateMeuble;
                         _dragStart = e.Location;
-                        Point center = PlanToScreen(GetMeubleCenter());
-                        Point p = new(e.Location.X - center.X, e.Location.Y - center.Y);
+                        PointF center = PlanToScreen(GetMeubleCenter());
+                        PointF p = new(e.Location.X - center.X, e.Location.Y - center.Y);
                         _initialMouseAngle = (float)Math.Atan2(p.Y,p.X);
 
                         this.Cursor = Cursors.Hand;
@@ -64,9 +64,9 @@ namespace PROJET_PIIA.View {
             //_mousePosition = e.Location;
             switch (_dragMode) {
                 case DragMode.Pan:
-                    int dx = e.X - _dragStart.X;
-                    int dy = e.Y - _dragStart.Y;
-                    _offset.Offset(dx, dy);
+                    float dx = e.X - _dragStart.X;
+                    float dy = e.Y - _dragStart.Y;
+                    _offset= new PointF(_offset.X + dx, _offset.Y + dy);
                     _dragStart = e.Location;
                     Invalidate();
                     break;
@@ -74,8 +74,8 @@ namespace PROJET_PIIA.View {
 
                 case DragMode.MoveMeuble:
                     if (_selectedMeuble != null) {
-                        Point planDansPoint = ScreenToPlan(e.Location);
-                        _selectedMeuble.Position = new Point(
+                        PointF planDansPoint = ScreenToPlan(e.Location);
+                        _selectedMeuble.Position = new PointF(
                             planDansPoint.X - _meubleOffset.X,
                             planDansPoint.Y - _meubleOffset.Y
                         );
@@ -86,7 +86,7 @@ namespace PROJET_PIIA.View {
 
                 case DragMode.RotateMeuble:
                     if (_selectedMeuble != null) {
-                        Point screenCenter = PlanToScreen(GetMeubleCenter());
+                        PointF screenCenter = PlanToScreen(GetMeubleCenter());
                         float currentAngle = (float)Math.Atan2(
                             e.Location.Y - screenCenter.Y,
                             e.Location.X - screenCenter.X
@@ -100,8 +100,8 @@ namespace PROJET_PIIA.View {
                     break;
 
                 case DragMode.None:
-                    Point planPoint = ScreenToPlan(e.Location);
-                    this.Cursor = (ctrg.FindMeubleAtPoint(planPoint) != null) ? Cursors.Hand : Cursors.Default;
+                    PointF planPoint = ScreenToPlan(e.Location);
+                    this.Cursor = (planController.FindMeubleAtPoint(planPoint) != null) ? Cursors.Hand : Cursors.Default;
                     break;
             }
             Invalidate();
@@ -110,8 +110,8 @@ namespace PROJET_PIIA.View {
         private void PlanView_MouseUp(object? sender, MouseEventArgs e) {
             if (_dragMode == DragMode.None) {
                 if ((Control.ModifierKeys & Keys.Shift) == 0 && e.Button == MouseButtons.Left) {
-                    Point planPoint = ScreenToPlan(e.Location);
-                    Meuble? meuble = ctrg.FindMeubleAtPoint(planPoint);
+                    PointF planPoint = ScreenToPlan(e.Location);
+                    Meuble? meuble = planController.FindMeubleAtPoint(planPoint);
 
                     if (meuble != null && meuble != _selectedMeuble) {
                         _selectedMeuble = meuble;
@@ -144,9 +144,9 @@ namespace PROJET_PIIA.View {
         }
 
 
-        private Point ScreenDeltaToPlanDelta(Point screenDelta) {
+        private PointF ScreenDeltaToPlanDelta(PointF screenDelta) {
             float scale = 1; // GetCurrentZoom();  // par exemple : 1.0 = 100%, 2.0 = zoom x2
-            return new Point(
+            return new PointF(
                 (int)(screenDelta.X / scale),
                 (int)(screenDelta.Y / scale)
             );

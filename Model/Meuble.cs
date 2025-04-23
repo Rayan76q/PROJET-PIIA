@@ -2,7 +2,7 @@
 
 namespace PROJET_PIIA.Model {
     public class Meuble {
-        public List<Tags> tags { get; } = new();
+        public List<Tag> tags { get; } = new();
 
         public float? Prix { get; set; }
         public string Description { get; set; } = "";
@@ -10,7 +10,7 @@ namespace PROJET_PIIA.Model {
         public string? ImagePath = null;
 
         public bool IsMural = false; // si doit etre posé contre un mur
-        public Point? Position { get; set; } = null;
+        public PointF? Position { get; set; } = null;
 
         public (float, float) Dimensions { get; set; }
         public float Width => Dimensions.Item1;
@@ -30,9 +30,9 @@ namespace PROJET_PIIA.Model {
             Dimensions = dim;
         }
         //Full
-        public Meuble(string nom, List<Tags> tags, float prix, string description, string image, (float, float) dim) {
+        public Meuble(string nom, List<Tag> tags, float prix, string description, string image, (float, float) dim) {
             Nom = nom;
-            this.tags = tags ?? new List<Tags>();
+            this.tags = tags ?? new List<Tag>();
             Prix = prix;
             Description = description;
             this.ImagePath = image;
@@ -42,7 +42,7 @@ namespace PROJET_PIIA.Model {
 
 
         // Helper method to check if a point is inside a meuble
-        public bool IsPointInMeuble(Point point) {
+        public bool IsPointInMeuble(PointF point) {
             if (Position == null) return false;
             var pos = Position.Value;
             return point.X >= pos.X &&
@@ -56,13 +56,13 @@ namespace PROJET_PIIA.Model {
 
             var pos = Position.Value;
             var angleRad = (float)Math.Atan2(Orientation.Item2, Orientation.Item1);
-            var corners = new List<Point> {
+            var corners = new List<PointF> {
                 pos,
                 new ((int)(pos.X + Width), pos.Y),
                 new ((int)(pos.X + Width), (int)(pos.Y + Height)),
                 new (pos.X, (int)(pos.Y + Height))
                };
-            var meubleSegments = new List<(Point, Point)> {
+            var meubleSegments = new List<(PointF, PointF)> {
                 (corners[0], corners[1]),
                 (corners[1], corners[2]),
                 (corners[2], corners[3]),
@@ -83,7 +83,7 @@ namespace PROJET_PIIA.Model {
                    p1.Y < p2.Y + autre.Height && p1.Y + Height > p2.Y;
         }
 
-        public void deplacer(Point nouvellePos) {
+        public void deplacer(PointF nouvellePos) {
             if (nouvellePos.is_valid()) Position = nouvellePos;
             else throw new ArgumentException("La nouvelle position n'est pas valide.");
         }
@@ -158,7 +158,7 @@ namespace PROJET_PIIA.Model {
         public Meuble Copier() {
             return new Meuble(
                 this.Nom,
-                new List<Tags>(this.tags), 
+                new List<Tag>(this.tags), 
                 this.Prix ?? 0,
                 this.Description,
                 this.ImagePath,
@@ -172,7 +172,7 @@ namespace PROJET_PIIA.Model {
 
         public override string ToString() {
             string s = "[ ";
-            foreach (Tags tag in tags) {
+            foreach (Tag tag in tags) {
                 s += TagExtensions.GetDisplayName(tag) + " ";
             }
             s += " ]";
