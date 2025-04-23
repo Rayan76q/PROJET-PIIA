@@ -29,7 +29,7 @@ namespace PROJET_PIIA.Controleurs {
             OnPlanChanged();
         }
 
-        protected virtual void OnPlanChanged() {
+        public virtual void OnPlanChanged() {
             PlanChanged?.Invoke();
         }
 

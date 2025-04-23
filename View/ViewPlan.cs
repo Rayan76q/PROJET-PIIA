@@ -29,7 +29,6 @@ namespace PROJET_PIIA.View {
         private Meuble? _selectedMeuble = null;
         //private bool _movingMeuble = false;
         private PointF _meubleOffset;
-        private bool _collisionDetected = false;
 
         private PlanControleur planController;
 
@@ -70,7 +69,7 @@ namespace PROJET_PIIA.View {
             planController.PlanChanged += OnMurChanged;
             
             ImageLoader.LoadImagesOfFolder("images");
-
+            
             this.Invalidate();
         }
 

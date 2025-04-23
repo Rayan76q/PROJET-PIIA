@@ -18,24 +18,8 @@ namespace PROJET_PIIA.View {
         /// </summary>
         private System.ComponentModel.IContainer components = null;
         private PlanView planView;
-        //private Button button2;
-        //private Panel filterPanel;
-        //private Button filterButton;
-        //private bool isButton1Active = false;
-        //private FlowLayoutPanel meubleListPanel;
-        //private FlowLayoutPanel tagsPanel;
-        //private bool isFilterPanelVisible = false;
-        //private List<string> availableTags = TagExtensions.allStrings();
-        //private List<string> selectedTags = new List<string>();
-        //private FlowLayoutPanel availableTagsPanel;
-        //private FlowLayoutPanel selectedTagsPanel;
 
-        //private List<Meuble> selectedMeubles = new List<Meuble>();
-        //private TextBox searchBox;
-        //private List<string> categories = TagExtensions.allStrings();
-        //private List<string> frequentlyUsedItems = new List<string>();
-        //private List<string> positionTags = new List<string> {"Mural", "Sol"};
-
+        // creer un user control expres ?
         private ToolStripButton convertButton;
         private ToolStripTextBox searchToolBox;
         private ToolStripButton searchButton;
@@ -51,9 +35,9 @@ namespace PROJET_PIIA.View {
         private ToolStripMenuItem loginMenuItem;
         private ToolStripSeparator rightAlignSeparator;
         private ToolStripMenuItem signupMenuItem;
+        //
 
         private CustomControls.ModeSelector modeSelector1;
-        private ControleurSidePanelMeuble ctrspm;
 
         ModeControler modeControler;
         private SidePanelMeuble MubleSidePanel;
@@ -67,20 +51,16 @@ namespace PROJET_PIIA.View {
             modeControler = new ModeControler();
 
             //ctrg = new ControleurMainView(m);
-            planView = new PlanView(new PlanControleur(m));
+            var pctr = new PlanControleur(m);
+            planView = new PlanView(pctr);
 
             MubleSidePanel = new SidePanelMeuble(m);
-            MurSidePanel = new MurSidePanel(m, planView);
+            MurSidePanel = new MurSidePanel(m, planView, pctr);
             _currentEditor = MubleSidePanel;
             _currentEditor.Dock = DockStyle.Fill;
 
             spliterSidePlan.Panel1.Controls.Add(MubleSidePanel);
             spliterSidePlan.Panel2.Controls.Add(planView);
-
-            //ctrspm = new ControleurSidePanelMeuble(m);
-
-            //mainControler = new MainControler(m);
-
             modeControler.ModeChangedActions += SwitchSidePanel;
             
 
@@ -402,99 +382,7 @@ namespace PROJET_PIIA.View {
         
 
 
-        
-        //private void UpdateTagPanelsLayout() {
-        //    // Calculate a reasonable height for the selected tags panel
-        //    int selectedTagsCount = selectedTags.Count;
-        //    int rowHeight = 40; // Height of each tag + margin
-        //    int minRows = 1;
-        //    int maxRows = 5;
-        //    int tagsPerRow = spliterSidePlan.Panel1.Width > 200 ? 3 : 2;
-
-        //    int rows = Math.Min(maxRows, Math.Max(minRows, (int)Math.Ceiling((double)selectedTagsCount / tagsPerRow)));
-        //    int selectedPanelHeight = (rows + 1) * rowHeight;
-
-        //    // Update selected tags panel height
-        //    selectedTagsPanel.Height = selectedPanelHeight;
-
-        //    // Update the location and size of available tags label and panel
-        //    int availableLabelY = 65 + selectedPanelHeight + 10;
-        //    foreach (Control control in filterPanel.Controls) {
-        //        if (control is Label label && label.Text == "Tags disponibles") {
-        //            label.Location = new Point(10, availableLabelY);
-        //            break;
-        //        }
-        //    }
-
-        //    availableTagsPanel.Location = new Point(0, availableLabelY + 25);
-        //    availableTagsPanel.Height = 290 - availableLabelY;
-        //}
-
-        //private void AddTagWithRemoveButton(string tagName, FlowLayoutPanel panel) {
-        //    // Calculate width based on text length (min 80px, max 150px)
-        //    int tagWidth = Math.Max(80, Math.Min(150, TextRenderer.MeasureText(tagName, SystemFonts.DefaultFont).Width + 40));
-
-        //    RoundedPanel tagContainer = new RoundedPanel {
-        //        Width = tagWidth,
-        //        Height = 30,
-        //        Margin = new Padding(3, 5, 3, 5),
-        //        BackColor = Color.LightGray,
-        //        BorderRadius = 15,
-        //        Tag = tagName
-        //    };
-
-        //    Label tagLabel = new Label {
-        //        Text = tagName,
-        //        AutoSize = true,
-        //        Location = new Point(10, 7),
-        //        BackColor = Color.Transparent
-        //    };
-
-        //    Button removeButton = new Button {
-        //        Text = "×",
-        //        Width = 20,
-        //        Height = 20,
-        //        Location = new Point(tagContainer.Width - 25, 5),
-        //        FlatStyle = FlatStyle.Flat,
-        //        Font = new Font("Arial", 8, FontStyle.Bold),
-        //        BackColor = Color.Transparent,
-        //        Tag = tagName
-        //    };
-        //    removeButton.FlatAppearance.BorderSize = 0;
-        //    removeButton.Click += RemoveTag_Click;
-
-        //    tagContainer.Controls.Add(tagLabel);
-        //    tagContainer.Controls.Add(removeButton);
-        //    panel.Controls.Add(tagContainer);
-        //}
-
-      
-        public class RoundedPanel : Panel {
-            public int BorderRadius { get; set; } = 20;
-
-            protected override void OnPaint(PaintEventArgs e) {
-                base.OnPaint(e);
-
-                GraphicsPath path = new GraphicsPath();
-                Rectangle rect = new Rectangle(0, 0, this.Width - 1, this.Height - 1);
-
-                path.AddArc(rect.X, rect.Y, BorderRadius, BorderRadius, 180, 90);
-                path.AddArc(rect.X + rect.Width - BorderRadius, rect.Y, BorderRadius, BorderRadius, 270, 90);
-                path.AddArc(rect.X + rect.Width - BorderRadius, rect.Y + rect.Height - BorderRadius, BorderRadius, BorderRadius, 0, 90);
-                path.AddArc(rect.X, rect.Y + rect.Height - BorderRadius, BorderRadius, BorderRadius, 90, 90);
-                path.CloseAllFigures();
-
-                this.Region = new Region(path);
-
-                // Draw border if needed
-                using (Pen pen = new Pen(Color.LightGray, 1)) {
-                    e.Graphics.DrawPath(pen, path);
-                }
-            }
-        }
-
-
-
+       // a metre dans un usercontrol/ controleur spé 
         private void LoginMenuItem_Click(object sender, EventArgs e) {
             using (LoginView loginDialog = new LoginView()) {
                 DialogResult result = loginDialog.ShowDialog(this);

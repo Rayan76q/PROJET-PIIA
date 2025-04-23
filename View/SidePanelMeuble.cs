@@ -24,8 +24,8 @@ namespace PROJET_PIIA.View {
             filterPanel1 = new FilterPanel(fcontroleur);
             layout.Controls.Add(filterPanel1, 0, 1); 
             filterPanel1.Dock = DockStyle.Fill;
-            
-            flowLayoutPanel1.VerticalScroll.Visible = true;
+            update_meubles();
+            flowLayoutPanel1.VerticalScroll.Visible = true; // metre via designer ?
         }
 
         private void buttonFiltre_Click(object sender, EventArgs e) {

@@ -15,10 +15,12 @@ namespace PROJET_PIIA.View {
     public partial class MurSidePanel : UserControl {
 
         MurSidePanelControler ctr;
-        public MurSidePanel(Modele m,PlanView pv) {
+        public MurSidePanel(Modele m,PlanView pv, PlanControleur pctr) {
             ctr = new MurSidePanelControler(m, pv);
             InitializeComponent();
             InitializePresets();
+            pctr.PlanChanged += updateSupeficie;
+            updateSupeficie();
         }
 
         private readonly List<string> _presets = new List<string> {
@@ -110,9 +112,11 @@ namespace PROJET_PIIA.View {
 
             if (points != null) {
                 ctr.SetMurs(points);
-                this.searchBox.Text = ctr.GetSurperficie().ToString();
             }
+            updateSupeficie();
         }
+
+        void updateSupeficie() { this.searchBox.Text = ctr.GetSurperficie().ToString(); }
 
 
 

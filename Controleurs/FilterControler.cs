@@ -1,4 +1,5 @@
-﻿using PROJET_PIIA.Model;
+﻿using System.Diagnostics;
+using PROJET_PIIA.Model;
 
 namespace PROJET_PIIA.Controleurs {
     public class FilterControler {
@@ -15,6 +16,7 @@ namespace PROJET_PIIA.Controleurs {
         }
 
         public List<Meuble> getMeubleToDisplay() {
+            Debug.WriteLine("Affichage des meuble avec " + tagsSelection.Count + " filtres");
             if (tagsSelection.Count == 0) {
                 return cataloge.Meubles;
             }
