@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace PROJET_PIIA.Model {
-    public enum Tags {
+    public enum Tag {
         [Display(Name = "Plomberie")]
         Plomberie,
 
@@ -41,8 +41,8 @@ namespace PROJET_PIIA.Model {
 
     public static class TagExtensions {
         public static List<String> allStrings() {
-            return Enum.GetValues(typeof(Tags))
-                .Cast<Tags>()
+            return Enum.GetValues(typeof(Tag))
+                .Cast<Tag>()
                 .Select(c => c.GetDisplayName())
                 .ToList();
         }
@@ -53,8 +53,8 @@ namespace PROJET_PIIA.Model {
             return attribute?.Name ?? value.ToString();
         }
 
-        public static Tags fromString(string value) {
-            foreach (Tags c in Enum.GetValues(typeof(Tags))) {
+        public static Tag fromString(string value) {
+            foreach (Tag c in Enum.GetValues(typeof(Tag))) {
                 if (c.GetDisplayName() == value) {
                     return c;
                 }

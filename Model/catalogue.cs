@@ -12,7 +12,7 @@ namespace PROJET_PIIA.Model {
 
             Meubles.Add(new Meuble(
                 "Chaise",
-                new List<Tags> { Tags.Chaise, Tags.Sol },
+                new List<Tag> { Tag.Chaise, Tag.Sol },
                 49.99f,
                 "Chaise en bois confortable",
                 "Images/chaise.png",
@@ -21,7 +21,7 @@ namespace PROJET_PIIA.Model {
 
             Meubles.Add(new Meuble(
                 "Table",
-                new List<Tags> { Tags.Table, Tags.Sol },
+                new List<Tag> { Tag.Table, Tag.Sol },
                 149.99f,
                 "Table à manger 4 personnes",
                 "Images/table.png",
@@ -31,7 +31,7 @@ namespace PROJET_PIIA.Model {
 
             Meubles.Add(new Meuble(
                 "Réfrigérateur",
-                new List<Tags> { Tags.Electroménager, Tags.Mural },
+                new List<Tag> { Tag.Electroménager, Tag.Mural },
                 299.99f,
                 "Frigo grande capacité",
                 "Images/frigo.png",
@@ -41,7 +41,7 @@ namespace PROJET_PIIA.Model {
 
             Meubles.Add(new Meuble(
                 "Évier",
-                new List<Tags> { Tags.Plomberie, Tags.Mural },
+                new List<Tag> { Tag.Plomberie, Tag.Mural },
                 89.99f,
                 "Évier de cuisine inox",
                 "Images/evier.png",
@@ -51,7 +51,7 @@ namespace PROJET_PIIA.Model {
 
             Meubles.Add(new Meuble(
                 "Plan de travail classique",
-                new List<Tags> { Tags.PlanDeTravail, Tags.Mural },
+                new List<Tag> { Tag.PlanDeTravail, Tag.Mural },
                 199.99f,
                 "Plan de travail stratifié",
                 "Images/plan_travail.png",
@@ -61,7 +61,7 @@ namespace PROJET_PIIA.Model {
 
             Meubles.Add(new Meuble(
                 "Lampe 1",
-                new List<Tags> { Tags.Eclairage, Tags.Decoration },
+                new List<Tag> { Tag.Eclairage, Tag.Decoration },
                 29.99f,
                 "Lampe sur pied LED",
                 "Images/lampe.png",
@@ -75,7 +75,7 @@ namespace PROJET_PIIA.Model {
             Meubles.Add(meuble);
         }
 
-        public List<Meuble> ObtenirMeublesParCategorie(Tags categorie) {
+        public List<Meuble> ObtenirMeublesParCategorie(Tag categorie) {
             return Meubles.Where(meuble => meuble.tags.Contains(categorie)).ToList();
         }
 
@@ -85,11 +85,12 @@ namespace PROJET_PIIA.Model {
             return Meubles.Where(meuble => !meuble.tags.Any()).ToList();
         }
 
+        
 
         public override string ToString() {
             StringBuilder sb = new();
             // meubles par catégorie
-            foreach (Tags categorie in Enum.GetValues(typeof(Tags))) {
+            foreach (Tag categorie in Enum.GetValues(typeof(Tag))) {
                 sb.AppendLine($"Catégorie: {categorie}");
                 var meublesParCategorie = ObtenirMeublesParCategorie(categorie);
                 if (meublesParCategorie.Any()) {
@@ -113,7 +114,9 @@ namespace PROJET_PIIA.Model {
             return sb.ToString();
         }
 
-
+        public List<Meuble> getWithTags(List<Tag> tags) {
+            return Meubles.Where(meuble => tags.All(tag => meuble.tags.Contains(tag))).ToList();
+        }
 
     }
 }

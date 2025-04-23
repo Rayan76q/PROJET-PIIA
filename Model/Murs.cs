@@ -4,37 +4,31 @@ namespace PROJET_PIIA.Model {
 
     public class Murs {
 
-        public List<Point> perimetre;
+        
         List<ElemMur> elemsmuraux;
-
-
-
-        public List<Point> Perimetre {
-            get => perimetre;
-        }
+        public List<PointF> Perimetre { get; set; }
 
         public Murs() {
-            List<Point> points = new List<Point>();
+            List<PointF> points = new ();
 
             //put something if you wanna test a special shape
-            points.Add(new Point(100, 10));   // sommet 1
-            points.Add(new Point(120, 70));  // creux 1
-            points.Add(new Point(180, 70));  // sommet 2
-            points.Add(new Point(130, 110)); // creux 2
-            points.Add(new Point(150, 170)); // sommet 3
-            points.Add(new Point(100, 130)); // creux 3
-            points.Add(new Point(50, 170));  // sommet 4
-            points.Add(new Point(70, 110));  // creux 4
-            points.Add(new Point(20, 70));   // sommet 5
-            points.Add(new Point(80, 70));   // creux 5
+            points.Add(new (100, 10));   // sommet 1
+            points.Add(new (120, 70));  // creux 1
+            points.Add(new (180, 70));  // sommet 2
+            points.Add(new (130, 110)); // creux 2
+            points.Add(new (150, 170)); // sommet 3
+            points.Add(new (100, 130)); // creux 3
+            points.Add(new (50, 170));  // sommet 4
+            points.Add(new (70, 110));  // creux 4
+            points.Add(new (20, 70));   // sommet 5
+            points.Add(new (80, 70));   // creux 5
 
-            this.perimetre = points;
+            this.Perimetre = points;
             this.elemsmuraux = new List<ElemMur>();
         }
 
 
-        // mettre dans un controleur ?
-        public static bool checkMurs(List<Point> points) {
+        public static bool checkMurs(List<PointF> points) {
             for (int i = 0; i < points.Count - 1; i++) {
                 var p1 = points[i];
                 var q1 = points[i + 1];
@@ -52,14 +46,8 @@ namespace PROJET_PIIA.Model {
             return false;
         }
 
-        // mettre dans un controleur ?
-
-
-
-        // eh pour moi la logique doit rester là le controleur à juste à appeler la méthode, comme ça la logique de chaque
-        // element est dans son propre fichier plutot que de tout foutre dans controleur then again partial exists so ig you could but eh
-
-        public static bool SegmentsIntersect(Point p1, Point q1, Point p2, Point q2) {
+       
+        public static bool SegmentsIntersect(PointF p1, PointF q1, PointF p2, PointF q2) {
             int o1 = Orientation(p1, q1, p2);
             int o2 = Orientation(p1, q1, q2);
             int o3 = Orientation(p2, q2, p1);
@@ -78,13 +66,13 @@ namespace PROJET_PIIA.Model {
             return false;
         }
 
-        private static int Orientation(Point p, Point q, Point r) {
+        private static int Orientation(PointF p, PointF q, PointF r) {
             float val = (q.Y - p.Y) * (r.X - q.X) - (q.X - p.X) * (r.Y - q.Y);
             if (Math.Abs(val) < 1e-6) return 0;  // Colinear
             return val > 0 ? 1 : 2;           // Clockwise or Counterclockwise
         }
 
-        private static bool OnSegment(Point p, Point q, Point r) {
+        private static bool OnSegment(PointF p, PointF q, PointF r) {
             return q.X <= Math.Max(p.X, r.X) && q.X >= Math.Min(p.X, r.X) &&
                    q.Y <= Math.Max(p.Y, r.Y) && q.Y >= Math.Min(p.Y, r.Y);
         }
@@ -95,21 +83,21 @@ namespace PROJET_PIIA.Model {
 
 
 
-        public Murs(List<Point> perimetre) {
+        public Murs(List<PointF> perimetre) {
             //if(perimetre.Count < 3)
             //    throw new ArgumentOutOfRangeException("Le périmètre doit contenir au moins 3 points.");
 
             if (checkMurs(perimetre))
                 throw new ArgumentOutOfRangeException("Les mures s'intersectent, impossible de générer la cuisine.");
-            this.perimetre = perimetre;
+            this.Perimetre = perimetre;
             this.elemsmuraux = new List<ElemMur>();
         }
 
         float GetPerimetreLength() {
             float total = 0;
-            for (int i = 0; i < perimetre.Count; i++) {
-                Point a = perimetre[i];
-                Point b = perimetre[(i + 1) % perimetre.Count];
+            for (int i = 0; i < Perimetre.Count; i++) {
+                PointF a = Perimetre[i];
+                PointF b = Perimetre[(i + 1) % Perimetre.Count];
                 total += a.DistanceTo(b);
             }
             return total;
@@ -119,9 +107,9 @@ namespace PROJET_PIIA.Model {
         public (int segmentIndex, float t) getSegmentForElem(ElemMur e) {
             float globalOffset = e.DistPos;
             float current = 0;
-            for (int i = 0; i < perimetre.Count; i++) {
-                Point a = perimetre[i];
-                Point b = perimetre[(i + 1) % perimetre.Count];
+            for (int i = 0; i < Perimetre.Count; i++) {
+                PointF a = Perimetre[i];
+                PointF b = Perimetre[(i + 1) % Perimetre.Count];
                 float segmentLength = a.DistanceTo(b);
 
                 if (globalOffset <= current + segmentLength) {
@@ -144,16 +132,15 @@ namespace PROJET_PIIA.Model {
                 current += segmentLength;
             }
 
-            return (perimetre.Count - 1, 0);
+            return (Perimetre.Count - 1, 0);
         }
 
         /// renvoit la vraie position d'un point 
-        /// mettre dans uncontroleur ?
-        public Point GetPositionForOffset(float offset) {
+        public PointF GetPositionForOffset(float offset) {
             float current = 0;
-            for (int i = 0; i < perimetre.Count; i++) {
-                Point a = perimetre[i];
-                Point b = perimetre[(i + 1) % perimetre.Count];
+            for (int i = 0; i < Perimetre.Count; i++) {
+                PointF a = Perimetre[i];
+                PointF b = Perimetre[(i + 1) % Perimetre.Count];
                 float segmentLength = a.DistanceTo(b);
 
                 // Si l'offset tombe dans ce segment
@@ -166,15 +153,15 @@ namespace PROJET_PIIA.Model {
                 }
                 current += segmentLength;
             }
-            Point last = perimetre.Last();
-            return new Point(last.X, last.Y);
+            PointF last = Perimetre.Last();
+            return new PointF(last.X, last.Y);
         }
 
 
-        public List<(Point, Point)> GetSegments() {
-            var segments = new List<(Point, Point)>();
-            for (int i = 0; i < perimetre.Count; i++) {
-                segments.Add((perimetre[i], perimetre[(i + 1) % perimetre.Count]));
+        public List<(PointF, PointF)> GetSegments() {
+            var segments = new List<(PointF, PointF)>();
+            for (int i = 0; i < Perimetre.Count; i++) {
+                segments.Add((Perimetre[i], Perimetre[(i + 1) % Perimetre.Count]));
             }
             return segments;
         }
@@ -182,8 +169,8 @@ namespace PROJET_PIIA.Model {
         public void addElemMur(ElemMur e) {
             (int, float) pos = getSegmentForElem(e);
 
-            if (pos == (perimetre.Count - 1, 0)) {  //check si le dernier segment peut accueillir l'elem
-                if (perimetre.Last().DistanceTo(perimetre[0]) <= e.Largeur) {
+            if (pos == (Perimetre.Count - 1, 0)) {  //check si le dernier segment peut accueillir l'elem
+                if (Perimetre.Last().DistanceTo(Perimetre[0]) <= e.Largeur) {
                     throw new ArgumentException("La porte ou la fenêtre ne peut pas être placée car trop large.");
                 } else {
                     elemsmuraux.Add(e);
@@ -203,11 +190,11 @@ namespace PROJET_PIIA.Model {
 
         //C'est pour les élongations
         public void ModifierSegment(int indexSegment, float distance) {
-            if (indexSegment < 0 || indexSegment >= perimetre.Count)
+            if (indexSegment < 0 || indexSegment >= Perimetre.Count)
                 throw new ArgumentOutOfRangeException(nameof(indexSegment));
 
-            Point a = perimetre[indexSegment];
-            Point b = perimetre[(indexSegment + 1) % perimetre.Count];
+            PointF a = Perimetre[indexSegment];
+            PointF b = Perimetre[(indexSegment + 1) % Perimetre.Count];
 
             // Vecteur du segment
             float dx = b.X - a.X;
@@ -226,18 +213,18 @@ namespace PROJET_PIIA.Model {
             Point newA = new Point((int)(a.X + nx * distance), (int)(a.Y + ny * distance));
             Point newB = new Point((int)(b.X + nx * distance), (int)(b.Y + ny * distance));
 
-            perimetre[indexSegment] = newA;
-            perimetre[(indexSegment + 1) % perimetre.Count] = newB;
+            Perimetre[indexSegment] = newA;
+            Perimetre[(indexSegment + 1) % Perimetre.Count] = newB;
 
             // (optionnel) throw si les murs s'intersectent
-            if (Murs.checkMurs(perimetre))
+            if (Murs.checkMurs(Perimetre))
                 throw new ArgumentException("La modification crée des intersections entre murs.");
         }
 
 
 
         public override string ToString() {
-            string pointsStr = string.Join(", ", perimetre.Select(p => p.ToString()));
+            string pointsStr = string.Join(", ", Perimetre.Select(p => p.ToString()));
 
             string segmentsStr = string.Join("\n  ", GetSegments()
                 .Select((seg, i) => $"Segment {i}: {seg.Item1} -> {seg.Item2}"));
@@ -247,7 +234,7 @@ namespace PROJET_PIIA.Model {
                 : "Aucun élément mural.";
 
             return $"MURS DEBUG:\n" +
-                   $"- Périmètre ({perimetre.Count} points): [{pointsStr}]\n" +
+                   $"- Périmètre ({Perimetre.Count} points): [{pointsStr}]\n" +
                    $"- Segments:\n  {segmentsStr}\n" +
                    $"- Éléments muraux ({elemsmuraux.Count}):\n  {elemsStr}";
         }

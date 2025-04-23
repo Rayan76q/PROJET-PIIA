@@ -3,32 +3,31 @@
         // merci chat gpt pour tout ces petits tricks (Connais tu Jésus ?)
 
         // Calcule la distance entre deux points
-        public static float DistanceTo(this Point p1, Point p2) {
-            (int dx, int dy)= (p2.X - p1.X, p2.Y - p1.Y);
+        public static float DistanceTo(this PointF p1, PointF p2) {
+            (float dx, float dy)= (p2.X - p1.X, p2.Y - p1.Y);
             return (float)Math.Sqrt(dx * dx + dy * dy);
         }
 
-        // Retourne un nouveau point après une translation
-        public static Point Translate(this Point p, int dx, int dy) {
-            return new Point(p.X + dx, p.Y + dy);
+        public static PointF Translate(this PointF p, int dx, int dy) {
+            return new PointF(p.X + dx, p.Y + dy);
         }
 
         // Conversion en Size
-        public static Size ToSize(this Point p) {
-            return new Size(p.X, p.Y);
-        }
+        //public static Size ToSize(this PointF p) {
+        //    return new Size(p.X, p.Y);
+        //}
 
-/*        public static float distance(Point p1, Point p2) {
+/*        public static float distance(PointF p1, PointF p2) {
             (float dx, float dy) = (p1.X - p2.X, p1.Y - p2.Y);
             return (float)Math.Sqrt(dx * dx + dy * dy);
         }*/
 
-        public static bool is_valid(this Point p) {
+        public static bool is_valid(this PointF p) {
             return !float.IsNaN(p.X) && !float.IsNaN(p.Y)
                 && !float.IsInfinity(p.X) && !float.IsInfinity(p.Y);
         }
 
-        public static Point RotatePoint(this Point p, (float, float) origin, float angleRad) {
+        public static PointF RotatePoint(this PointF p, (float, float) origin, float angleRad) {
 
             float translatedX = p.X - origin.Item1;
             float translatedY = p.Y - origin.Item2;
@@ -41,10 +40,10 @@
             float finalX = rotatedX + origin.Item1;
             float finalY = rotatedY + origin.Item2;
 
-            return new Point((int)finalX, (int)finalY);
+            return new PointF((int)finalX, (int)finalY);
         }
 
-        public static float DistancePointSegment(this Point p, Point a, Point b) {
+        public static float DistancePointSegment(this PointF p, PointF a, PointF b) {
             float dx = b.X - a.X;
             float dy = b.Y - a.Y;
 
@@ -62,12 +61,12 @@
             return MathF.Sqrt(distX * distX + distY * distY);
         }
 
-        public static int? TrouverSegmentProche(this Point sourisPlan, List<Point> perimetre, float seuilProximité = 10f) {
+        public static int? TrouverSegmentProche(this PointF sourisPlan, List<PointF> perimetre, float seuilProximité = 10f) {
             if (perimetre == null || perimetre.Count < 2) return null;
 
             for (int i = 0; i < perimetre.Count; i++) {
-                Point p1 = perimetre[i];
-                Point p2 = perimetre[(i + 1) % perimetre.Count];
+                PointF p1 = perimetre[i];
+                PointF p2 = perimetre[(i + 1) % perimetre.Count];
 
                 float distance = sourisPlan.DistancePointSegment(p1, p2);
                 if (distance < seuilProximité) {

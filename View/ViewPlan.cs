@@ -9,29 +9,29 @@ using PROJET_PIIA.Model;
 namespace PROJET_PIIA.View {
     public partial class PlanView : UserControl {
 
-        private Point _offset = new(0, 0);       // Décalage du plan
-        private Point _dragStart;                      // Point de départ du clic
+        private PointF _offset = new(0, 0);       // Décalage du plan
+        private PointF _dragStart;                      // PointF de départ du clic
         private DragMode _dragMode = DragMode.None;
 
-        private Point PlanToScreen(Point p) => new Point(p.X + _offset.X, p.Y + _offset.Y);
-        private Point ScreenToPlan(Point p) => new Point(p.X - _offset.X, p.Y - _offset.Y);
+        private PointF PlanToScreen(PointF p) => new (p.X + _offset.X, p.Y + _offset.Y);
+        private PointF ScreenToPlan(PointF p) => new (p.X - _offset.X, p.Y - _offset.Y);
 
-        //private List<(Point Start, Point End)> _lignes = new();
-        //private Point? _currentStart = null; // point de départ d'une ligne en cours
-        //private Point _mousePosition;
+        //private List<(PointF Start, PointF End)> _lignes = new();
+        //private PointF? _currentStart = null; // point de départ d'une ligne en cours
+        //private PointF _mousePosition;
 
         //private int? segmentProche = null;
         //private bool _resizing = false;
         //private int? _segmentResize = null;
-        //private Point _resizeStart;
+        //private PointF _resizeStart;
 
         // Properties for meuble interactions
         private Meuble? _selectedMeuble = null;
         //private bool _movingMeuble = false;
-        private Point _meubleOffset;
+        private PointF _meubleOffset;
         private bool _collisionDetected = false;
 
-        private ControleurMainView ctrg;
+        private PlanControleur planController;
 
         private float _initialMouseAngle = 0f;  // The angle from the meuble's center to the mouse at rotation start.
 
@@ -44,7 +44,7 @@ namespace PROJET_PIIA.View {
             // … à étendre
         }
 
-        public PlanView(ControleurMainView ctrg) {
+        public PlanView(PlanControleur controleurplan) {
             this.DoubleBuffered = true;
             this.Dock = DockStyle.Fill;
 
@@ -66,8 +66,8 @@ namespace PROJET_PIIA.View {
             this.DragOver += PlanView_DragOver;
             this.DragDrop += PlanView_DragDrop;
 
-            this.ctrg = ctrg;
-            ctrg.PerimeterChanged += OnMurChanged;
+            this.planController = controleurplan;
+            planController.PlanChanged += OnMurChanged;
             
             ImageLoader.LoadImagesOfFolder("images");
 
@@ -104,13 +104,13 @@ namespace PROJET_PIIA.View {
             if (e.Data != null && e.Data.GetDataPresent(typeof(Meuble))) {
                 Meuble? meuble = e.Data.GetData(typeof(Meuble)) as Meuble;
                 if (meuble != null) {
-                    Point clientPoint = this.PointToClient(new Point(e.X, e.Y));
-                    Point planPoint = ScreenToPlan(clientPoint);
+                    PointF clientPoint = this.PointToClient(new Point(e.X, e.Y));
+                    PointF planPoint = ScreenToPlan(clientPoint);
                     planPoint.X -= (int)(meuble.Dimensions.Item1 / 2);
                     planPoint.Y -= (int)(meuble.Dimensions.Item2 / 2);
 
                     Meuble meubleCopie = meuble.Copier();
-                    ctrg.PlaceMeubleAtPosition(meubleCopie, planPoint);
+                    planController.PlaceMeubleAtPosition(meubleCopie, planPoint);
                 }
 
                 this.Invalidate();
@@ -119,15 +119,15 @@ namespace PROJET_PIIA.View {
 
 
 
-        private Point GetMeubleCenter() {
+        private PointF GetMeubleCenter() {
             if (_selectedMeuble == null || _selectedMeuble.Position == null)
                 throw new InvalidOperationException("Aucun meuble sélectionné ou position non définie.");
             PointF p = _selectedMeuble.GetCenter();
-            return new Point((int)p.X, (int)p.Y);
+            return new PointF((int)p.X, (int)p.Y);
         }
 
 
-        private Point GetHandleCenter() {
+        private PointF GetHandleCenter() {
             if (_selectedMeuble == null || _selectedMeuble.Position == null)
                 throw new InvalidOperationException("Aucun meuble sélectionné ou position non définie.");
 
@@ -138,20 +138,20 @@ namespace PROJET_PIIA.View {
             // La direction perpendiculaire = (dirY, -dirX)
             float handleX = center.X + dirY * distance;
             float handleY = center.Y - dirX * distance;
-            return new Point((int)handleX, (int)handleY);
+            return new PointF((int)handleX, (int)handleY);
         }
 
 
 
         protected override void OnPaint(PaintEventArgs e) {
             base.OnPaint(e);
-            Debug.WriteLine("Affichage !");
+            //Debug.WriteLine("Affichage !");
 
             Graphics g = e.Graphics;
             g.Clear(Color.White);
 
             // dessin des murs
-            List<Point> points = ctrg.ObtenirMurs().perimetre;
+            List<PointF> points = planController.ObtenirMurs().Perimetre;
             if (points.Count > 1) {
                 for (int i = 0; i < points.Count - 1; i++) {
                     g.DrawLine(Pens.Blue, PlanToScreen(points[i]), PlanToScreen(points[i + 1]));
@@ -162,13 +162,13 @@ namespace PROJET_PIIA.View {
 
             // dessin de la poignée de rotation
             if (_selectedMeuble != null) {
-                Point screenCenter = PlanToScreen(GetMeubleCenter());
-                Point screenHandle = PlanToScreen(GetHandleCenter());
+                PointF screenCenter = PlanToScreen(GetMeubleCenter());
+                PointF screenHandle = PlanToScreen(GetHandleCenter());
                 e.Graphics.DrawLine(Pens.Gray, screenCenter, screenHandle);
                 int handleSize = 12;
-                Rectangle handleRect = new Rectangle(
-                    screenHandle.X - handleSize / 2,
-                    screenHandle.Y - handleSize / 2,
+                Rectangle handleRect = new(
+                    (int)screenHandle.X - handleSize / 2,
+                    (int)screenHandle.Y - handleSize / 2,
                     handleSize, handleSize
                 );
                 e.Graphics.FillEllipse(Brushes.Blue, handleRect);
@@ -179,9 +179,9 @@ namespace PROJET_PIIA.View {
 
             // ligne pus epaisse pour le murle plus proche
             /*if (ctrg.ModeEdition == PlanMode.Normal && segmentProche != null) {
-                List<Point> p = ctrg.ObtenirMurs().perimetre;
-                Point p1 = p[segmentProche.Value];
-                Point p2 = p[(segmentProche.Value + 1) % p.Count];
+                List<PointF> p = ctrg.ObtenirMurs().perimetre;
+                PointF p1 = p[segmentProche.Value];
+                PointF p2 = p[(segmentProche.Value + 1) % p.Count];
                 g.DrawLine(new Pen(Color.Green, 3), PlanToScreen(p1), PlanToScreen(p2));
             }*/
 
@@ -192,14 +192,14 @@ namespace PROJET_PIIA.View {
 
         private Pen GetMeubleBorderStyle(Meuble m) {
             bool isSelected = _selectedMeuble == m;
-            bool isColliding = m.CheckMeubleCollision(ctrg.ObtenirMeubles(), ctrg.ObtenirMurs());
+            bool isColliding = m.CheckMeubleCollision(planController.ObtenirMeublePlacé(), planController.ObtenirMurs());
             var border = isColliding ? Color.DarkRed : isSelected ? Color.Green : Color.Blue;
             return new Pen(border, 2);
         }
 
 
         private void DrawMeubles(Graphics g) {
-            var meubles = ctrg.ObtenirMeubles();
+            var meubles = planController.ObtenirMeublePlacé();
             if (meubles == null || meubles.Count == 0) return;
             foreach (var meuble in meubles) {
                 DrawMeuble(g, meuble);
@@ -210,8 +210,8 @@ namespace PROJET_PIIA.View {
             if (meuble == null || meuble.Position == null) return;
 
             var state = g.Save();
-            Point p = meuble.Position.Value;
-            Point screenPos = PlanToScreen(p);
+            PointF p = meuble.Position.Value;
+            PointF screenPos = PlanToScreen(p);
             PointF center = meuble.GetCenter();
 
             var pen = GetMeubleBorderStyle(meuble);
@@ -229,7 +229,7 @@ namespace PROJET_PIIA.View {
 
                     // 🎯 Overlay status : selection / collision
                     bool isSelected = _selectedMeuble == meuble;
-                    bool isColliding = meuble.CheckMeubleCollision(ctrg.ObtenirMeubles(), ctrg.ObtenirMurs());
+                    bool isColliding = meuble.CheckMeubleCollision(planController.ObtenirMeublePlacé(), planController.ObtenirMurs());
 
                     if (isColliding || isSelected) {
                         Color overlayColor = isColliding ? Color.FromArgb(100, Color.Red) : Color.FromArgb(100, Color.Green);
@@ -258,14 +258,13 @@ namespace PROJET_PIIA.View {
 
         private void SupprimeMeubleSelection() {
             if (_selectedMeuble != null) {
-                ctrg.SupprimerMeuble(_selectedMeuble);
+                planController.SupprimerMeuble(_selectedMeuble);
             }
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData) {
             if (keyData == Keys.Delete && _selectedMeuble != null) {
                 SupprimeMeubleSelection();
-                _selectedMeuble = null;
                 Invalidate();
                 return true;
             }

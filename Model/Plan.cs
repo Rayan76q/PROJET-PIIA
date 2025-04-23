@@ -17,15 +17,14 @@ namespace PROJET_PIIA.Model {
         }
 
 
-
-        public void PlacerMeuble(Meuble meuble, Point position) { 
+        public void PlacerMeuble(Meuble meuble, PointF position) { 
             meuble.Position = position;
             Meubles.Add(meuble);
         }
 
 
         // find a meuble at a specific point
-        public Meuble? FindMeubleAtPoint(Point planPoint) {
+        public Meuble? FindMeubleAtPoint(PointF planPoint) {
             if (Meubles == null || Meubles.Count == 0) return null;
 
             // Check each meuble in reverse order (so topmost is selected first)

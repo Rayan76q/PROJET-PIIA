@@ -5,7 +5,7 @@ namespace PROJET_PIIA.Model {
         public Catalogue Catalogue { get; }
 
         public Plan planActuel;
-        public Compte? compteActuel = null;
+        public Compte? compteActuel; // compte invité?
 
 
         // Ques ce que ça fou là svp, Soit a foutre dans un controleur, soit une classe 
@@ -56,7 +56,7 @@ namespace PROJET_PIIA.Model {
         public Modele() {
             Catalogue = new Catalogue();
             this.planActuel = new Plan(); // il a un nom par defaut selon son id
-            this.compteActuel = null;
+            this.compteActuel = new Compte();
         }
 
         public override string ToString() {
