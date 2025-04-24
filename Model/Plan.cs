@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
+using PROJET_PIIA.Controleurs;
 using PROJET_PIIA.Extensions;
 
 namespace PROJET_PIIA.Model {
@@ -55,13 +57,21 @@ namespace PROJET_PIIA.Model {
 
 
         public void SupprimerMeuble(Meuble m) {
-            if (Meubles.Contains(m)) {
-                m.Position = new Point(-1, -1);
-                m.Orientation = (1, 0);
+            m = findMeubleById(m.id);
+            if (m!=null) {
                 Meubles.Remove(m);
             } else {
                 throw new ArgumentException("Le meuble n'est pas présent dans le plan.");
             }
+        }
+
+        public Meuble? findMeubleById(int i) {
+            foreach(Meuble m in Meubles) {
+                if(m.id == i) {
+                    return m;
+                }
+            }
+            return null;
         }
 
         public override string ToString() {

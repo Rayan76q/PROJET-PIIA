@@ -1,4 +1,6 @@
-﻿using PROJET_PIIA.Model;
+﻿using System;
+using System.Diagnostics;
+using PROJET_PIIA.Model;
 
 namespace PROJET_PIIA.Controleurs {
     public class PlanControleur {
@@ -43,6 +45,11 @@ namespace PROJET_PIIA.Controleurs {
 
         public virtual void OnPlanChanged() {
             PlanChanged?.Invoke();
+        }
+
+        public void tournerMeuble(Meuble meuble, float angle, bool fixeddirection) {
+            plan.tournerMeuble(meuble, angle, fixeddirection);
+            OnPlanChanged();
         }
 
         public Murs ObtenirMurs() {

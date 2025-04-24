@@ -22,22 +22,26 @@ namespace PROJET_PIIA.Model {
         private bool IsValidPositive(float value) => value > 0;
         private bool IsNonEmpty(string value) => !string.IsNullOrEmpty(value);
 
+        private static int id_counter = 0;
+        public readonly int id;
+
 
         //Constructeur
-        public Meuble(string nom, (float, float) dim) {
+        public Meuble(string nom, (float, float) dim, int id) {
             Nom = nom ?? throw new ArgumentNullException(nameof(nom));
-
             Dimensions = dim;
+            this.id = id==-1? id_counter++: id;
         }
         //Full
-        public Meuble(string nom, List<Tag> tags, float prix, string description, string image, (float, float) dim) {
+        public Meuble(string nom, List<Tag> tags, float prix, string description, string image, (float, float) dim, int id) {
             Nom = nom;
             this.tags = tags ?? new List<Tag>();
             Prix = prix;
             Description = description;
             this.ImagePath = image;
-            Position = new Point(-1, -1);  //pas encore placé dans le plan
+            Position = new Point(-1, -1);  
             Dimensions = dim;
+            this.id =  id == -1 ? id_counter++ : id;
         }
 
 
@@ -155,14 +159,15 @@ namespace PROJET_PIIA.Model {
             return new PointF(Position.Value.X + Width / 2f, Position.Value.Y + Height / 2f);
         }
 
-        public Meuble Copier() {
+        public Meuble Copier(bool copieID) {
             return new Meuble(
                 this.Nom,
                 new List<Tag>(this.tags), 
                 this.Prix ?? 0,
                 this.Description,
                 this.ImagePath,
-                this.Dimensions
+                this.Dimensions,
+                (copieID ? this.id : id_counter++)
             ) {
                 Position = this.Position,  
                 Orientation = this.Orientation 
@@ -177,7 +182,7 @@ namespace PROJET_PIIA.Model {
             }
             s += " ]";
 
-            return $"Meuble [Nom: {Nom}, Type: {s}, Prix: {Prix}€," +
+            return $"Meuble [Nom: {Nom},ID: {id} ,Type: {s}, Prix: {Prix}€," +
                    $" Description: {Description}, Image: {ImagePath}, " +
                    $" Position: {Position}, " +
                    $"Dimensions: ({Dimensions.Item1}x{Dimensions.Item2}), " +

@@ -51,7 +51,8 @@ namespace PROJET_PIIA.View {
 
             //ctrg = new ControleurMainView(m);
             var pctr = new PlanControleur(m);
-            planView = new PlanView(pctr);
+            var urctr = new UndoRedoControleur(pctr);
+            planView = new PlanView(pctr, urctr);
 
             MubleSidePanel = new SidePanelMeuble(m);
             MurSidePanel = new MurSidePanel(m, planView, pctr);
@@ -326,6 +327,7 @@ namespace PROJET_PIIA.View {
             Redo.TabIndex = 2;
             Redo.Text = "↪";
             Redo.UseVisualStyleBackColor = true;
+            Redo.Click += Redo_Click;
             // 
             // Undo
             // 
@@ -336,6 +338,7 @@ namespace PROJET_PIIA.View {
             Undo.TabIndex = 1;
             Undo.Text = "↩";
             Undo.UseVisualStyleBackColor = true;
+            Undo.Click += Undo_Click;
             // 
             // toggleButton
             // 
@@ -506,6 +509,14 @@ namespace PROJET_PIIA.View {
 
         private void delete_meuble_Click(object sender, EventArgs e) {
 
+        }
+
+        private void Undo_Click(object sender, EventArgs e) {
+            planView.undo();
+        }
+
+        private void Redo_Click(object sender, EventArgs e) {
+            planView.redo();
         }
     }
 }

@@ -5,12 +5,18 @@ using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PROJET_PIIA.Controleurs;
 using PROJET_PIIA.Extensions;
 using PROJET_PIIA.Model;
 
 namespace PROJET_PIIA.View {
     public partial class PlanView {
         private bool _isMouseOverDeleteButton = false;
+        private PointF _startAction;
+        private float _angleAction;
+        private (PointF, PointF) _selectedWallPoints1;
+        private (PointF, PointF) _selectedWallPoints2;
+
         private void PlanView_MouseClick(object? sender, MouseEventArgs e) {
             // la selection du meuble de fais quand on souleve le click (MouseUp)
 
@@ -29,6 +35,7 @@ namespace PROJET_PIIA.View {
 
         private void PlanView_MouseDown(object? sender, MouseEventArgs e) {
             if (e.Button == MouseButtons.Left) {
+                _startAction = new PointF(e.Location.X, e.Location.Y);
                 PointF planPoint = ScreenToPlan(e.Location);
 
                 if ((Control.ModifierKeys & Keys.Shift) != 0) {
@@ -72,6 +79,13 @@ namespace PROJET_PIIA.View {
                 int segmentIndex = planController.FindMurAtPoint(planPoint);
                 if (segmentIndex != -1) {
                     _selectedWall = segmentIndex;
+                    List<PointF> perimetre = planController.ObtenirMurs().Perimetre;
+                    int i1 = _selectedWall;
+                    int i2 = (i1 + 1) % perimetre.Count;
+                    PointF p1 = perimetre[i1];
+                    PointF p2 = perimetre[i2];
+                    _selectedWallPoints2 = (p1, p2);
+                    
                     _dragMode = DragMode.MoveWall;
                     _dragStart = e.Location;
                     this.Cursor = Cursors.Hand;
@@ -126,6 +140,7 @@ namespace PROJET_PIIA.View {
                         );
                         float angleDelta = (currentAngle - _initialMouseAngle) * (180f / (float)Math.PI);
                         _selectedMeuble.tourner(angleDelta, false); //todo
+                        _angleAction = angleDelta;
                         _initialMouseAngle = currentAngle;
 
                         Invalidate();
@@ -160,7 +175,9 @@ namespace PROJET_PIIA.View {
                     perimetre[perimetre.Count-1] = i1 == 0 ? newP1 : perimetre[perimetre.Count-1];
 
                     // Update the walls in the controller
+                    _selectedWallPoints1 = (newP1, newP2);
                     planController.SetMurs(perimetre);
+                   
 
                     // Update drag start position for next movement
                     _dragStart = e.Location;
@@ -194,17 +211,30 @@ namespace PROJET_PIIA.View {
                 }
             }
 
-            _selectedWall = -1;
+            
 
             switch (_dragMode) {
                 case DragMode.Pan:
+                    Cursor = Cursors.Default;
+                    _dragMode = DragMode.None;
+                    break;
                 case DragMode.MoveMeuble:
+                    undoRedoControleur.add(new DeplacementMeuble(_selectedMeuble, (PointF)_selectedMeuble.Position, _dragStart));
+                    Cursor = Cursors.Default;
+                    _dragMode = DragMode.None;
+                    break;
                 case DragMode.RotateMeuble:
+                    undoRedoControleur.add(new RotationMeuble(_selectedMeuble, _angleAction));
+                    Cursor = Cursors.Default;
+                    _dragMode = DragMode.None;
+                    break;
                 case DragMode.MoveWall:
+                    undoRedoControleur.add(new DeplacementMur((_selectedWall, (_selectedWall+1)%planController.ObtenirMurs().Perimetre.Count()) , _selectedWallPoints1, _selectedWallPoints2));
                     Cursor = Cursors.Default;
                     _dragMode = DragMode.None;
                     break;
             }
+            _selectedWall = -1;
             Invalidate();
         }
 

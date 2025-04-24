@@ -27,6 +27,7 @@ namespace PROJET_PIIA.View {
         private PointF _meubleOffset;
 
         private PlanControleur planController;
+        private UndoRedoControleur undoRedoControleur;
 
         private float _initialMouseAngle = 0f;  // The angle from the meuble's center to the mouse at rotation start.
 
@@ -49,7 +50,7 @@ namespace PROJET_PIIA.View {
             new((p.X - _offset.X) / planController.ZoomFactor,
                 (p.Y - _offset.Y) / planController.ZoomFactor);
 
-        public PlanView(PlanControleur controleurplan) {
+        public PlanView(PlanControleur controleurplan, UndoRedoControleur undoRedoControleur) {
             this.DoubleBuffered = true;
             this.Dock = DockStyle.Fill;
 
@@ -76,6 +77,9 @@ namespace PROJET_PIIA.View {
 
             ImageLoader.LoadImagesOfFolder("images");
 
+            
+            this.undoRedoControleur = undoRedoControleur;
+            this.undoRedoControleur.undoRedo += OnMurChanged;
             this.Invalidate();
         }
 
@@ -113,8 +117,9 @@ namespace PROJET_PIIA.View {
                     planPoint.X -= (int)(meuble.Dimensions.Item1 / 2);
                     planPoint.Y -= (int)(meuble.Dimensions.Item2 / 2);
 
-                    Meuble meubleCopie = meuble.Copier();
+                    Meuble meubleCopie = meuble.Copier(false);
                     planController.PlaceMeubleAtPosition(meubleCopie, planPoint);
+                    undoRedoControleur.add(new AjoutMeuble(meubleCopie, planPoint));
                 }
 
                 this.Invalidate();
@@ -163,7 +168,7 @@ namespace PROJET_PIIA.View {
                 g.DrawLine(Pens.Blue, PlanToScreen(points.Last()), PlanToScreen(points.First()));
 
                 if (_selectedWall != -1) {
-                    (int, int) seg = (_selectedWall, (_selectedWall%planController.ObtenirMurs().Perimetre.Count()) + 1);
+                    (int, int) seg = (_selectedWall, (_selectedWall+1)%planController.ObtenirMurs().Perimetre.Count());
                     PointF p1 = planController.ObtenirMurs().Perimetre[seg.Item1];
                     PointF p2 = planController.ObtenirMurs().Perimetre[seg.Item2];
                     g.DrawLine(new Pen(Color.Green, 3), PlanToScreen(p1), PlanToScreen(p2));
@@ -310,13 +315,18 @@ namespace PROJET_PIIA.View {
             base.Dispose(disposing);
         }
 
-        // Ajouter un botonrouge quin'est visible que quand un meuble est selectionné
+       
         private void SupprimeMeubleSelection() {
             if (_selectedMeuble != null) {
-                planController.SupprimerMeuble(_selectedMeuble);
-                _selectedMeuble = null;
-            }
+                PointF safePosition = _selectedMeuble.Position ?? new PointF(-1, -1);
+                float angle = _selectedMeuble.getAngle();
 
+                undoRedoControleur.add(new SuppressionMeuble(_selectedMeuble, safePosition, angle));
+                planController.SupprimerMeuble(_selectedMeuble);
+
+                _selectedMeuble = null;
+                this.Invalidate(); 
+            }
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData) {
@@ -354,6 +364,17 @@ namespace PROJET_PIIA.View {
             List<PointF> newPoints = PointExtensions.ApplyHomothety(currentPoints, center, scale);
             planController.SetMurs(newPoints);
 
+        }
+
+
+        public void undo() {
+            _selectedMeuble = null;
+            undoRedoControleur.undo();
+        }
+
+        public void redo() {
+            _selectedMeuble = null;
+            undoRedoControleur.redo();
         }
 
 

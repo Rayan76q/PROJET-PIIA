@@ -16,7 +16,8 @@ namespace PROJET_PIIA.Model {
                 49.99f,
                 "Chaise en bois confortable",
                 "Images/chaise.png",
-                (45, 45)
+                (45, 45),
+                -1
             ));
 
             Meubles.Add(new Meuble(
@@ -25,8 +26,10 @@ namespace PROJET_PIIA.Model {
                 149.99f,
                 "Table à manger 4 personnes",
                 "Images/table.png",
-                
+
                 (120, 80)
+                ,
+                -1
             ));
 
             Meubles.Add(new Meuble(
@@ -35,8 +38,10 @@ namespace PROJET_PIIA.Model {
                 299.99f,
                 "Frigo grande capacité",
                 "Images/frigo.png",
-                
+
                 (60, 60)
+                ,
+                -1
             ));
 
             Meubles.Add(new Meuble(
@@ -45,8 +50,10 @@ namespace PROJET_PIIA.Model {
                 89.99f,
                 "Évier de cuisine inox",
                 "Images/evier.png",
-                
+
                 (80, 50)
+                ,
+                -1
             ));
 
             Meubles.Add(new Meuble(
@@ -55,8 +62,10 @@ namespace PROJET_PIIA.Model {
                 199.99f,
                 "Plan de travail stratifié",
                 "Images/plan_travail.png",
-               
+
                 (150, 60)
+                ,
+                -1
             ));
 
             Meubles.Add(new Meuble(
@@ -65,8 +74,10 @@ namespace PROJET_PIIA.Model {
                 29.99f,
                 "Lampe sur pied LED",
                 "Images/lampe.png",
-                
+
                 (30, 30)
+                ,
+                -1
             ));
         }
 
@@ -79,13 +90,13 @@ namespace PROJET_PIIA.Model {
             return Meubles.Where(meuble => meuble.tags.Contains(categorie)).ToList();
         }
 
-       
+
         // meubles non catégorisés
         public List<Meuble> ObtenirMeublesNonCategorises() {
             return Meubles.Where(meuble => !meuble.tags.Any()).ToList();
         }
 
-        
+
 
         public override string ToString() {
             StringBuilder sb = new();
