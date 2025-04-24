@@ -13,8 +13,8 @@ namespace PROJET_PIIA.View {
         private PointF _offset = new(0, 0);       // Décalage du plan
         private PointF _dragStart;                      // PointF de départ du clic
         private DragMode _dragMode = DragMode.None;
+        private const int DeleteButtonSize = 16;
 
-        
 
         //private List<(PointF Start, PointF End)> _lignes = new();
         //private PointF? _currentStart = null; // point de départ d'une ligne en cours
@@ -167,10 +167,47 @@ namespace PROJET_PIIA.View {
                 g.DrawLine(Pens.Blue, PlanToScreen(points.Last()), PlanToScreen(points.First()));
             }
 
+            // dessine les meubles
+            DrawMeubles(g);
 
-            // dessin de la poignée de rotation
+            // Draw delete button for selected meuble
             if (_selectedMeuble != null) {
-                PointF screenCenter = PlanToScreen(GetMeubleCenter());
+                PointF center = _selectedMeuble.GetCenter();
+                PointF screenCenter = PlanToScreen(center);
+
+                // Save the current state of the graphics
+                var state = g.Save();
+
+                try {
+                    // Transform coordinates to match the meuble's rotation and position
+                    g.TranslateTransform(screenCenter.X, screenCenter.Y);
+                    g.RotateTransform(_selectedMeuble.getAngle());
+
+                    // Position the button at the top-right corner of the meuble
+                    
+                    float buttonX = _selectedMeuble.Width * (3/2) - DeleteButtonSize;
+                    float buttonY = -_selectedMeuble.Height * (3 / 2);
+
+                    // Draw the red circular button
+                    using (SolidBrush redBrush = new SolidBrush(Color.Red))
+                    using (Pen whitePen = new Pen(Color.White, 2)) {
+                        g.FillEllipse(redBrush, buttonX, buttonY, DeleteButtonSize, DeleteButtonSize);
+
+                        // Draw X inside the button
+                        float margin = 4;
+                        g.DrawLine(whitePen,
+                            buttonX + margin, buttonY + margin,
+                            buttonX + DeleteButtonSize - margin, buttonY + DeleteButtonSize - margin);
+                        g.DrawLine(whitePen,
+                            buttonX + DeleteButtonSize - margin, buttonY + margin,
+                            buttonX + margin, buttonY + DeleteButtonSize - margin);
+                    }
+                } finally {
+                    g.Restore(state);
+                }
+            // dessin de la poignée de rotation
+            
+                
                 PointF screenHandle = PlanToScreen(GetHandleCenter());
                 e.Graphics.DrawLine(Pens.Gray, screenCenter, screenHandle);
                 int handleSize = 12;
@@ -185,22 +222,10 @@ namespace PROJET_PIIA.View {
                     handleRect.X + 2, handleRect.Y);
             }
 
-            // ligne pus epaisse pour le murle plus proche
-            /*if (ctrg.ModeEdition == PlanMode.Normal && segmentProche != null) {
-                List<PointF> p = ctrg.ObtenirMurs().perimetre;
-                PointF p1 = p[segmentProche.Value];
-                PointF p2 = p[(segmentProche.Value + 1) % p.Count];
-                g.DrawLine(new Pen(Color.Green, 3), PlanToScreen(p1), PlanToScreen(p2));
-            }*/
-
-            // dessine les meubles
-            DrawMeubles(g);
-
             // dessine la grille
             if (planController.isGridVisible()) {
                 DrawGrid(g);
             }
-
         }
 
         private void DrawGrid(Graphics g) {
@@ -286,7 +311,9 @@ namespace PROJET_PIIA.View {
         private void SupprimeMeubleSelection() {
             if (_selectedMeuble != null) {
                 planController.SupprimerMeuble(_selectedMeuble);
+                _selectedMeuble = null;
             }
+            
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData) {

@@ -22,15 +22,7 @@ namespace PROJET_PIIA.Controleurs {
             filterSelectionColapsed = !filterSelectionColapsed;
         }
 
-        //public List<Meuble> getMeubles() {
-        //    // TODO appliquer les filtres
-        //    return cata.Meubles;
-        //}
-
-
         
-
-
 
 
     }

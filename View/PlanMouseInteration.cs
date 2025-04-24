@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,8 +9,19 @@ using PROJET_PIIA.Model;
 
 namespace PROJET_PIIA.View {
     public partial class PlanView {
+        private bool _isMouseOverDeleteButton = false;
         private void PlanView_MouseClick(object? sender, MouseEventArgs e) {
             // la selection du meuble de fais quand on souleve le click (MouseUp)
+
+            if (e.Button == MouseButtons.Left && _selectedMeuble != null) {
+                PointF mousePos = new PointF(e.X, e.Y);
+
+                // Check if the click was on the delete button
+                if (IsPointOverDeleteButton(mousePos)) {
+                    SupprimeMeubleSelection();
+                    return;
+                }
+            }
         }
 
 
@@ -61,7 +73,18 @@ namespace PROJET_PIIA.View {
         }
 
         private void PlanView_MouseMove(object? sender, MouseEventArgs e) {
-            //_mousePosition = e.Location;
+            PointF mousePos = new PointF(e.X, e.Y);
+
+            // Check if mouse is over delete button
+            bool wasOverDeleteButton = _isMouseOverDeleteButton;
+            _isMouseOverDeleteButton = _selectedMeuble != null && IsPointOverDeleteButton(mousePos);
+
+            // Change cursor and redraw if needed
+            if (wasOverDeleteButton != _isMouseOverDeleteButton) {
+                this.Cursor = _isMouseOverDeleteButton ? Cursors.Hand : Cursors.Default;
+                this.Invalidate();
+            }
+
             switch (_dragMode) {
                 case DragMode.Pan:
                     float dx = e.X - _dragStart.X;
@@ -151,5 +174,33 @@ namespace PROJET_PIIA.View {
                 (int)(screenDelta.Y / scale)
             );
         }
+
+        private bool IsPointOverDeleteButton(PointF screenPoint) {
+            if (_selectedMeuble == null) return false;
+
+            // Get the center of the meuble in screen coordinates
+            PointF center = _selectedMeuble.GetCenter();
+            PointF screenCenter = PlanToScreen(center);
+
+            // Create a matrix for the transformations
+            Matrix matrix = new Matrix();
+            matrix.Translate(screenCenter.X, screenCenter.Y);
+            matrix.Rotate(_selectedMeuble.getAngle());
+
+            // Transform the screen point to the meuble's coordinate system
+            PointF[] points = new PointF[] { screenPoint };
+            matrix.Invert();
+            matrix.TransformPoints(points);
+            PointF transformedPoint = points[0];
+
+            // Calculate button rectangle in meuble's coordinates
+            float buttonX = _selectedMeuble.Width * (3 / 2) - DeleteButtonSize;
+            float buttonY = -_selectedMeuble.Height * (3 / 2);
+            RectangleF buttonRect = new RectangleF(buttonX, buttonY, DeleteButtonSize, DeleteButtonSize);
+
+            // Check if the transformed point is inside the button rectangle
+            return buttonRect.Contains(transformedPoint);
+        }
+
     }
 }

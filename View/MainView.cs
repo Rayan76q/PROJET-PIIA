@@ -42,7 +42,6 @@ namespace PROJET_PIIA.View {
         ModeControler modeControler;
         private SidePanelMeuble MubleSidePanel;
         private MurSidePanel MurSidePanel;
-
         private UserControl _currentEditor;
 
         public MainView(Modele m) {
@@ -296,18 +295,19 @@ namespace PROJET_PIIA.View {
             zoombar.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             zoombar.Location = new Point(3, 378);
             zoombar.Margin = new Padding(3, 2, 3, 2);
+            zoombar.Maximum = 300;
+            zoombar.Minimum = 10;
             zoombar.Name = "zoombar";
             zoombar.Size = new Size(131, 45);
             zoombar.TabIndex = 5;
-            zoombar.Minimum = 10;
-            zoombar.Maximum = 300;
-            zoombar.Value = 100; // Default 100% zoom
             zoombar.TickFrequency = 10;
+            zoombar.Value = 100;
             zoombar.Scroll += zoombar_Scroll;
             // 
             // showgrid
             // 
             showgrid.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            showgrid.Font = new Font("Segoe UI", 18F, FontStyle.Bold);
             showgrid.Location = new Point(673, 349);
             showgrid.Margin = new Padding(3, 2, 3, 2);
             showgrid.Name = "showgrid";
@@ -500,8 +500,12 @@ namespace PROJET_PIIA.View {
         }
 
         private void zoombar_Scroll(object sender, EventArgs e) {
-            float valeur = zoombar.Value / 100f;  
+            float valeur = zoombar.Value / 100f;
             planView.ChangerZoom(valeur);
+        }
+
+        private void delete_meuble_Click(object sender, EventArgs e) {
+
         }
     }
 }
