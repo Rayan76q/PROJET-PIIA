@@ -10,7 +10,7 @@ namespace PROJET_PIIA.View {
         Meuble m;
         MeublePanelControler ctr;
 
-        public MeublePanel(Meuble m,  MeublePanelControler ctr) {
+        public MeublePanel(Meuble m, MeublePanelControler ctr) {
             InitializeComponent();
             this.ctr = ctr;
             meubleLabel.Text = m.Nom;

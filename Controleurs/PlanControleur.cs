@@ -5,9 +5,17 @@ namespace PROJET_PIIA.Controleurs {
 
         Plan plan;
         public event Action PlanChanged = delegate { };
+        private bool show_grid;
+        private float _zoomFactor = 1.0f;
+
+        public float ZoomFactor {
+            get { return _zoomFactor; }
+            set { ChangerZoom(value); }
+        }
 
         public PlanControleur(Modele m) {
             plan = m.planActuel;
+            show_grid = false;
         }
 
         public List<Meuble> ObtenirMeublePlacé() {
@@ -35,6 +43,24 @@ namespace PROJET_PIIA.Controleurs {
 
         public Murs ObtenirMurs() {
             return plan.Murs;
+        }
+
+
+        public bool isGridVisible() {
+            return show_grid;
+        }
+
+        public void toggleGrid() {
+            show_grid = !show_grid;
+            OnPlanChanged();
+        }
+
+
+        public void ChangerZoom(float zoom) {
+            if (zoom >= 0.1f && zoom <= 3.0f) {
+                _zoomFactor = zoom;
+                OnPlanChanged();
+            }
         }
 
 

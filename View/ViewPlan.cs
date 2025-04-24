@@ -13,8 +13,7 @@ namespace PROJET_PIIA.View {
         private PointF _dragStart;                      // PointF de départ du clic
         private DragMode _dragMode = DragMode.None;
 
-        private PointF PlanToScreen(PointF p) => new (p.X + _offset.X, p.Y + _offset.Y);
-        private PointF ScreenToPlan(PointF p) => new (p.X - _offset.X, p.Y - _offset.Y);
+        
 
         //private List<(PointF Start, PointF End)> _lignes = new();
         //private PointF? _currentStart = null; // point de départ d'une ligne en cours
@@ -33,6 +32,7 @@ namespace PROJET_PIIA.View {
         private PlanControleur planController;
 
         private float _initialMouseAngle = 0f;  // The angle from the meuble's center to the mouse at rotation start.
+        
 
         enum DragMode {
             None,
@@ -42,6 +42,14 @@ namespace PROJET_PIIA.View {
             MoveMeuble,
             // … à étendre
         }
+
+        private PointF PlanToScreen(PointF p) =>
+            new(p.X * planController.ZoomFactor + _offset.X,
+                p.Y * planController.ZoomFactor + _offset.Y);
+
+        private PointF ScreenToPlan(PointF p) =>
+            new((p.X - _offset.X) / planController.ZoomFactor,
+                (p.Y - _offset.Y) / planController.ZoomFactor);
 
         public PlanView(PlanControleur controleurplan) {
             this.DoubleBuffered = true;
@@ -187,6 +195,23 @@ namespace PROJET_PIIA.View {
             // dessine les meubles
             DrawMeubles(g);
 
+            // dessine la grille
+            if (planController.isGridVisible()) {
+                DrawGrid(g);
+            }
+
+        }
+
+        private void DrawGrid(Graphics g) {
+            int gridSize = 50; 
+            Pen gridPen = new(Color.LightGray, 1);
+            for (int x = 0; x < this.Width; x += gridSize) {
+                g.DrawLine(gridPen, x, 0, x, this.Height);
+            }
+            for (int y = 0; y < this.Height; y += gridSize) {
+                g.DrawLine(gridPen, 0, y, this.Width, y);
+            }
+            gridPen.Dispose();
         }
 
         private Pen GetMeubleBorderStyle(Meuble m) {
@@ -271,6 +296,27 @@ namespace PROJET_PIIA.View {
             }
             return base.ProcessCmdKey(ref msg, keyData);
         }
+
+        public void toggleGrid() {
+            planController.toggleGrid();
+        }
+
+
+        public void ChangerZoom(float newZoom) {
+            
+            PointF screenCenter = new PointF(this.Width / 2f, this.Height / 2f);
+            PointF planCenter = ScreenToPlan(screenCenter);
+
+           
+            float oldZoom = planController.ZoomFactor;
+            planController.ChangerZoom(newZoom);
+            _offset.X = screenCenter.X - planCenter.X * newZoom;
+            _offset.Y = screenCenter.Y - planCenter.Y * newZoom;
+
+            
+            Invalidate();
+        }
+
 
 
     }

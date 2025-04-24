@@ -252,7 +252,7 @@ namespace PROJET_PIIA.View {
             spliterSidePlan.Panel2.Controls.Add(Undo);
             spliterSidePlan.Panel2.Controls.Add(toggleButton);
             spliterSidePlan.Size = new Size(987, 437);
-            spliterSidePlan.SplitterDistance = 236;
+            spliterSidePlan.SplitterDistance = 244;
             spliterSidePlan.TabIndex = 1;
             spliterSidePlan.TabStop = false;
             // 
@@ -260,7 +260,7 @@ namespace PROJET_PIIA.View {
             // 
             modeSelector1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             modeSelector1.BackColor = Color.LightGray;
-            modeSelector1.Location = new Point(562, 394);
+            modeSelector1.Location = new Point(554, 394);
             modeSelector1.Margin = new Padding(3, 2, 3, 2);
             modeSelector1.Modes.Add("Murage");
             modeSelector1.Modes.Add("Meublage");
@@ -275,7 +275,7 @@ namespace PROJET_PIIA.View {
             // 
             label1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             label1.AutoSize = true;
-            label1.Location = new Point(551, 28);
+            label1.Location = new Point(543, 28);
             label1.Name = "label1";
             label1.Size = new Size(36, 15);
             label1.TabIndex = 8;
@@ -285,7 +285,7 @@ namespace PROJET_PIIA.View {
             // 
             labelsurface.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             labelsurface.AutoSize = true;
-            labelsurface.Location = new Point(551, 14);
+            labelsurface.Location = new Point(543, 14);
             labelsurface.Name = "labelsurface";
             labelsurface.Size = new Size(65, 15);
             labelsurface.TabIndex = 7;
@@ -299,17 +299,23 @@ namespace PROJET_PIIA.View {
             zoombar.Name = "zoombar";
             zoombar.Size = new Size(131, 45);
             zoombar.TabIndex = 5;
+            zoombar.Minimum = 10;
+            zoombar.Maximum = 300;
+            zoombar.Value = 100; // Default 100% zoom
+            zoombar.TickFrequency = 10;
+            zoombar.Scroll += zoombar_Scroll;
             // 
             // showgrid
             // 
             showgrid.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            showgrid.Location = new Point(681, 349);
+            showgrid.Location = new Point(673, 349);
             showgrid.Margin = new Padding(3, 2, 3, 2);
             showgrid.Name = "showgrid";
             showgrid.Size = new Size(44, 38);
             showgrid.TabIndex = 4;
             showgrid.Text = "⊞";
             showgrid.UseVisualStyleBackColor = true;
+            showgrid.Click += showgrid_Click;
             // 
             // Redo
             // 
@@ -486,6 +492,16 @@ namespace PROJET_PIIA.View {
 
         private void modeSelector1_Load(object sender, EventArgs e) {
 
+        }
+
+        private void showgrid_Click(object sender, EventArgs e) {
+            planView.toggleGrid();
+
+        }
+
+        private void zoombar_Scroll(object sender, EventArgs e) {
+            float valeur = zoombar.Value / 100f;  
+            planView.ChangerZoom(valeur);
         }
     }
 }

@@ -26,6 +26,10 @@ namespace PROJET_PIIA.View {
             filterPanel1.Dock = DockStyle.Fill;
             update_meubles();
             flowLayoutPanel1.VerticalScroll.Visible = true; // metre via designer ?
+
+            //pas du tout une entourloupe
+            buttonFiltre_Click(null, null);
+            buttonFiltre_Click(null, null);
         }
 
         private void buttonFiltre_Click(object sender, EventArgs e) {
@@ -54,9 +58,9 @@ namespace PROJET_PIIA.View {
 
             // ça ne marche pas wtf
             int verticalScrollBarWidth = flowLayoutPanel1.VerticalScroll.Visible ? SystemInformation.VerticalScrollBarWidth : 0;
-            int availableWidth = flowLayoutPanel1.ClientSize.Width - verticalScrollBarWidth - flowLayoutPanel1.Margin.Left - flowLayoutPanel1.Margin.Right;
+            int availableWidth = flowLayoutPanel1.Width - verticalScrollBarWidth - flowLayoutPanel1.Margin.Left - flowLayoutPanel1.Margin.Right;
 
-            meublePanel.Width = availableWidth;
+            meublePanel.Width = availableWidth-50;
             flowLayoutPanel1.Controls.Add(meublePanel);
         }
 
@@ -68,6 +72,5 @@ namespace PROJET_PIIA.View {
             update_meubles();
         }
 
-        
     }
 }

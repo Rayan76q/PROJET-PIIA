@@ -32,9 +32,10 @@
             // 
             buttonMeuble.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
             buttonMeuble.FlatStyle = FlatStyle.Flat;
-            buttonMeuble.Location = new Point(30, 25);
+            buttonMeuble.Location = new Point(26, 19);
+            buttonMeuble.Margin = new Padding(3, 2, 3, 2);
             buttonMeuble.Name = "buttonMeuble";
-            buttonMeuble.Size = new Size(90, 73);
+            buttonMeuble.Size = new Size(79, 55);
             buttonMeuble.TabIndex = 0;
             buttonMeuble.Text = "\U0001fa91";
             buttonMeuble.UseVisualStyleBackColor = true;
@@ -44,34 +45,38 @@
             // 
             meubleLabel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             meubleLabel.AutoSize = true;
-            meubleLabel.Location = new Point(158, 25);
+            meubleLabel.Location = new Point(166, 19);
             meubleLabel.Name = "meubleLabel";
-            meubleLabel.Size = new Size(117, 20);
+            meubleLabel.Size = new Size(91, 15);
             meubleLabel.TabIndex = 1;
             meubleLabel.Text = "Texte par defaut";
+           
             // 
             // buttonFav
             // 
             buttonFav.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             buttonFav.FlatStyle = FlatStyle.Flat;
-            buttonFav.Location = new Point(239, 69);
+            buttonFav.Location = new Point(237, 52);
+            buttonFav.Margin = new Padding(3, 2, 3, 2);
             buttonFav.Name = "buttonFav";
-            buttonFav.Size = new Size(36, 29);
+            buttonFav.Size = new Size(32, 22);
             buttonFav.TabIndex = 2;
             buttonFav.Text = "☆";
             buttonFav.UseVisualStyleBackColor = true;
             // 
             // MeublePanel
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            AutoSize = true;
             BackColor = Color.Gainsboro;
             Controls.Add(buttonFav);
             Controls.Add(meubleLabel);
             Controls.Add(buttonMeuble);
+            Margin = new Padding(3, 2, 3, 2);
             Name = "MeublePanel";
-            Padding = new Padding(2, 5, 10, 0);
-            Size = new Size(288, 124);
+            Padding = new Padding(2, 4, 9, 0);
+            Size = new Size(280, 93);
             ResumeLayout(false);
             PerformLayout();
         }

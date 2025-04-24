@@ -63,6 +63,7 @@
             flowLayoutPanel1.Size = new Size(270, 216);
             flowLayoutPanel1.TabIndex = 1;
             flowLayoutPanel1.WrapContents = false;
+          
             // 
             // seachBarPanel
             // 
