@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using PROJET_PIIA.Extensions;
 
 namespace PROJET_PIIA.Model {
     public class Plan {
@@ -35,6 +36,13 @@ namespace PROJET_PIIA.Model {
                 }
             }
             return null;
+        }
+
+        public int FindMurAtPoint(PointF planPoint) {
+            if (Murs == null || Murs.Perimetre == null || Murs.Perimetre.Count < 2)
+                return -1;
+
+            return planPoint.TrouverSegmentProche(Murs.Perimetre);
         }
 
         public void tournerMeuble(Meuble meuble, float angle, bool fixeddirection) {

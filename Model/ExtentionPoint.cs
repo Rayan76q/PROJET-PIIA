@@ -61,8 +61,8 @@
             return MathF.Sqrt(distX * distX + distY * distY);
         }
 
-        public static int? TrouverSegmentProche(this PointF sourisPlan, List<PointF> perimetre, float seuilProximité = 10f) {
-            if (perimetre == null || perimetre.Count < 2) return null;
+        public static int TrouverSegmentProche(this PointF sourisPlan, List<PointF> perimetre, float seuilProximité = 10f) {
+            if (perimetre == null || perimetre.Count < 2) return -1;
 
             for (int i = 0; i < perimetre.Count; i++) {
                 PointF p1 = perimetre[i];
@@ -74,7 +74,7 @@
                 }
             }
 
-            return null;
+            return -1;
         }
 
         public static PointF FindCenterPoint(List<PointF> points) {

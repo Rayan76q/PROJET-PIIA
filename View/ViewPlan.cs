@@ -1,9 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Runtime.ConstrainedExecution;
-using PROJET_PIIA.Controleurs;
+﻿using PROJET_PIIA.Controleurs;
 using PROJET_PIIA.Extensions;
 using PROJET_PIIA.Model;
 
@@ -27,13 +22,14 @@ namespace PROJET_PIIA.View {
 
         // Properties for meuble interactions
         private Meuble? _selectedMeuble = null;
+        private int _selectedWall = -1;
         //private bool _movingMeuble = false;
         private PointF _meubleOffset;
 
         private PlanControleur planController;
 
         private float _initialMouseAngle = 0f;  // The angle from the meuble's center to the mouse at rotation start.
-        
+
 
         enum DragMode {
             None,
@@ -41,6 +37,7 @@ namespace PROJET_PIIA.View {
             /*DrawPolygon,*/
             RotateMeuble,
             MoveMeuble,
+            MoveWall
             // … à étendre
         }
 
@@ -76,9 +73,9 @@ namespace PROJET_PIIA.View {
 
             this.planController = controleurplan;
             planController.PlanChanged += OnMurChanged;
-            
+
             ImageLoader.LoadImagesOfFolder("images");
-            
+
             this.Invalidate();
         }
 
@@ -94,7 +91,7 @@ namespace PROJET_PIIA.View {
                 //Meuble ?meuble = e.Data.GetData(typeof(Meuble)) as Meuble;         
                 e.Effect = DragDropEffects.Copy;
             } else {
-         
+
                 e.Effect = DragDropEffects.None;
             }
         }
@@ -103,8 +100,7 @@ namespace PROJET_PIIA.View {
             if (e.Data != null && e.Data.GetDataPresent(typeof(Meuble))) {
                 //Meuble? meuble = e.Data.GetData(typeof(Meuble)) as Meuble;
                 e.Effect = DragDropEffects.Copy;
-            }
-            else
+            } else
                 e.Effect = DragDropEffects.None;
         }
 
@@ -165,6 +161,13 @@ namespace PROJET_PIIA.View {
                     g.DrawLine(Pens.Blue, PlanToScreen(points[i]), PlanToScreen(points[i + 1]));
                 }
                 g.DrawLine(Pens.Blue, PlanToScreen(points.Last()), PlanToScreen(points.First()));
+
+                if (_selectedWall != -1) {
+                    (int, int) seg = (_selectedWall, (_selectedWall%planController.ObtenirMurs().Perimetre.Count()) + 1);
+                    PointF p1 = planController.ObtenirMurs().Perimetre[seg.Item1];
+                    PointF p2 = planController.ObtenirMurs().Perimetre[seg.Item2];
+                    g.DrawLine(new Pen(Color.Green, 3), PlanToScreen(p1), PlanToScreen(p2));
+                }
             }
 
             // dessine les meubles
@@ -184,8 +187,8 @@ namespace PROJET_PIIA.View {
                     g.RotateTransform(_selectedMeuble.getAngle());
 
                     // Position the button at the top-right corner of the meuble
-                    
-                    float buttonX = _selectedMeuble.Width * (3/2) - DeleteButtonSize;
+
+                    float buttonX = _selectedMeuble.Width * (3 / 2) - DeleteButtonSize;
                     float buttonY = -_selectedMeuble.Height * (3 / 2);
 
                     // Draw the red circular button
@@ -205,9 +208,9 @@ namespace PROJET_PIIA.View {
                 } finally {
                     g.Restore(state);
                 }
-            // dessin de la poignée de rotation
-            
-                
+                // dessin de la poignée de rotation
+
+
                 PointF screenHandle = PlanToScreen(GetHandleCenter());
                 e.Graphics.DrawLine(Pens.Gray, screenCenter, screenHandle);
                 int handleSize = 12;
@@ -229,7 +232,7 @@ namespace PROJET_PIIA.View {
         }
 
         private void DrawGrid(Graphics g) {
-            int gridSize = 50; 
+            int gridSize = 50;
             Pen gridPen = new(Color.LightGray, 1);
             for (int x = 0; x < this.Width; x += gridSize) {
                 g.DrawLine(gridPen, x, 0, x, this.Height);
@@ -266,7 +269,7 @@ namespace PROJET_PIIA.View {
             PointF screenCenter = PlanToScreen(center);
 
             var pen = GetMeubleBorderStyle(meuble);
-            
+
             using (pen)
             using (Font font = new Font("Arial", 8)) {
 
@@ -313,7 +316,7 @@ namespace PROJET_PIIA.View {
                 planController.SupprimerMeuble(_selectedMeuble);
                 _selectedMeuble = null;
             }
-            
+
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData) {
@@ -331,25 +334,25 @@ namespace PROJET_PIIA.View {
 
 
         public void ChangerZoom(float newZoom) {
-            
+
             PointF screenCenter = new PointF(this.Width / 2f, this.Height / 2f);
             PointF planCenter = ScreenToPlan(screenCenter);
 
-           
+
             float oldZoom = planController.ZoomFactor;
             planController.ChangerZoom(newZoom);
             _offset.X = screenCenter.X - planCenter.X * newZoom;
             _offset.Y = screenCenter.Y - planCenter.Y * newZoom;
-            
+
             Invalidate();
         }
 
         public void rescalePlan(float scale) {
-          
+
             List<PointF> currentPoints = planController.ObtenirMurs().Perimetre;
             PointF center = PointExtensions.FindCenterPoint(currentPoints);
             List<PointF> newPoints = PointExtensions.ApplyHomothety(currentPoints, center, scale);
-            planController.SetMurs(new Murs(newPoints));
+            planController.SetMurs(newPoints);
 
         }
 

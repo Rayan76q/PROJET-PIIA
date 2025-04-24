@@ -26,6 +26,10 @@ namespace PROJET_PIIA.Controleurs {
             return plan.FindMeubleAtPoint(planPoint);
         }
 
+        public int FindMurAtPoint(PointF planPoint) {
+            return plan.FindMurAtPoint(planPoint);
+        }
+
 
         public void PlaceMeubleAtPosition(Meuble m, PointF position) {
             this.plan.PlacerMeuble(m, position);
@@ -45,8 +49,8 @@ namespace PROJET_PIIA.Controleurs {
             return plan.Murs;
         }
 
-        public void SetMurs(Murs m) {
-            plan.Murs = m;
+        public void SetMurs(List<PointF> points) {
+            plan.Murs = new Murs(points);
             OnPlanChanged();
         }
 

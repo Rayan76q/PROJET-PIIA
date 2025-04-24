@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
@@ -68,6 +69,15 @@ namespace PROJET_PIIA.View {
                     }
                 }
 
+                int segmentIndex = planController.FindMurAtPoint(planPoint);
+                if (segmentIndex != -1) {
+                    _selectedWall = segmentIndex;
+                    _dragMode = DragMode.MoveWall;
+                    _dragStart = e.Location;
+                    this.Cursor = Cursors.Hand;
+                }
+
+
             }
             Invalidate();
         }
@@ -122,6 +132,45 @@ namespace PROJET_PIIA.View {
                     }
                     break;
 
+
+                case DragMode.MoveWall:
+                    PointF current = ScreenToPlan(new PointF(e.Location.X, e.Location.Y));
+                    PointF start = ScreenToPlan(_dragStart);
+                    PointF delta = new PointF(current.X - start.X, current.Y - start.Y);
+                    List<PointF> perimetre = planController.ObtenirMurs().Perimetre;
+
+                    if (perimetre.Count <= 2) return;  // Prevent issues with invalid perimeter
+
+                    int i1 = _selectedWall;
+                    int i2 =  (i1 + 1) % perimetre.Count;
+                
+                    // Simply apply the delta to both points of the selected wall segment
+                    PointF p1 = perimetre[i1];
+                    PointF p2 = perimetre[i2];
+
+                    // Apply the movement delta directly to both points
+                    PointF newP1 = new PointF((int)(p1.X + delta.X), (int)(p1.Y + delta.Y));
+                    PointF newP2 = new PointF((int)(p2.X + delta.X), (int)(p2.Y + delta.Y));
+
+                    // Update the wall points
+                    perimetre[i1] = newP1;
+                    perimetre[i2] = newP2;
+
+                    perimetre[0] = i1 == perimetre.Count -2 ?  newP2 : perimetre[0];
+                    perimetre[perimetre.Count-1] = i1 == 0 ? newP1 : perimetre[perimetre.Count-1];
+
+                    // Update the walls in the controller
+                    planController.SetMurs(perimetre);
+
+                    // Update drag start position for next movement
+                    _dragStart = e.Location;
+
+                    
+
+                    // Redraw the view
+                    this.Invalidate();
+                    return;
+
                 case DragMode.None:
                     PointF planPoint = ScreenToPlan(e.Location);
                     this.Cursor = (planController.FindMeubleAtPoint(planPoint) != null) ? Cursors.Hand : Cursors.Default;
@@ -145,10 +194,13 @@ namespace PROJET_PIIA.View {
                 }
             }
 
+            _selectedWall = -1;
+
             switch (_dragMode) {
                 case DragMode.Pan:
                 case DragMode.MoveMeuble:
                 case DragMode.RotateMeuble:
+                case DragMode.MoveWall:
                     Cursor = Cursors.Default;
                     _dragMode = DragMode.None;
                     break;
