@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Runtime.ConstrainedExecution;
 using PROJET_PIIA.Controleurs;
 using PROJET_PIIA.Extensions;
 using PROJET_PIIA.Model;
@@ -312,9 +313,17 @@ namespace PROJET_PIIA.View {
             planController.ChangerZoom(newZoom);
             _offset.X = screenCenter.X - planCenter.X * newZoom;
             _offset.Y = screenCenter.Y - planCenter.Y * newZoom;
-
             
             Invalidate();
+        }
+
+        public void rescalePlan(float scale) {
+          
+            List<PointF> currentPoints = planController.ObtenirMurs().Perimetre;
+            PointF center = PointExtensions.FindCenterPoint(currentPoints);
+            List<PointF> newPoints = PointExtensions.ApplyHomothety(currentPoints, center, scale);
+            planController.SetMurs(new Murs(newPoints));
+
         }
 
 

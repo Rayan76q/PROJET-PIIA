@@ -15,10 +15,11 @@ namespace PROJET_PIIA.View {
     public partial class MurSidePanel : UserControl {
 
         MurSidePanelControler ctr;
-        public MurSidePanel(Modele m,PlanView pv, PlanControleur pctr) {
+        public MurSidePanel(Modele m, PlanView pv, PlanControleur pctr) {
             ctr = new MurSidePanelControler(m, pv);
             InitializeComponent();
             InitializePresets();
+            InitializeAreaScaling();
             pctr.PlanChanged += updateSupeficie;
             updateSupeficie();
         }
@@ -28,7 +29,7 @@ namespace PROJET_PIIA.View {
         };
 
         private void InitializePresets() {
-            
+
             //Debug.WriteLine("" + panel.Width + ", " + panel.Height);
             flowLayoutPanel1.WrapContents = false;
             Button futureButton = new Button {
@@ -38,8 +39,8 @@ namespace PROJET_PIIA.View {
                 Enabled = false // pour indiquer qu'il est "inutile" pour l'instant
             };
             flowLayoutPanel1.Controls.Add(futureButton);
-            
-            
+
+
 
             foreach (var preset in _presets) {
                 Button btn = new Button {
@@ -53,7 +54,7 @@ namespace PROJET_PIIA.View {
                     ApplyPreset(btn.Text);
                 };
 
-                    flowLayoutPanel1.Controls.Add(btn);
+                flowLayoutPanel1.Controls.Add(btn);
             }
 
             flowLayoutPanel1.SizeChanged += (sender, e) => {
@@ -64,6 +65,28 @@ namespace PROJET_PIIA.View {
             };
 
             this.Invalidate();
+        }
+
+        private void InitializeAreaScaling() {
+            
+            Button applyAreaButton = new Button {
+                Text = "✓",
+                Size = new Size(30, searchBox.Height),
+                Location = new Point(searchBox.Right + 5, searchBox.Top),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right
+            };
+
+            applyAreaButton.Click += ApplyAreaButton_Click;
+            splitContainer1.Panel1.Controls.Add(applyAreaButton);
+
+            
+            searchBox.KeyDown += (sender, e) => {
+                if (e.KeyCode == Keys.Enter) {
+                    ApplyAreaButton_Click(sender, e);
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;  // Prevents the "ding" sound
+                }
+            };
         }
 
         private void OnPresetSelected(string presetName) {
@@ -116,9 +139,17 @@ namespace PROJET_PIIA.View {
             updateSupeficie();
         }
 
-        void updateSupeficie() { this.searchBox.Text = ctr.GetSurperficie().ToString(); }
+        void updateSupeficie() { this.searchBox.Text = (Math.Round(ctr.GetSurperficie())).ToString(); }
 
+        private void ApplyAreaButton_Click(object sender, EventArgs e) {
+            if (int.TryParse(searchBox.Text, out int targetArea) && targetArea > 0) {
+                ctr.resizeWallsToArea(targetArea);
+            }
+            updateSupeficie();
+        }
 
+        private void searchBox_TextChanged(object sender, EventArgs e) {
 
+        }
     }
 }

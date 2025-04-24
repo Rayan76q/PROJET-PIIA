@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,5 +30,15 @@ namespace PROJET_PIIA.Controleurs {
         public float GetSurperficie() {
             return plan.Murs.Area();
         }
+
+        public void resizeWallsToArea(float targetArea) {
+            
+            float currentArea = plan.Murs.Area();
+            float scaleFactor = (float)Math.Sqrt(targetArea / currentArea);
+           
+            pv.rescalePlan(scaleFactor);
+
+        }
+
     }
 }

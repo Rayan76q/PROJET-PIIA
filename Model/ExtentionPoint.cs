@@ -76,5 +76,34 @@
 
             return null;
         }
+
+        public static PointF FindCenterPoint(List<PointF> points) {
+            float sumX = 0, sumY = 0;
+
+            foreach (var point in points) {
+                sumX += point.X;
+                sumY += point.Y;
+            }
+
+            return new PointF(sumX / points.Count, sumY / points.Count);
+        }
+
+        public static List<PointF> ApplyHomothety(List<PointF> points, PointF center, float scaleFactor) {
+            List<PointF> scaledPoints = new List<PointF>();
+
+            foreach (var point in points) {
+                // Vector from center to point
+                float dx = point.X - center.X;
+                float dy = point.Y - center.Y;
+
+                // Scale vector
+                float scaledX = center.X + dx * scaleFactor;
+                float scaledY = center.Y + dy * scaleFactor;
+
+                scaledPoints.Add(new PointF(scaledX, scaledY));
+            }
+
+            return scaledPoints;
+        }
     }
 }

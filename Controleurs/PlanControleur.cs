@@ -45,6 +45,11 @@ namespace PROJET_PIIA.Controleurs {
             return plan.Murs;
         }
 
+        public void SetMurs(Murs m) {
+            plan.Murs = m;
+            OnPlanChanged();
+        }
+
 
         public bool isGridVisible() {
             return show_grid;
