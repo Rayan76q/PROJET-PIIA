@@ -6,6 +6,7 @@ namespace PROJET_PIIA.Controleurs {
         Catalogue catalogue;
         public List<Tag> tagsSelection;
         public List<Tag> tagsDisponible;
+        public Compte compteAct;
 
         public event Action TagsModifies;
 
@@ -13,6 +14,7 @@ namespace PROJET_PIIA.Controleurs {
             catalogue = m.Catalogue;
             tagsSelection = new List<Tag>();
             tagsDisponible = Enum.GetValues(typeof(Tag)).Cast<Tag>().ToList();
+            compteAct = m.compteActuel;
         }
 
         public void toggleTag(Tag tag) {
@@ -36,11 +38,15 @@ namespace PROJET_PIIA.Controleurs {
         public List<Meuble> getMeubleToDisplay(string searchQuery) {
             searchQuery = searchQuery.Trim().ToLower();
             return this.catalogue.Meubles
-                       .Where(m =>
-                           IsMeubleVisibleWithCurrentTags(m) &&
-                           (string.IsNullOrEmpty(searchQuery) || m.Nom.ToLower().Contains(searchQuery))
-                       )
-                       .ToList();
+         .Where(m =>
+             IsMeubleVisibleWithCurrentTags(m) &&
+             (string.IsNullOrEmpty(searchQuery) || m.Nom.ToLower().Contains(searchQuery))
+         )
+         
+         .OrderByDescending(m => compteAct.Favorites.Contains(m.catRef))
+         .ThenBy(m => m.Nom)
+         .ToList();
+
         }
 
         private bool IsMeubleVisibleWithCurrentTags(Meuble m) {

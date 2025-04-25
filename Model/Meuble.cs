@@ -24,6 +24,7 @@ namespace PROJET_PIIA.Model {
 
         private static int id_counter = 0;
         public readonly int id;
+        public int catRef;
 
 
         //Constructeur
@@ -172,6 +173,12 @@ namespace PROJET_PIIA.Model {
                 Position = this.Position,  
                 Orientation = this.Orientation 
             };
+        }
+
+
+        public void setCatRef(int n) {
+            if (n < 0) throw new ArgumentOutOfRangeException(nameof(n), "Catégorie de référence invalide.");
+            this.catRef = n;
         }
 
 

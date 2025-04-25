@@ -7,6 +7,8 @@ namespace PROJET_PIIA.Model {
         // ouion pourrait faire un dict
         public List<Meuble> Meubles { get; private set; }
 
+
+
         public Catalogue() {
             Meubles = new List<Meuble>();
 
@@ -79,6 +81,11 @@ namespace PROJET_PIIA.Model {
                 ,
                 -1
             ));
+
+
+            foreach(Meuble m in Meubles) {
+                m.setCatRef(Meubles.IndexOf(m));
+            }
         }
 
 
@@ -96,6 +103,9 @@ namespace PROJET_PIIA.Model {
             return Meubles.Where(meuble => !meuble.tags.Any()).ToList();
         }
 
+        public int getCatalogueRef(Meuble m) {
+            return Meubles.IndexOf(m);
+        }
 
 
         public override string ToString() {

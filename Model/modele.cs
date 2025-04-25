@@ -55,7 +55,7 @@ namespace PROJET_PIIA.Model {
 
         public Modele() {
             Catalogue = new Catalogue();
-            this.planActuel = new Plan(); // il a un nom par defaut selon son id
+            this.planActuel = new Plan();
             this.compteActuel = new Compte();
         }
 

@@ -2,9 +2,9 @@
     public class Compte {
         private static string DEFAULT_AVATAR = "";
         private static int _idCounter = 0;
-        public static Dictionary<int, Compte> comptes = new Dictionary<int, Compte>(); // dans modele ?
+        public static Dictionary<int, Compte> comptes = new Dictionary<int, Compte>(); 
 
-        public List<Meuble> Favorites;
+        public List<int> Favorites;
 
         public static bool nomDispo(string nom) {
             foreach (Compte compte in comptes.Values) {
@@ -74,7 +74,7 @@
         public Compte() {
             Id = _idCounter++;
             Name = "Invité";
-            Password = "1234";
+            Password = "0000";
             _plans = new List<Plan>();
             Avatar = DEFAULT_AVATAR;
             comptes.Add(Id, this);
@@ -98,7 +98,6 @@
             Connected = false;
             Favorites = new();
         }
-
 
         public override string ToString() {
             var plansStr = Plans.Count > 0

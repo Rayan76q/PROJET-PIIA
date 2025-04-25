@@ -45,10 +45,10 @@ namespace PROJET_PIIA.View {
             }
         }
 
-        private void update_meubles() {
+         internal void update_meubles() {
             bool scrollbarshown = flowLayoutPanel1.VerticalScroll.Visible;
             flowLayoutPanel1.Controls.Clear();
-            foreach (var m in filterPanel1.controller.getMeubleToDisplay(textBox1.Text)) {
+            foreach (Meuble m in filterPanel1.controller.getMeubleToDisplay(textBox1.Text)) {
                 AddMeubleToPanel(m, scrollbarshown);
             }
             Invalidate();
@@ -58,7 +58,7 @@ namespace PROJET_PIIA.View {
             MeublePanel meublePanel = new MeublePanel(m, new(ctr.compte));          
             int availableWidth = flowLayoutPanel1.Width - SystemInformation.VerticalScrollBarWidth*(scroll?1:0) - flowLayoutPanel1.Margin.Left - flowLayoutPanel1.Margin.Right;
 
-            meublePanel.Width = availableWidth-50;
+            meublePanel.Width = availableWidth - 50;
             flowLayoutPanel1.Controls.Add(meublePanel);
         }
 

@@ -50,7 +50,6 @@
             meubleLabel.Size = new Size(91, 15);
             meubleLabel.TabIndex = 1;
             meubleLabel.Text = "Texte par defaut";
-           
             // 
             // buttonFav
             // 
@@ -63,6 +62,7 @@
             buttonFav.TabIndex = 2;
             buttonFav.Text = "☆";
             buttonFav.UseVisualStyleBackColor = true;
+            buttonFav.Click += buttonFav_Click;
             // 
             // MeublePanel
             // 

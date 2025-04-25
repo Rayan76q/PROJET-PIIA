@@ -40,7 +40,7 @@ namespace PROJET_PIIA.View {
         private CustomControls.ModeSelector modeSelector1;
 
         ModeControler modeControler;
-        private SidePanelMeuble MubleSidePanel;
+        private SidePanelMeuble MeubleSidePanel;
         private MurSidePanel MurSidePanel;
         private UserControl _currentEditor;
 
@@ -54,9 +54,9 @@ namespace PROJET_PIIA.View {
             var urctr = new UndoRedoControleur(pctr);
             planView = new PlanView(pctr, urctr);
 
-            MubleSidePanel = new SidePanelMeuble(m);
+            MeubleSidePanel = new SidePanelMeuble(m);
             MurSidePanel = new MurSidePanel(m, planView, pctr);
-            _currentEditor = MubleSidePanel;
+            _currentEditor = MeubleSidePanel;
             _currentEditor.Dock = DockStyle.Fill;
 
             spliterSidePlan.Panel1.Controls.Add(MurSidePanel);
@@ -83,7 +83,7 @@ namespace PROJET_PIIA.View {
             spliterSidePlan.Panel1.Controls.Clear();
             switch (modeControler.ModeEdition) {
                 case EditMode.Meuble:
-                    _currentEditor = MubleSidePanel;
+                    _currentEditor = MeubleSidePanel;
                     break;
                 case EditMode.Mur:
                     _currentEditor = MurSidePanel;
@@ -226,13 +226,14 @@ namespace PROJET_PIIA.View {
             // loginMenuItem
             // 
             loginMenuItem.Name = "loginMenuItem";
-            loginMenuItem.Size = new Size(135, 26);
+            loginMenuItem.Size = new Size(180, 26);
             loginMenuItem.Text = "Login";
+            loginMenuItem.Click += LoginMenuItem_Click;
             // 
             // signupMenuItem
             // 
             signupMenuItem.Name = "signupMenuItem";
-            signupMenuItem.Size = new Size(135, 26);
+            signupMenuItem.Size = new Size(180, 26);
             signupMenuItem.Text = "Sign Up";
             // 
             // spliterSidePlan
@@ -380,6 +381,8 @@ namespace PROJET_PIIA.View {
             if (spliterSidePlan.Panel1Collapsed) {
                 spliterSidePlan.Panel1Collapsed = false;
                 toggleButton.Text = "<";  // Barre ouverte, bouton pointant à droite
+                MeubleSidePanel.update_meubles();
+
             } else {
                 spliterSidePlan.Panel1Collapsed = true;
                 toggleButton.Text = ">";  // Barre fermée, bouton pointant à gauche
@@ -484,10 +487,7 @@ namespace PROJET_PIIA.View {
             }
         }
 
-        //private void zoombar_Scroll(object sender, EventArgs e) {
-        //    float valeur = zoombar.Value / 100f;  // ex: trackbar de 10 à 300 → 0.1 à 3.0
-        //    ctrg.ChangerZoom(valeur);
-        //}
+        
 
         private void modeSelector1_Click(object sender, EventArgs e) {
             modeControler.SwitchMode();
@@ -518,5 +518,7 @@ namespace PROJET_PIIA.View {
         private void Redo_Click(object sender, EventArgs e) {
             planView.redo();
         }
+
+        
     }
 }
