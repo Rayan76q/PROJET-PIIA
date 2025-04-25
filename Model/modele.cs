@@ -5,7 +5,7 @@ namespace PROJET_PIIA.Model {
         public Catalogue Catalogue { get; }
 
         public Plan planActuel;
-        public Compte? compteActuel; // compte invité?
+        public Compte compteActuel; 
 
 
         // Ques ce que ça fou là svp, Soit a foutre dans un controleur, soit une classe 
