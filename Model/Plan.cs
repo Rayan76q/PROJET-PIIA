@@ -5,7 +5,7 @@ using PROJET_PIIA.Extensions;
 
 namespace PROJET_PIIA.Model {
     public class Plan {
-        private static int _idCounter = 0;
+       
 
         public int Id { get; }
         public string Nom { get; set; }
@@ -13,8 +13,8 @@ namespace PROJET_PIIA.Model {
         public List<Meuble> Meubles { get; }
 
         public Plan(string nom = "") {
-            Id = _idCounter++;
-            Nom = nom=="" ? $"Plan_N°{Id}" : nom;
+           
+            Nom = nom=="" ? "Plan" : nom;
             Murs = new Murs();
             Meubles = new List<Meuble>();
         }

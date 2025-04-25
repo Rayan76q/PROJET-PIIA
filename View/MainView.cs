@@ -15,14 +15,14 @@ namespace PROJET_PIIA.View {
         private PlanView planView;
         private Plan p;
         // creer un user control expres ?
-        private ToolStripButton convertButton;
+        private ToolStripButton modifyButton;
         private ToolStripTextBox searchToolBox;
         private ToolStripButton searchButton;
         private ToolStripButton downloadButton;
         private ToolStripButton shareButton;
         private ToolStripButton commentButton;
         private ToolStripButton newButton;
-        private ToolStripButton modifyButton;
+        private ToolStripButton loadButton;
         private ToolStripButton emailButton;
         private ToolStrip mainToolStrip;
         private ToolStripLabel appNameLabel;
@@ -107,8 +107,8 @@ namespace PROJET_PIIA.View {
             mainToolStrip = new ToolStrip();
             appNameLabel = new ToolStripLabel();
             newButton = new ToolStripButton();
+            loadButton = new ToolStripButton();
             modifyButton = new ToolStripButton();
-            convertButton = new ToolStripButton();
             searchToolBox = new ToolStripTextBox();
             searchButton = new ToolStripButton();
             downloadButton = new ToolStripButton();
@@ -139,7 +139,7 @@ namespace PROJET_PIIA.View {
             // mainToolStrip
             // 
             mainToolStrip.ImageScalingSize = new Size(20, 20);
-            mainToolStrip.Items.AddRange(new ToolStripItem[] { appNameLabel, newButton, modifyButton, convertButton, searchToolBox, searchButton, downloadButton, shareButton, commentButton, emailButton, rightAlignSeparator, avatarButton });
+            mainToolStrip.Items.AddRange(new ToolStripItem[] { appNameLabel, newButton, loadButton, modifyButton, searchToolBox, searchButton, downloadButton, shareButton, commentButton, emailButton, rightAlignSeparator, avatarButton });
             mainToolStrip.Location = new Point(0, 0);
             mainToolStrip.Name = "mainToolStrip";
             mainToolStrip.RenderMode = ToolStripRenderMode.System;
@@ -159,17 +159,19 @@ namespace PROJET_PIIA.View {
             newButton.Size = new Size(59, 25);
             newButton.Text = "Nouveau";
             // 
+            // loadButton
+            // 
+            loadButton.Name = "loadButton";
+            loadButton.Size = new Size(53, 25);
+            loadButton.Text = "Charger";
+            loadButton.Click += modifyButton_Click;
+            // 
             // modifyButton
             // 
             modifyButton.Name = "modifyButton";
             modifyButton.Size = new Size(56, 25);
             modifyButton.Text = "Modifier";
-            // 
-            // convertButton
-            // 
-            convertButton.Name = "convertButton";
-            convertButton.Size = new Size(60, 25);
-            convertButton.Text = "Convertir";
+            modifyButton.Click += convertButton_Click;
             // 
             // searchToolBox
             // 
@@ -521,6 +523,99 @@ namespace PROJET_PIIA.View {
 
         private void downloadButton_Click(object sender, EventArgs e) {
             compteControleur.SavePlan(p);
+        }
+
+        private void convertButton_Click(object sender, EventArgs e) {
+
+        }
+
+        private void modifyButton_Click(object sender, EventArgs e) {
+            try {
+                // Get the list of plans for the current user
+                List<Plan> plans = compteControleur.GetUserPlans();
+
+                // Check if there are any plans to load
+                if (plans == null || plans.Count == 0) {
+                    MessageBox.Show("Vous n'avez aucun plan sauvegardé.", "Aucun plan",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                // Create a form to display the plans
+                using (Form planSelectionForm = new Form()) {
+                    planSelectionForm.Text = "Sélectionnez un plan";
+                    planSelectionForm.Size = new Size(400, 300);
+                    planSelectionForm.StartPosition = FormStartPosition.CenterScreen;
+                    planSelectionForm.FormBorderStyle = FormBorderStyle.FixedDialog;
+                    planSelectionForm.MaximizeBox = false;
+                    planSelectionForm.MinimizeBox = false;
+
+                    // Create a ListBox to display plans
+                    ListBox planListBox = new ListBox();
+                    planListBox.Dock = DockStyle.Fill;
+                    planListBox.Items.AddRange(plans.Select(p => p.Nom).ToArray());
+                    planListBox.SelectedIndex = 0; // Select first plan by default
+
+                    // Create buttons panel
+                    Panel buttonPanel = new Panel();
+                    buttonPanel.Dock = DockStyle.Bottom;
+                    buttonPanel.Height = 50;
+
+                    // Create OK button
+                    Button okButton = new Button();
+                    okButton.Text = "Charger";
+                    okButton.DialogResult = DialogResult.OK;
+                    okButton.Width = 100;
+                    okButton.Location = new Point(buttonPanel.Width / 2 - 110, 10);
+
+                    // Create Cancel button
+                    Button cancelButton = new Button();
+                    cancelButton.Text = "Annuler";
+                    cancelButton.DialogResult = DialogResult.Cancel;
+                    cancelButton.Width = 100;
+                    cancelButton.Location = new Point(buttonPanel.Width / 2 + 10, 10);
+
+                    // Add buttons to panel
+                    buttonPanel.Controls.Add(okButton);
+                    buttonPanel.Controls.Add(cancelButton);
+
+                    // Add controls to form
+                    planSelectionForm.Controls.Add(planListBox);
+                    planSelectionForm.Controls.Add(buttonPanel);
+
+                    // Show the form and get the result
+                    DialogResult result = planSelectionForm.ShowDialog();
+
+                    // Handle the result
+                    if (result == DialogResult.OK && planListBox.SelectedIndex >= 0) {
+                        int selectedIndex = planListBox.SelectedIndex;
+                        Plan selectedPlan = plans[selectedIndex];
+
+                        // Load the selected plan into the application
+                        LoadPlanIntoApplication(selectedPlan);
+                    }
+                }
+            } catch (Exception ex) {
+                MessageBox.Show($"Erreur lors du chargement des plans: {ex.Message}", "Erreur",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+        }
+
+
+        private void LoadPlanIntoApplication(Plan selectedPlan) {
+            try {
+                // Here you would add the code to actually load the plan into your application
+                // This depends on how your application is structured
+
+                compteControleur.selectPlan(selectedPlan);
+
+                MessageBox.Show($"Plan '{selectedPlan.Nom}' chargé avec succès.", "Plan chargé",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            } catch (Exception ex) {
+                MessageBox.Show($"Erreur lors du chargement du plan: {ex.Message}", "Erreur",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

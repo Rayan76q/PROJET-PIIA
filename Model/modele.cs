@@ -4,53 +4,9 @@ namespace PROJET_PIIA.Model {
     public class Modele {
         public Catalogue Catalogue { get; }
 
-        public Plan planActuel;
+        public Plan planActuel { get; set; }
         public Compte compteActuel; 
 
-
-        // Ques ce que ça fou là svp, Soit a foutre dans un controleur, soit une classe 
-        // je pense plutot un controleur pour la page login, psq là modele.creerCompte... ça napas trop de sens imo
-        public Compte creerCompte(string nom, string password) {
-            try {
-                Compte compte = new Compte(nom, password);
-                return compte;
-            } catch {
-                throw;
-            }
-        }
-
-        public bool supprimerCompte(Compte compte) {
-            return Compte.comptes.Remove(compte.Id);
-        }
-
-        // pourquoi ? on ne passe pas par l'id ? vaut mieux une liste/dict de plan dans model
-        // ou bien dans user, ilfautcreer une classe User
-        public void selectionnerPlan(Plan p) {
-            planActuel = p;
-        }
-
-        public List<Plan> getPlansCompteAct() {
-            if (compteActuel != null) {
-                return compteActuel.Plans;
-            }
-            throw new InvalidOperationException("Aucun compte sélectionné.");
-        }
-
-        public void seConnecter(string nom, string password) {
-            foreach (Compte compte in Compte.comptes.Values) {
-                if (compte.Name == nom && compte.Password == password) {
-                    compteActuel = compte;
-                    return;
-                }
-            }
-
-            throw new ArgumentException("Nom d'utilisateur ou mot de passe incorrect.");
-        }
-
-        public void creerPlan(Murs m, string nom) {
-            Plan plan = new Plan(nom);
-            planActuel = plan;
-        }
 
 
         public Modele() {

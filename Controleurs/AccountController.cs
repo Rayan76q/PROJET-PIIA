@@ -3,10 +3,20 @@ using PROJET_PIIA.View;
 
 namespace PROJET_PIIA.Controleurs {
     public class AccountController {
-        private readonly Modele _modele;
+        private  Modele _modele;
         private MainView _mainView;
 
         public event Action AccountStateChanged;
+        private static Dictionary<string, string> validCredentials;
+
+        public static void setValideCredentials() {
+            Dictionary<string, string> credentials = new Dictionary<string, string>();
+            foreach (Compte c in Compte.comptes.Values) {
+                credentials.Add(c.Name, c.Password);
+            }
+
+            validCredentials = credentials;
+        }
 
         public AccountController(Modele modele) {
             _modele = modele;
@@ -106,8 +116,7 @@ namespace PROJET_PIIA.Controleurs {
                 MessageBox.Show("Plan sauvegardé avec succès.", "Sauvegarde",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             } catch (Exception ex) {
-                MessageBox.Show($"Erreur lors de la sauvegarde du plan: {ex.Message}", "Erreur",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                //handled
             }
         }
 
@@ -127,7 +136,13 @@ namespace PROJET_PIIA.Controleurs {
         }
 
         public List<Plan> GetUserPlans() {
-            return _modele.compteActuel?.Plans ?? new List<Plan>();
+            return _modele.compteActuel.LoadPlans();
+        }
+
+        public void selectPlan(Plan plan) {
+            if (plan == null) {
+                return;
+            } else { _modele.planActuel = plan; }
         }
 
 
@@ -169,6 +184,7 @@ namespace PROJET_PIIA.Controleurs {
             return _modele.compteActuel?.Name ?? "Invité";
         }
 
-        
+
+
     }
 }

@@ -197,6 +197,7 @@ namespace PROJET_PIIA.View {
 
             if (accountController.RegisterAccount(username, password, confirmPassword)) {
                 this.DialogResult = DialogResult.OK;
+                AccountController.setValideCredentials();  //refresh for new acocunts
                 this.Close();
             } else {
                 errorText.Visible = true;

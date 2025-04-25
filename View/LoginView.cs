@@ -9,12 +9,13 @@ using Microsoft.VisualBasic.ApplicationServices;
 using PROJET_PIIA.Controleurs;
 using System.Threading.Tasks.Sources;
 using PROJET_PIIA.Model;
+using System.Diagnostics;
 
 namespace PROJET_PIIA.View {
     internal class LoginView : Form {
         private System.ComponentModel.IContainer components = null;
 
-        private static Dictionary<string, string> validCredentials = setValideCredentials();
+        
         private readonly Color defaultBoxColor;
         private readonly System.Windows.Forms.Timer shakeTimer;
         private readonly int shakeTotalSteps = 10;
@@ -23,18 +24,13 @@ namespace PROJET_PIIA.View {
         private AccountController accountController;
 
 
-        private static Dictionary<string, string> setValideCredentials() {
-            Dictionary<string, string> credentials = new Dictionary<string, string>();
-            foreach (Compte c in Compte.comptes.Values) {
-                credentials.Add(c.Name, c.Password);
-            }
-            return credentials;
-        }
+
+        
 
         public LoginView(AccountController c) {
             InitializeComponent();
             accountController = c;
-           
+            AccountController.setValideCredentials(); 
 
             defaultBoxColor = boxPanel.BackColor;
             originalBoxLocation = boxPanel.Location;
@@ -284,14 +280,15 @@ namespace PROJET_PIIA.View {
 
 
         private void connectButton_Click_1(object sender, EventArgs e) {
-            
             errorText.Visible = false;
             boxPanel.BackColor = defaultBoxColor;
             boxPanel.Location = originalBoxLocation;
 
-            string user = txtUsername.Text;
-            string pass = textPassword.Text;
-            bool isAuthenticated = validCredentials.TryGetValue(user, out string validPass) && pass == validPass; // Replace with actual validation
+            string username = txtUsername.Text;
+            string password = textPassword.Text;
+
+            // Use the AccountController to perform the login instead of the static dictionary
+            bool isAuthenticated = accountController.Login(username, password);
 
             if (isAuthenticated) {
                 this.DialogResult = DialogResult.OK;

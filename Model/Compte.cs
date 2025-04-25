@@ -217,24 +217,6 @@ namespace PROJET_PIIA.Model {
         }
 
 
-        public void ajouteCompteRegistre() {
-            string registryPath = Path.Combine(Application.StartupPath, "SavedPlans", "registry.json");
-            Dictionary<string, List<string>> registry = new Dictionary<string, List<string>>();
-            // Load existing registry if it exists
-            if (File.Exists(registryPath)) {
-                string json = File.ReadAllText(registryPath);
-                registry = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(json)
-                          ?? new Dictionary<string, List<string>>();
-            }
-            // Add or update user's plan list
-            if (!registry.ContainsKey(this.Name)) {
-                registry[this.Name] = new List<string>();
-            }
-            // Save the updated registry
-            string updatedJson = JsonConvert.SerializeObject(registry, Newtonsoft.Json.Formatting.Indented);
-            File.WriteAllText(registryPath, updatedJson);
-        }
-
 
         public void savePlan(Plan plan) {
             try {
@@ -259,7 +241,7 @@ namespace PROJET_PIIA.Model {
                 // Create filename with plan name and timestamp
                 Debug.WriteLine(plan.Nom);
                 string sanitizedPlanName = string.Join("_", plan.Nom.Split(Path.GetInvalidFileNameChars()));
-                string filename = $"{sanitizedPlanName}.json";
+                string filename = $"{sanitizedPlanName}_{DateTime.Now:yyyyMMdd_HHmmss}.json";
                 string filePath = Path.Combine(userDirectory, filename);
 
                 JObject j = JObject.FromObject(plan);
@@ -358,7 +340,7 @@ namespace PROJET_PIIA.Model {
                 ? string.Join(", ", Plans.Select(p => p.ToString()))
                 : "Aucun plan";
 
-            return $"Compte [ID: {Id}, Nom: {Name}, Connecté: {Connected}, " +
+            return $"Compte [ID: {Id}, Nom: {Name}, pwd:{Password}, Connecté: {Connected}" +
                    $"Avatar: {Avatar}, Plans: [{plansStr}]]";
         }
 
