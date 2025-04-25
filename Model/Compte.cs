@@ -46,7 +46,7 @@
         }
 
 
-        public void addPlan(Plan p) {
+        public void savePlan(Plan p) {
             if (p == null) {
                 throw new ArgumentNullException(nameof(p), "Plan cannot be null.");
             }

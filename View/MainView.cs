@@ -40,6 +40,7 @@ namespace PROJET_PIIA.View {
         private CustomControls.ModeSelector modeSelector1;
 
         ModeControler modeControler;
+        AccountController compteControleur;
         private SidePanelMeuble MeubleSidePanel;
         private MurSidePanel MurSidePanel;
         private UserControl _currentEditor;
@@ -48,7 +49,8 @@ namespace PROJET_PIIA.View {
             this.DoubleBuffered = true;
             InitializeComponent();
             modeControler = new ModeControler();
-
+            compteControleur = new AccountController(m);
+            compteControleur.SetMainView(this);
             //ctrg = new ControleurMainView(m);
             var pctr = new PlanControleur(m);
             var urctr = new UndoRedoControleur(pctr);
@@ -62,6 +64,7 @@ namespace PROJET_PIIA.View {
             spliterSidePlan.Panel1.Controls.Add(MurSidePanel);
             spliterSidePlan.Panel2.Controls.Add(planView);
             modeControler.ModeChangedActions += SwitchSidePanel;
+            signupMenuItem.Click += SignupMenuItem_Click;
 
 
         }
@@ -187,6 +190,7 @@ namespace PROJET_PIIA.View {
             downloadButton.Name = "downloadButton";
             downloadButton.Size = new Size(23, 25);
             downloadButton.Text = "⬇";
+            downloadButton.Click += downloadButton_Click;
             // 
             // shareButton
             // 
@@ -226,14 +230,14 @@ namespace PROJET_PIIA.View {
             // loginMenuItem
             // 
             loginMenuItem.Name = "loginMenuItem";
-            loginMenuItem.Size = new Size(180, 26);
+            loginMenuItem.Size = new Size(135, 26);
             loginMenuItem.Text = "Login";
             loginMenuItem.Click += LoginMenuItem_Click;
             // 
             // signupMenuItem
             // 
             signupMenuItem.Name = "signupMenuItem";
-            signupMenuItem.Size = new Size(180, 26);
+            signupMenuItem.Size = new Size(135, 26);
             signupMenuItem.Text = "Sign Up";
             // 
             // spliterSidePlan
@@ -402,15 +406,10 @@ namespace PROJET_PIIA.View {
 
         // a metre dans un usercontrol/ controleur spé 
         private void LoginMenuItem_Click(object sender, EventArgs e) {
-            using (LoginView loginDialog = new LoginView()) {
-                DialogResult result = loginDialog.ShowDialog(this);
-                if (result == DialogResult.OK) {
-                    UpdateAvatarForLoggedInUser();
-                }
-            }
+            compteControleur.ShowLoginDialog();
         }
         private void SignupMenuItem_Click(object sender, EventArgs e) {
-            MessageBox.Show("Sign up functionality will be implemented here");
+            compteControleur.ShowSignupDialog();
         }
 
         private void UpdateAvatarForLoggedInUser() {
@@ -487,7 +486,7 @@ namespace PROJET_PIIA.View {
             }
         }
 
-        
+
 
         private void modeSelector1_Click(object sender, EventArgs e) {
             modeControler.SwitchMode();
@@ -519,6 +518,8 @@ namespace PROJET_PIIA.View {
             planView.redo();
         }
 
-        
+        private void downloadButton_Click(object sender, EventArgs e) {
+            
+        }
     }
 }

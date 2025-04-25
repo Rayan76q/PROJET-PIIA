@@ -6,6 +6,7 @@ using System.Text;
 using System.Drawing;
 using System.Windows.Forms;
 using Microsoft.VisualBasic.ApplicationServices;
+using PROJET_PIIA.Controleurs;
 
 namespace PROJET_PIIA.View {
     internal class LoginView : Form {
@@ -17,10 +18,11 @@ namespace PROJET_PIIA.View {
         private readonly int shakeTotalSteps = 10;
         private Point originalBoxLocation;
         private int shakeStep;
+        private AccountController accountController;
 
-        public LoginView() {
+        public LoginView(AccountController c) {
             InitializeComponent();
-
+            accountController = c;
             validCredentials = new Dictionary<string, string>
             {
                 { "admin", "admin123" },
