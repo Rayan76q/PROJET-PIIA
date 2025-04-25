@@ -617,6 +617,7 @@ namespace PROJET_PIIA.View {
                 planView.SetCurrentPlan(selectedPlan);
                 MurSidePanel.setCurrentPlan(selectedPlan);
                 MeubleSidePanel.update_meubles(); //in case
+
                 planView.Invalidate();
 
                 MessageBox.Show($"Plan '{selectedPlan.Nom}' chargé avec succès.", "Plan chargé",

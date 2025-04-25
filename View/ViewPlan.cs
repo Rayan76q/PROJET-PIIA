@@ -384,13 +384,17 @@ namespace PROJET_PIIA.View {
                 planController.SetCurrentPlan(plan);
                 _selectedMeuble = null;
                 _selectedWall = -1;
-
+                resetUndoRedo();  //reset stack
                
                 Invalidate();
             } catch (Exception ex) {
                 MessageBox.Show($"Erreur lors du chargement du plan dans la vue: {ex.Message}",
                     "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        public void resetUndoRedo() {
+            undoRedoControleur = new UndoRedoControleur(planController);
         }
 
 

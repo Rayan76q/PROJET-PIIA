@@ -228,6 +228,26 @@ namespace PROJET_PIIA.Model {
         }
 
 
+        public bool Equals(Meuble? other) {
+            if (other is null) return false;
+            if (ReferenceEquals(this, other)) return true;
+
+            return ImagePath == other.ImagePath
+            && IsMural == other.IsMural
+                && id == other.id
+                && Prix == other.Prix
+                && Description == other.Description
+                && Nom == other.Nom
+                && Dimensions == other.Dimensions
+                && ((tags == null && other.tags == null)
+                    || (tags != null && other.tags != null
+                        && tags.Count == other.tags.Count
+                        && tags.SequenceEqual(other.tags)));
+        }
+
+        public override bool Equals(object? obj)
+            => Equals(obj as Meuble);
+
         public override string ToString() {
             string s = "[ ";
             foreach (Tag tag in tags) {

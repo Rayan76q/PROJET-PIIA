@@ -3,6 +3,7 @@ using System.Text;
 using PROJET_PIIA.Controleurs;
 using PROJET_PIIA.Extensions;
 using Newtonsoft.Json;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
 namespace PROJET_PIIA.Model {
     public class Plan {
@@ -77,22 +78,25 @@ namespace PROJET_PIIA.Model {
 
 
         public void SupprimerMeuble(Meuble m) {
-            m = findMeubleById(m.id);
-            if (m!=null) {
-                Meubles.Remove(m);
+            Meuble r = findMeuble(m);
+            if (r!=null) {
+                Meubles.Remove(r);
             } else {
                 throw new ArgumentException("Le meuble n'est pas présent dans le plan.");
             }
         }
 
-        public Meuble? findMeubleById(int i) {
+        public Meuble? findMeuble(Meuble meub) {
             foreach(Meuble m in Meubles) {
-                if(m.id == i) {
+                if(meub.Equals(m)) {
                     return m;
                 }
             }
             return null;
         }
+
+        
+
 
         public override string ToString() {
             StringBuilder sb = new StringBuilder();
