@@ -1,5 +1,6 @@
 ﻿#nullable disable
 
+using System.Diagnostics;
 using PROJET_PIIA.Controleurs;
 using PROJET_PIIA.CustomControls;
 using PROJET_PIIA.Model;
@@ -164,14 +165,14 @@ namespace PROJET_PIIA.View {
             loadButton.Name = "loadButton";
             loadButton.Size = new Size(53, 25);
             loadButton.Text = "Charger";
-            loadButton.Click += modifyButton_Click;
+            loadButton.Click += loadButton_Click;
             // 
             // modifyButton
             // 
             modifyButton.Name = "modifyButton";
             modifyButton.Size = new Size(56, 25);
             modifyButton.Text = "Modifier";
-            modifyButton.Click += convertButton_Click;
+            modifyButton.Click += modifyButton_Click;
             // 
             // searchToolBox
             // 
@@ -525,15 +526,15 @@ namespace PROJET_PIIA.View {
             compteControleur.SavePlan(p);
         }
 
-        private void convertButton_Click(object sender, EventArgs e) {
+        private void modifyButton_Click(object sender, EventArgs e) {
 
         }
 
-        private void modifyButton_Click(object sender, EventArgs e) {
+        private void loadButton_Click(object sender, EventArgs e) {
             try {
                 // Get the list of plans for the current user
                 List<Plan> plans = compteControleur.GetUserPlans();
-
+               
                 // Check if there are any plans to load
                 if (plans == null || plans.Count == 0) {
                     MessageBox.Show("Vous n'avez aucun plan sauvegardé.", "Aucun plan",
@@ -602,13 +603,21 @@ namespace PROJET_PIIA.View {
 
         }
 
-
+        
         private void LoadPlanIntoApplication(Plan selectedPlan) {
             try {
-                // Here you would add the code to actually load the plan into your application
-                // This depends on how your application is structured
+                if (selectedPlan == null) {
+                    MessageBox.Show("Le plan sélectionné est invalide.", "Erreur",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
 
                 compteControleur.selectPlan(selectedPlan);
+                planView.SetCurrentPlan(selectedPlan);
+                MurSidePanel.setCurrentPlan(selectedPlan);
+                MeubleSidePanel.update_meubles(); //in case
+                planView.Invalidate();
 
                 MessageBox.Show($"Plan '{selectedPlan.Nom}' chargé avec succès.", "Plan chargé",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);

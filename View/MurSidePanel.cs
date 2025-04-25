@@ -148,6 +148,11 @@ namespace PROJET_PIIA.View {
             updateSupeficie();
         }
 
+        public void setCurrentPlan(Plan p) {
+            ctr.setCurrentPlan(p);
+            updateSupeficie();
+        }
+
         private void searchBox_TextChanged(object sender, EventArgs e) {
 
         }

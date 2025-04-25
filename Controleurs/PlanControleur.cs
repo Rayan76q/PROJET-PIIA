@@ -78,6 +78,13 @@ namespace PROJET_PIIA.Controleurs {
                 OnPlanChanged();
             }
         }
+        public void SetCurrentPlan(Plan plan) {
+            if (plan == null)
+                return;
+
+            
+            this.plan = plan;
+        }
 
 
     }

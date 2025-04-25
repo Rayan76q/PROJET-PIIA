@@ -15,6 +15,10 @@ namespace PROJET_PIIA.Model {
             this.compteActuel = new Compte();
         }
 
+        public void changePlan(Plan plan) {
+            this.planActuel = plan;
+        }
+
         public override string ToString() {
             StringBuilder sb = new StringBuilder();
 

@@ -1,8 +1,12 @@
 ﻿using PROJET_PIIA.Extensions;
-
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using PROJET_PIIA.Helpers;
 namespace PROJET_PIIA.Model {
+
+
     public class Meuble {
-        public List<Tag> tags { get; } = new();
+       
 
         public float? Prix { get; set; }
         public string Description { get; set; } = "";
@@ -13,8 +17,8 @@ namespace PROJET_PIIA.Model {
         public PointF? Position { get; set; } = null;
 
         public (float, float) Dimensions { get; set; }
-        public float Width => Dimensions.Item1;
-        public float Height => Dimensions.Item2;
+        public float Width; 
+        public float Height; 
 
 
         public (float, float) Orientation { get; set; } = (1, 0);
@@ -26,12 +30,52 @@ namespace PROJET_PIIA.Model {
         public readonly int id;
         public int catRef;
 
+        [JsonProperty("tags")]
+        [JsonConverter(typeof(Helpers.TagsEnumConverter))]
+        public List<Tag> tags { get; private set; }
+
+        [JsonConstructor]
+        public Meuble(
+            string imagePath,
+            bool isMural,
+            int id,
+            int catRef,
+            List<Tag> tags,     
+            double prix,
+            string description,
+            string nom,
+            PointF? position,
+            (float, float) dimensions,
+            float width,
+            float height,
+            (float, float) orientation
+        ) {
+            ImagePath = imagePath;
+            IsMural = isMural;
+            this.id = id;
+            this.catRef = catRef;
+            this.tags = tags ?? new List<Tag>();
+            Prix = (float)prix;
+            Description = description;
+            Nom = nom;
+            Position = position;
+            Dimensions = dimensions;
+            Width = width;
+            Height = height;
+            Orientation = orientation;
+        }
+
+
+
 
         //Constructeur
         public Meuble(string nom, (float, float) dim, int id) {
             Nom = nom ?? throw new ArgumentNullException(nameof(nom));
             Dimensions = dim;
             this.id = id==-1? id_counter++: id;
+
+            Width = dim.Item1;
+            Height = dim.Item2;
         }
         //Full
         public Meuble(string nom, List<Tag> tags, float prix, string description, string image, (float, float) dim, int id) {
@@ -43,6 +87,8 @@ namespace PROJET_PIIA.Model {
             Position = new Point(-1, -1);  
             Dimensions = dim;
             this.id =  id == -1 ? id_counter++ : id;
+            Width = dim.Item1;
+            Height = dim.Item2;
         }
 
 

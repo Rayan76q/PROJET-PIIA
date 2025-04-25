@@ -3,10 +3,11 @@ using PROJET_PIIA.View;
 
 namespace PROJET_PIIA.Controleurs {
     public class AccountController {
-        private  Modele _modele;
+        public Modele _modele { get; }
         private MainView _mainView;
 
         public event Action AccountStateChanged;
+        public event Action PlanChanged;
         private static Dictionary<string, string> validCredentials;
 
         public static void setValideCredentials() {
@@ -143,6 +144,8 @@ namespace PROJET_PIIA.Controleurs {
             if (plan == null) {
                 return;
             } else { _modele.planActuel = plan; }
+            
+            PlanChanged?.Invoke();
         }
 
 

@@ -218,6 +218,8 @@ namespace PROJET_PIIA.Model {
 
 
 
+        // Replace the existing SavePlan and LoadPlans methods in Compte.cs
+
         public void savePlan(Plan plan) {
             try {
                 if (plan == null) {
@@ -239,15 +241,12 @@ namespace PROJET_PIIA.Model {
                 }
 
                 // Create filename with plan name and timestamp
-                Debug.WriteLine(plan.Nom);
                 string sanitizedPlanName = string.Join("_", plan.Nom.Split(Path.GetInvalidFileNameChars()));
                 string filename = $"{sanitizedPlanName}_{DateTime.Now:yyyyMMdd_HHmmss}.json";
                 string filePath = Path.Combine(userDirectory, filename);
 
-                JObject j = JObject.FromObject(plan);
-                j.Remove("isEmpty");
-                string planJson = j.ToString(Formatting.Indented);
-
+                // Use the JsonHelper from our new class
+                string planJson = PROJET_PIIA.Helpers.JsonHelper.SerializeObject(plan);
 
                 // Write file using stream to ensure proper closing of resources
                 using (FileStream fs = new FileStream(filePath, FileMode.Create))
@@ -262,6 +261,40 @@ namespace PROJET_PIIA.Model {
                 MessageBox.Show($"Erreur lors de la sauvegarde du plan: {ex.Message}", "Erreur",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        public List<Plan> LoadPlans() {
+            List<Plan> loadedPlans = new List<Plan>();
+
+            try {
+                string userDirectory = Path.Combine(Application.StartupPath, "SavedPlans", this.Name);
+
+                if (!Directory.Exists(userDirectory)) {
+                    return loadedPlans; // Return empty list if directory doesn't exist
+                }
+
+                // Get all JSON files in the user's directory
+                string[] planFiles = Directory.GetFiles(userDirectory, "*.json");
+                foreach (string file in planFiles) {
+                    try {
+                        // Use our JsonHelper to load the plan
+                        Plan loadedPlan = PROJET_PIIA.Helpers.JsonHelper.LoadPlanFromJson(file);
+
+                        if (loadedPlan != null) {
+                            loadedPlans.Add(loadedPlan);
+                        }
+                    } catch (Exception ex) {
+                        Debug.WriteLine($"File deserialization error: {ex.Message}");
+                        // Skip files that can't be deserialized
+                        continue;
+                    }
+                }
+            } catch (Exception ex) {
+                MessageBox.Show($"Erreur lors du chargement des plans: {ex.Message}", "Erreur",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            return loadedPlans;
         }
 
         // Helper method to maintain a registry of all saved plans
@@ -291,40 +324,6 @@ namespace PROJET_PIIA.Model {
             } catch {
                 // Silently handle registry errors - this is optional functionality
             }
-        }
-
-        public List<Plan> LoadPlans() {
-            List<Plan> loadedPlans = new List<Plan>();
-
-            try {
-                string userDirectory = Path.Combine(Application.StartupPath, "SavedPlans", this.Name);
-
-                if (!Directory.Exists(userDirectory)) {
-                    return loadedPlans; // Return empty list if directory doesn't exist
-                }
-
-                // Get all JSON files in the user's directory
-                string[] planFiles = Directory.GetFiles(userDirectory, "*.json");
-
-                foreach (string file in planFiles) {
-                    try {
-                        string json = File.ReadAllText(file);
-                        Plan loadedPlan = JsonConvert.DeserializeObject<Plan>(json);
-
-                        if (loadedPlan != null) {
-                            loadedPlans.Add(loadedPlan);
-                        }
-                    } catch {
-                        // Skip files that can't be deserialized
-                        continue;
-                    }
-                }
-            } catch (Exception ex) {
-                MessageBox.Show($"Erreur lors du chargement des plans: {ex.Message}", "Erreur",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-
-            return loadedPlans;
         }
 
 

@@ -377,6 +377,21 @@ namespace PROJET_PIIA.View {
             undoRedoControleur.redo();
         }
 
+        public void SetCurrentPlan(Plan plan) {
+            try {
+                if (plan == null)
+                    return;
+                planController.SetCurrentPlan(plan);
+                _selectedMeuble = null;
+                _selectedWall = -1;
+
+               
+                Invalidate();
+            } catch (Exception ex) {
+                MessageBox.Show($"Erreur lors du chargement du plan dans la vue: {ex.Message}",
+                    "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
 
 
     }

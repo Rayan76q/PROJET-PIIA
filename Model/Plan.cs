@@ -2,6 +2,7 @@
 using System.Text;
 using PROJET_PIIA.Controleurs;
 using PROJET_PIIA.Extensions;
+using Newtonsoft.Json;
 
 namespace PROJET_PIIA.Model {
     public class Plan {
@@ -10,7 +11,26 @@ namespace PROJET_PIIA.Model {
         public int Id { get; }
         public string Nom { get; set; }
         public Murs Murs { get; set;  }
-        public List<Meuble> Meubles { get; }
+
+        [JsonProperty("Meubles")]
+        public List<Meuble> Meubles { get; private set; }
+
+
+        [JsonConstructor]
+        public Plan(int id, string nom, Murs murs, List<Meuble> meubles) {
+            Id = id;
+            Nom = string.IsNullOrEmpty(nom) ? "Plan" : nom;
+            Murs = murs ?? new Murs();
+
+            // Initialize the collection if null
+            if (meubles == null) {
+                Meubles = new List<Meuble>();
+            } else {
+                // Important: We need to create a new list here to respect the read-only property
+                Meubles = new List<Meuble>(meubles);
+            }
+        }
+
 
         public Plan(string nom = "") {
            

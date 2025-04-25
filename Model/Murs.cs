@@ -8,20 +8,21 @@ namespace PROJET_PIIA.Model {
         List<ElemMur> elemsmuraux;
         public List<PointF> Perimetre { get; set; }
 
+        
         public Murs() {
             List<PointF> points = new ();
 
             //put something if you wanna test a special shape
-            points.Add(new (100, 10));   // sommet 1
-            points.Add(new (120, 70));  // creux 1
-            points.Add(new (180, 70));  // sommet 2
-            points.Add(new (130, 110)); // creux 2
-            points.Add(new (150, 170)); // sommet 3
-            points.Add(new (100, 130)); // creux 3
-            points.Add(new (50, 170));  // sommet 4
-            points.Add(new (70, 110));  // creux 4
-            points.Add(new (20, 70));   // sommet 5
-            points.Add(new (80, 70));   // creux 5
+            //points.Add(new (100, 10));   // sommet 1
+            //points.Add(new (120, 70));  // creux 1
+            //points.Add(new (180, 70));  // sommet 2
+            //points.Add(new (130, 110)); // creux 2
+            //points.Add(new (150, 170)); // sommet 3
+            //points.Add(new (100, 130)); // creux 3
+            //points.Add(new (50, 170));  // sommet 4
+            //points.Add(new (70, 110));  // creux 4
+            //points.Add(new (20, 70));   // sommet 5
+            //points.Add(new (80, 70));   // creux 5
 
             this.Perimetre = points;
             this.elemsmuraux = new List<ElemMur>();

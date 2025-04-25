@@ -70,5 +70,6 @@ namespace PROJET_PIIA.View {
             update_meubles();
         }
 
+
     }
 }

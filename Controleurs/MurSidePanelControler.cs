@@ -40,5 +40,9 @@ namespace PROJET_PIIA.Controleurs {
 
         }
 
+        public void setCurrentPlan(Plan p) {
+            this.plan = p;
+        }
+
     }
 }
