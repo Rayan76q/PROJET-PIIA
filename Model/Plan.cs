@@ -14,7 +14,7 @@ namespace PROJET_PIIA.Model {
 
         public Plan(string nom = "") {
             Id = _idCounter++;
-            Nom = nom ?? $"Plan N°{Id}";
+            Nom = nom=="" ? $"Plan_N°{Id}" : nom;
             Murs = new Murs();
             Meubles = new List<Meuble>();
         }

@@ -5,16 +5,26 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
+using Newtonsoft.Json.Serialization;
+using Formatting = Newtonsoft.Json.Formatting;
+using Newtonsoft.Json.Linq;
+using System.Diagnostics;
 
 namespace PROJET_PIIA.Model {
     public class Compte {
         private static string DEFAULT_AVATAR = "";
         private static int _idCounter = 0;
-        public static Dictionary<int, Compte> comptes = new Dictionary<int, Compte>(); 
+        public static Dictionary<int, Compte> comptes;
+
+        static Compte() {
+            comptes = loadAccounts() ?? new Dictionary<int, Compte>();
+        }
 
         public List<int> Favorites;
 
         public static bool nomDispo(string nom) {
+            if (string.IsNullOrWhiteSpace(nom))
+                return false;
             foreach (Compte compte in comptes.Values) {
                 if (compte.Name == nom) {
                     return false;
@@ -34,7 +44,7 @@ namespace PROJET_PIIA.Model {
             }
         }
 
-        public readonly int Id;
+        public int Id;
 
 
         private string _password;
@@ -90,8 +100,140 @@ namespace PROJET_PIIA.Model {
             comptes.Add(Id, this);
             Connected = false;
             Favorites = new();
+
+            saveAccount();
         }
 
+        //pour ne pas resave , utile pour load
+        private Compte(int id,
+                  string name,
+                  string password,
+                  string avatar,
+                  bool connected,
+                  List<int> favorites,
+                  List<Plan> plans) {
+            Id = id;
+            _name = name;
+            _password = password;
+            Avatar = avatar;
+            Connected = connected;
+            Favorites = favorites;
+            _plans = plans;
+        }
+
+        public void saveAccount() {
+            try {
+                // 1) Build path: [exe]\SavedPlans\accounts.json
+                string exeDir = Application.StartupPath;
+                string savesDir = Path.Combine(exeDir, "SavedPlans");
+                Directory.CreateDirectory(savesDir);
+
+                string registryPath = Path.Combine(savesDir, "accounts.json");
+
+                // 2) Load existing array or create new
+                JArray accountsArray;
+                if (File.Exists(registryPath)) {
+                    string existingJson = File.ReadAllText(registryPath, Encoding.UTF8);
+                    accountsArray = JArray.Parse(existingJson);
+                } else {
+                    accountsArray = new JArray();
+                }
+
+                // 3) Check if this compte (by Name) is already in the file
+                bool alreadyRegistered = false;
+                foreach (var token in accountsArray) {
+                    if (token.Type == JTokenType.Object &&
+                        token["Name"]?.ToString().Equals(this.Name, StringComparison.OrdinalIgnoreCase) == true) {
+                        alreadyRegistered = true;
+                        break;
+                    }
+                }
+
+                if (alreadyRegistered) {
+                    // nothing to do
+                    return;
+                }
+
+                // 4) Build a minimal JObject for this compte
+                var jo = new JObject {
+                    ["Id"] = this.Id,
+                    ["Password"] = this.Password,
+                    ["Name"] = this.Name,
+                    ["Avatar"] = this.Avatar ?? string.Empty,
+                    ["Created"] = DateTime.Now.ToString("o")
+                };
+
+                // 5) Append and save
+                accountsArray.Add(jo);
+                File.WriteAllText(registryPath,
+                                  accountsArray.ToString(Formatting.Indented),
+                                  Encoding.UTF8);
+            } catch (Exception ex) {
+                MessageBox.Show(
+                    $"Erreur lors de l'enregistrement du compte :\n{ex.Message}",
+                    "Erreur Registry",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+            }
+        }
+
+
+        private static Dictionary<int, Compte> loadAccounts() {
+            var dict = new Dictionary<int, Compte>();
+            string exeDir = Application.StartupPath;
+            string savesDir = Path.Combine(exeDir, "SavedPlans");
+            Directory.CreateDirectory(savesDir);
+            string registry = Path.Combine(savesDir, "accounts.json");
+
+            if (!File.Exists(registry))
+                return dict;
+
+            var array = JArray.Parse(File.ReadAllText(registry, Encoding.UTF8));
+            foreach (JObject token in array) {
+                int id = token["Id"]!.Value<int>();
+                string name = token["Name"]!.Value<string>();
+                string password = token["Password"]!.Value<string>();
+                string avatar = token["Avatar"]?.Value<string>() ?? DEFAULT_AVATAR;
+
+                // build with private ctor so we don't re‐write to disk or touch 'comptes'
+                var c = new Compte(
+                    id,
+                    name,
+                    password,
+                    avatar,
+                    connected: false,
+                    favorites: new List<int>(),
+                    plans: new List<Plan>());
+
+                dict.Add(id, c);
+            }
+
+            // also make sure your static _idCounter continues above the max loaded ID
+            if (dict.Count > 0)
+                _idCounter = dict.Keys.Max() + 1;
+
+            return dict;
+        }
+
+
+        public void ajouteCompteRegistre() {
+            string registryPath = Path.Combine(Application.StartupPath, "SavedPlans", "registry.json");
+            Dictionary<string, List<string>> registry = new Dictionary<string, List<string>>();
+            // Load existing registry if it exists
+            if (File.Exists(registryPath)) {
+                string json = File.ReadAllText(registryPath);
+                registry = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(json)
+                          ?? new Dictionary<string, List<string>>();
+            }
+            // Add or update user's plan list
+            if (!registry.ContainsKey(this.Name)) {
+                registry[this.Name] = new List<string>();
+            }
+            // Save the updated registry
+            string updatedJson = JsonConvert.SerializeObject(registry, Newtonsoft.Json.Formatting.Indented);
+            File.WriteAllText(registryPath, updatedJson);
+        }
 
 
         public void savePlan(Plan plan) {
@@ -115,12 +257,15 @@ namespace PROJET_PIIA.Model {
                 }
 
                 // Create filename with plan name and timestamp
+                Debug.WriteLine(plan.Nom);
                 string sanitizedPlanName = string.Join("_", plan.Nom.Split(Path.GetInvalidFileNameChars()));
-                string filename = $"{sanitizedPlanName}_{DateTime.Now:yyyyMMdd_HHmmss}.json";
+                string filename = $"{sanitizedPlanName}.json";
                 string filePath = Path.Combine(userDirectory, filename);
 
-                // Serialize the plan
-                string planJson = JsonConvert.SerializeObject(plan, Newtonsoft.Json.Formatting.Indented);
+                JObject j = JObject.FromObject(plan);
+                j.Remove("isEmpty");
+                string planJson = j.ToString(Formatting.Indented);
+
 
                 // Write file using stream to ensure proper closing of resources
                 using (FileStream fs = new FileStream(filePath, FileMode.Create))

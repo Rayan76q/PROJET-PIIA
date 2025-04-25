@@ -37,7 +37,6 @@ namespace PROJET_PIIA.Controleurs {
             currentIndex++;
             currentChainMax = currentIndex;
 
-            Debug.WriteLine(this);
         }
 
         public bool undo() {

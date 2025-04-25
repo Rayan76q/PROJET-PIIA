@@ -130,21 +130,6 @@ namespace PROJET_PIIA.Controleurs {
             return _modele.compteActuel?.Plans ?? new List<Plan>();
         }
 
-        // ================ Avatar Management ================
-
-        public void ChangeAvatar(string avatarPath) {
-            if (_modele.compteActuel == null) {
-                return;
-            }
-
-            try {
-                _modele.compteActuel.changeAvatar(avatarPath);
-                AccountStateChanged?.Invoke();
-            } catch (Exception ex) {
-                MessageBox.Show($"Erreur lors du changement d'avatar: {ex.Message}", "Erreur",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
 
         // ================ UI Helpers ================
 
@@ -184,10 +169,6 @@ namespace PROJET_PIIA.Controleurs {
             return _modele.compteActuel?.Name ?? "Invité";
         }
 
-        public void RefreshFavoritesDisplay() {
-            // This method would be called when favorites change to update UI
-            // Implementation depends on how your UI is structured
-            AccountStateChanged?.Invoke();
-        }
+        
     }
 }
