@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Forms;
-using PROJET_PIIA.Model;
+﻿using PROJET_PIIA.Model;
 using PROJET_PIIA.View;
 
 namespace PROJET_PIIA.Controleurs {
@@ -152,29 +148,31 @@ namespace PROJET_PIIA.Controleurs {
 
         // ================ UI Helpers ================
 
-        public void ShowLoginDialog() {
-            if (_mainView == null) return;
+        public bool ShowLoginDialog() {
+            if (_mainView == null) return false;
 
             using (LoginView loginDialog = new LoginView(this)) {
                 loginDialog.StartPosition = FormStartPosition.CenterParent;
                 DialogResult result = loginDialog.ShowDialog(_mainView);
                 if (result == DialogResult.OK) {
-                    
                     AccountStateChanged?.Invoke();
+                    return true;
                 }
+                return false;
             }
         }
 
-        public void ShowSignupDialog() {
-            if (_mainView == null) return;
+        public bool ShowSignupDialog() {
+            if (_mainView == null) return false;
 
             using (SignupView signDialog = new SignupView(this)) {
                 signDialog.StartPosition = FormStartPosition.CenterParent;
                 DialogResult result = signDialog.ShowDialog(_mainView);
                 if (result == DialogResult.OK) {
-
                     AccountStateChanged?.Invoke();
+                    return true;
                 }
+                return false;
             }
         }
 

@@ -1,13 +1,8 @@
 ﻿#nullable disable
 
 using PROJET_PIIA.Controleurs;
-using PROJET_PIIA.Model;
-using System.Drawing;
-using System.Windows.Forms;
-using System.Drawing.Drawing2D;
-using System;
 using PROJET_PIIA.CustomControls;
-using System.Diagnostics;
+using PROJET_PIIA.Model;
 
 namespace PROJET_PIIA.View {
 
@@ -18,7 +13,7 @@ namespace PROJET_PIIA.View {
         /// </summary>
         private System.ComponentModel.IContainer components = null;
         private PlanView planView;
-
+        private Plan p;
         // creer un user control expres ?
         private ToolStripButton convertButton;
         private ToolStripTextBox searchToolBox;
@@ -65,6 +60,8 @@ namespace PROJET_PIIA.View {
             spliterSidePlan.Panel2.Controls.Add(planView);
             modeControler.ModeChangedActions += SwitchSidePanel;
             signupMenuItem.Click += SignupMenuItem_Click;
+
+            p = m.planActuel;
 
 
         }
@@ -406,10 +403,14 @@ namespace PROJET_PIIA.View {
 
         // a metre dans un usercontrol/ controleur spé 
         private void LoginMenuItem_Click(object sender, EventArgs e) {
-            compteControleur.ShowLoginDialog();
+            if (compteControleur.ShowLoginDialog()) {
+                UpdateAvatarForLoggedInUser();
+            }
         }
         private void SignupMenuItem_Click(object sender, EventArgs e) {
-            compteControleur.ShowSignupDialog();
+            if (compteControleur.ShowSignupDialog()) {
+                UpdateAvatarForLoggedInUser();
+            }
         }
 
         private void UpdateAvatarForLoggedInUser() {
@@ -519,7 +520,7 @@ namespace PROJET_PIIA.View {
         }
 
         private void downloadButton_Click(object sender, EventArgs e) {
-            
+            compteControleur.SavePlan(p);
         }
     }
 }

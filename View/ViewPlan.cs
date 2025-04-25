@@ -26,7 +26,7 @@ namespace PROJET_PIIA.View {
         //private bool _movingMeuble = false;
         private PointF _meubleOffset;
 
-        private PlanControleur planController;
+        internal PlanControleur planController;
         private UndoRedoControleur undoRedoControleur;
 
         private float _initialMouseAngle = 0f;  // The angle from the meuble's center to the mouse at rotation start.
