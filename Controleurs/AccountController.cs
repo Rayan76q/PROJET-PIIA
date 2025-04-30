@@ -151,6 +151,11 @@ namespace PROJET_PIIA.Controleurs {
 
         // ================ UI Helpers ================
 
+        public void UpdateAvatarForLoggedInUser() {
+            _mainView.UpdateAvatarForLoggedInUser();
+            AccountStateChanged?.Invoke();
+        }
+
         public bool ShowLoginDialog() {
             if (_mainView == null) return false;
 

@@ -230,14 +230,14 @@ namespace PROJET_PIIA.View {
             // loginMenuItem
             // 
             loginMenuItem.Name = "loginMenuItem";
-            loginMenuItem.Size = new Size(135, 26);
+            loginMenuItem.Size = new Size(180, 26);
             loginMenuItem.Text = "Login";
             loginMenuItem.Click += LoginMenuItem_Click;
             // 
             // signupMenuItem
             // 
             signupMenuItem.Name = "signupMenuItem";
-            signupMenuItem.Size = new Size(135, 26);
+            signupMenuItem.Size = new Size(180, 26);
             signupMenuItem.Text = "Sign Up";
             // 
             // spliterSidePlan
@@ -407,16 +407,16 @@ namespace PROJET_PIIA.View {
         // a metre dans un usercontrol/ controleur spé 
         private void LoginMenuItem_Click(object sender, EventArgs e) {
             if (compteControleur.ShowLoginDialog()) {
-                UpdateAvatarForLoggedInUser();
+                compteControleur.UpdateAvatarForLoggedInUser();
             }
         }
         private void SignupMenuItem_Click(object sender, EventArgs e) {
             if (compteControleur.ShowSignupDialog()) {
-                UpdateAvatarForLoggedInUser();
+                compteControleur.UpdateAvatarForLoggedInUser();
             }
         }
 
-        private void UpdateAvatarForLoggedInUser() {
+        public void UpdateAvatarForLoggedInUser() {
             ToolStripDropDownButton avatarButton = null;
             foreach (ToolStripItem item in mainToolStrip.Items) {
                 if (item is ToolStripDropDownButton && item.Name == "avatarButton") {
@@ -534,7 +534,7 @@ namespace PROJET_PIIA.View {
             try {
                 // Get the list of plans for the current user
                 List<Plan> plans = compteControleur.GetUserPlans();
-               
+
                 // Check if there are any plans to load
                 if (plans == null || plans.Count == 0) {
                     MessageBox.Show("Vous n'avez aucun plan sauvegardé.", "Aucun plan",
@@ -603,7 +603,7 @@ namespace PROJET_PIIA.View {
 
         }
 
-        
+
         private void LoadPlanIntoApplication(Plan selectedPlan) {
             try {
                 if (selectedPlan == null) {
@@ -627,5 +627,7 @@ namespace PROJET_PIIA.View {
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+       
     }
 }

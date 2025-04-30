@@ -15,7 +15,7 @@ namespace PROJET_PIIA.View {
     internal class LoginView : Form {
         private System.ComponentModel.IContainer components = null;
 
-        
+
         private readonly Color defaultBoxColor;
         private readonly System.Windows.Forms.Timer shakeTimer;
         private readonly int shakeTotalSteps = 10;
@@ -25,12 +25,12 @@ namespace PROJET_PIIA.View {
 
 
 
-        
+
 
         public LoginView(AccountController c) {
             InitializeComponent();
             accountController = c;
-            AccountController.setValideCredentials(); 
+            AccountController.setValideCredentials();
 
             defaultBoxColor = boxPanel.BackColor;
             originalBoxLocation = boxPanel.Location;
@@ -157,6 +157,7 @@ namespace PROJET_PIIA.View {
             registerButton.TabIndex = 6;
             registerButton.Text = "S'inscrire";
             registerButton.UseVisualStyleBackColor = false;
+            registerButton.Click += registerButton_Click;
             // 
             // label2
             // 
@@ -314,6 +315,14 @@ namespace PROJET_PIIA.View {
                 // fin de l’animation → retour à la position d’origine
                 shakeTimer.Stop();
                 boxPanel.Location = originalBoxLocation;
+            }
+        }
+
+        private void registerButton_Click(object sender, EventArgs e) {
+            this.Hide();
+            this.Close();
+            if (accountController.ShowSignupDialog()) {
+                accountController.UpdateAvatarForLoggedInUser();
             }
         }
     }
