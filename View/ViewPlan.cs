@@ -79,9 +79,8 @@ namespace PROJET_PIIA.View {
 
             ImageLoader.LoadImagesOfFolder("images");
 
-            
             this.undoRedoControleur = undoRedoControleur;
-            this.undoRedoControleur.undoRedo += OnMurChanged;
+            this.undoRedoControleur.OnActionUndoRedo += OnMurChanged;
             this.Invalidate();
         }
 
@@ -94,7 +93,6 @@ namespace PROJET_PIIA.View {
         // Handle drag operations
         private void PlanView_DragEnter(object? sender, DragEventArgs e) {
             if (e.Data != null && e.Data.GetDataPresent(typeof(Meuble))) {
-                //Meuble ?meuble = e.Data.GetData(typeof(Meuble)) as Meuble;         
                 e.Effect = DragDropEffects.Copy;
             } else {
 
@@ -105,13 +103,12 @@ namespace PROJET_PIIA.View {
         private void PlanView_DragOver(object? sender, DragEventArgs e) {
             
             if (e.Data != null && e.Data.GetDataPresent(typeof(Meuble))) {
-                //Meuble? meuble = e.Data.GetData(typeof(Meuble)) as Meuble;
                 e.Effect = DragDropEffects.Copy;
             } else
                 e.Effect = DragDropEffects.None;
         }
 
-        // In PlanView.cs, update the PlanView_DragDrop method to properly handle all mural furniture
+        
         private void PlanView_DragDrop(object? sender, DragEventArgs e) {
             if (e.Data != null && e.Data.GetDataPresent(typeof(Meuble))) {
                 var original = e.Data.GetData(typeof(Meuble)) as Meuble;
@@ -139,7 +136,7 @@ namespace PROJET_PIIA.View {
                 }
 
                 // Register undo and refresh
-                undoRedoControleur.add(new AjoutMeuble(copie, planPt));
+                undoRedoControleur.Add(new AjoutMeuble(copie, planPt));
                 this.Invalidate();
             }
         }
@@ -168,6 +165,18 @@ namespace PROJET_PIIA.View {
             return new PointF((int)handleX, (int)handleY);
         }
 
+        private PointF GetDeleteButtonPosition() {
+            if (_selectedMeuble == null || _selectedMeuble.Position == null)
+                throw new InvalidOperationException("Aucun meuble sélectionné ou position non définie.");
+            PointF center = _selectedMeuble.GetCenter();
+            (float dirX, float dirY) = _selectedMeuble.Orientation;
+            float distanceX = _selectedMeuble.Width / 2;
+            float distanceY = -_selectedMeuble.Height / 2;
+            float buttonX = center.X + dirX * distanceX + dirY * distanceY;
+            float buttonY = center.Y + dirY * distanceX - dirX * distanceY;
+            PointF screenPos = PlanToScreen(new PointF(buttonX, buttonY));
+            return new PointF(screenPos.X - DeleteButtonSize / 2, screenPos.Y - DeleteButtonSize / 2);
+        }
 
 
         protected override void OnPaint(PaintEventArgs e) {
@@ -176,6 +185,11 @@ namespace PROJET_PIIA.View {
 
             Graphics g = e.Graphics;
             g.Clear(Color.White);
+
+            // dessine la grille
+            if (planController.isGridVisible()) {
+                DrawGrid(g);
+            }
 
             // dessin des murs
             List<PointF> points = planController.ObtenirMurs().Perimetre;
@@ -196,44 +210,17 @@ namespace PROJET_PIIA.View {
             // dessine les meubles
             DrawMeubles(g);
 
-            // Draw delete button for selected meuble
+            // dessine l'handle et le bouton suppr
             if (_selectedMeuble != null) {
                 PointF center = _selectedMeuble.GetCenter();
                 PointF screenCenter = PlanToScreen(center);
 
-                // Save the current state of the graphics
-                var state = g.Save();
-
-                try {
-                    // Transform coordinates to match the meuble's rotation and position
-                    g.TranslateTransform(screenCenter.X, screenCenter.Y);
-                    g.RotateTransform(_selectedMeuble.getAngle());
-
-                    // Position the button at the top-right corner of the meuble
-
-                    float buttonX = _selectedMeuble.Width * (3 / 2) - DeleteButtonSize;
-                    float buttonY = -_selectedMeuble.Height * (3 / 2);
-
-                    // Draw the red circular button
-                    using (SolidBrush redBrush = new SolidBrush(Color.Red))
-                    using (Pen whitePen = new Pen(Color.White, 2)) {
-                        g.FillEllipse(redBrush, buttonX, buttonY, DeleteButtonSize, DeleteButtonSize);
-
-                        // Draw X inside the button
-                        float margin = 4;
-                        g.DrawLine(whitePen,
-                            buttonX + margin, buttonY + margin,
-                            buttonX + DeleteButtonSize - margin, buttonY + DeleteButtonSize - margin);
-                        g.DrawLine(whitePen,
-                            buttonX + DeleteButtonSize - margin, buttonY + margin,
-                            buttonX + margin, buttonY + DeleteButtonSize - margin);
-                    }
-                } finally {
-                    g.Restore(state);
+                PointF delbuttonPos = GetDeleteButtonPosition();                
+                using (SolidBrush redBrush = new SolidBrush(Color.Red)) {
+                    g.FillEllipse(redBrush, delbuttonPos.X, delbuttonPos.Y, DeleteButtonSize, DeleteButtonSize);
+                    g.DrawString("X", new Font("Arial", 8), Brushes.White, delbuttonPos.X + 2, delbuttonPos.Y);
                 }
                 // dessin de la poignée de rotation
-
-
                 PointF screenHandle = PlanToScreen(GetHandleCenter());
                 e.Graphics.DrawLine(Pens.Gray, screenCenter, screenHandle);
                 int handleSize = 12;
@@ -247,32 +234,46 @@ namespace PROJET_PIIA.View {
                 e.Graphics.DrawString("↻", new Font("Arial", 8), Brushes.White,
                     handleRect.X + 2, handleRect.Y);
             }
-
-            // dessine la grille
-            if (planController.isGridVisible()) {
-                DrawGrid(g);
-            }
         }
 
         private void DrawGrid(Graphics g) {
             int gridSize = 50;
             Pen gridPen = new(Color.LightGray, 1);
-            for (int x = 0; x < this.Width; x += gridSize) {
-                g.DrawLine(gridPen, x, 0, x, this.Height);
+            PointF topLeft = ScreenToPlan(new PointF(0, 0));
+            PointF bottomRight = ScreenToPlan(new PointF(this.Width, this.Height));
+            int startX = (int)(Math.Floor(topLeft.X / gridSize) * gridSize);
+            int startY = (int)(Math.Floor(topLeft.Y / gridSize) * gridSize);
+            for (float x = startX; x < bottomRight.X; x += gridSize) {
+                PointF p1 = PlanToScreen(new PointF(x, topLeft.Y));
+                PointF p2 = PlanToScreen(new PointF(x, bottomRight.Y));
+                g.DrawLine(gridPen, p1, p2);
             }
-            for (int y = 0; y < this.Height; y += gridSize) {
-                g.DrawLine(gridPen, 0, y, this.Width, y);
+            for (float y = startY; y < bottomRight.Y; y += gridSize) {
+                PointF p1 = PlanToScreen(new PointF(topLeft.X, y));
+                PointF p2 = PlanToScreen(new PointF(bottomRight.X, y));
+                g.DrawLine(gridPen, p1, p2);
             }
             gridPen.Dispose();
         }
 
-        private Pen GetMeubleBorderStyle(Meuble m) {
-            bool isSelected = _selectedMeuble == m;
-            bool isColliding = m.CheckMeubleCollision(planController.ObtenirMeublePlacé(), planController.ObtenirMurs());
-            var border = isColliding ? Color.DarkRed : isSelected ? Color.Green : Color.Blue;
-            return new Pen(border, 2);
-        }
 
+        private Pen GetMeubleBorderStyle(Meuble m) {
+            bool isColliding = m.CheckMeubleCollision(planController.ObtenirMeublePlacé(), planController.ObtenirMurs());
+            bool isSelected = _selectedMeuble == m;
+            bool isInSalle = planController.estDansSalle(m);
+
+
+            Color borderColor = Color.Red;
+            if (isSelected) {
+                if (isInSalle && !isColliding) {
+                    borderColor = Color.Green;
+                }
+            } else if (isInSalle && !isColliding) {
+                borderColor = Color.Transparent;
+            }
+
+            return new Pen(borderColor, 2);
+        }
 
         private void DrawMeubles(Graphics g) {
             var meubles = planController.ObtenirMeublePlacé();
@@ -295,7 +296,10 @@ namespace PROJET_PIIA.View {
                 try {
                     g.TranslateTransform(screenCenter.X, screenCenter.Y);
                     g.RotateTransform(meuble.getAngle());
-                    PointF draw = new(-meuble.Width / 2, -meuble.Height / 2);
+                    float scale = PlanToScreen(new PointF(1, 0)).X - PlanToScreen(new PointF(0, 0)).X;
+                    float pixelWidth = meuble.Width * scale;
+                    float pixelHeight = meuble.Height * scale;
+                    PointF draw = new(-pixelWidth / 2, -pixelHeight / 2);
 
                     // Check if meuble is a door or window
                     bool isPorteOrFenetre = meuble.IsPorte || meuble.IsFenetre ||
@@ -311,20 +315,18 @@ namespace PROJET_PIIA.View {
                                        draw.X + meuble.Width, draw.Y + meuble.Height / 2);
                         }
                     } else {
-                        // Regular furniture rendering with image
+                        // Meuble ordinaire                        
                         Image img = ImageLoader.GetImageOfMeuble(meuble);
-                        g.DrawImage(img, draw.X, draw.Y, meuble.Width, meuble.Height);
-                    }
+                        g.DrawImage(img, draw.X, draw.Y, pixelWidth, pixelHeight);
 
-                    // 🎯 Overlay status : selection / collision
-                    bool isSelected = _selectedMeuble == meuble;
-                    bool isColliding = meuble.CheckMeubleCollision(planController.ObtenirMeublePlacé(), planController.ObtenirMurs());
-                    if (isColliding || isSelected) {
-                        Color overlayColor = isColliding ? Color.FromArgb(100, Color.Red) : Color.FromArgb(100, Color.Green);
-                        using SolidBrush overlay = new SolidBrush(overlayColor);
-                        g.FillRectangle(overlay, draw.X, draw.Y, meuble.Width, meuble.Height);
+                        // Overlay status : selection / collision
+                        bool isSelected = _selectedMeuble == meuble;
+                        bool isColliding = meuble.CheckMeubleCollision(planController.ObtenirMeublePlacé(), planController.ObtenirMurs());
+                        using SolidBrush overlay = new SolidBrush(Color.FromArgb(100, pen.Color));
+                        g.FillRectangle(overlay, draw.X, draw.Y, pixelWidth, pixelHeight);
+                        
+                        g.DrawRectangle(pen, draw.X, draw.Y, pixelWidth, pixelHeight);
                     }
-                    g.DrawRectangle(pen, draw.X, draw.Y, meuble.Width, meuble.Height);
                 } finally {
                     g.Restore(state);
                 }
@@ -348,7 +350,7 @@ namespace PROJET_PIIA.View {
                 PointF safePosition = _selectedMeuble.Position ?? new PointF(-1, -1);
                 float angle = _selectedMeuble.getAngle();
 
-                undoRedoControleur.add(new SuppressionMeuble(_selectedMeuble, safePosition, angle));
+                undoRedoControleur.Add(new SuppressionMeuble(_selectedMeuble, safePosition, angle));
                 planController.SupprimerMeuble(_selectedMeuble);
 
                 _selectedMeuble = null;
@@ -396,12 +398,12 @@ namespace PROJET_PIIA.View {
 
         public void undo() {
             _selectedMeuble = null;
-            undoRedoControleur.undo();
+            undoRedoControleur.Undo();
         }
 
         public void redo() {
             _selectedMeuble = null;
-            undoRedoControleur.redo();
+            undoRedoControleur.Redo();
         }
 
         public void SetCurrentPlan(Plan plan) {

@@ -11,7 +11,6 @@ using PROJET_PIIA.Model;
 
 namespace PROJET_PIIA.View {
     public partial class PlanView {
-        private bool _isMouseOverDeleteButton = false;
         private PointF _startAction;
         private float _angleAction;
         private (PointF, PointF) _selectedWallPoints1;
@@ -20,15 +19,7 @@ namespace PROJET_PIIA.View {
         private void PlanView_MouseClick(object? sender, MouseEventArgs e) {
             // la selection du meuble de fais quand on souleve le click (MouseUp)
 
-            if (e.Button == MouseButtons.Left && _selectedMeuble != null) {
-                PointF mousePos = new PointF(e.X, e.Y);
 
-                // Check if the click was on the delete button
-                if (IsPointOverDeleteButton(mousePos)) {
-                    SupprimeMeubleSelection();
-                    return;
-                }
-            }
         }
 
 
@@ -74,6 +65,13 @@ namespace PROJET_PIIA.View {
                         this.Cursor = Cursors.Hand;
                         return;
                     }
+
+                        PointF mousePos = new PointF(e.X, e.Y);
+                        // Check if the click was on the delete button
+                        if (IsPointOverDeleteButton(mousePos)) {
+                            SupprimeMeubleSelection();
+                            return;
+                        }
                 } else {
                     int segmentIndex = planController.FindMurAtPoint(planPoint);
                     if (segmentIndex != -1) {
@@ -98,41 +96,23 @@ namespace PROJET_PIIA.View {
 
         private void PlanView_MouseMove(object? sender, MouseEventArgs e) {
             PointF mousePos = new PointF(e.X, e.Y);
-
-            // Check if mouse is over delete button
-            bool wasOverDeleteButton = _isMouseOverDeleteButton;
-            _isMouseOverDeleteButton = _selectedMeuble != null && IsPointOverDeleteButton(mousePos);
-
-            // Change cursor and redraw if needed
-            if (wasOverDeleteButton != _isMouseOverDeleteButton) {
-                this.Cursor = _isMouseOverDeleteButton ? Cursors.Hand : Cursors.Default;
-                this.Invalidate();
-            }
+            PointF planDansPoint = ScreenToPlan(e.Location);
+            PointF delta = SubPF(planDansPoint, ScreenToPlan(_dragStart));
 
             switch (_dragMode) {
                 case DragMode.Pan:
-                    float dx = e.X - _dragStart.X;
-                    float dy = e.Y - _dragStart.Y;
-                    _offset = new PointF(_offset.X + dx, _offset.Y + dy);
+                    _offset = AddPF(_offset, delta);
                     _dragStart = e.Location;
-                    Invalidate();
                     break;
 
-
                 case DragMode.MoveMeuble:
-                    if (_selectedMeuble != null) {
-                        PointF planDansPoint = ScreenToPlan(e.Location);
-                        _selectedMeuble.Position = new PointF(
-                            planDansPoint.X - _meubleOffset.X,
-                            planDansPoint.Y - _meubleOffset.Y
-                        );
-
+                    if (_selectedMeuble != null && _selectedMeuble.Position != null) {
+                        _selectedMeuble.Position = SubPF(planDansPoint,  _meubleOffset);
                         if (_selectedMeuble.IsMural) {
                             Murs murs = planController.ObtenirMurs();
                             murs.placerElem(_selectedMeuble, (PointF)_selectedMeuble.Position);
                         }
                         this.Cursor = Cursors.Hand;
-                        Invalidate();
                     }
                     break;
 
@@ -147,17 +127,11 @@ namespace PROJET_PIIA.View {
                         _selectedMeuble.tourner(angleDelta, false); 
                         _angleAction = angleDelta;
                         _initialMouseAngle = currentAngle;
-
-                        Invalidate();
                     }
                     break;
 
 
                 case DragMode.MoveWall:
-                    PointF current = ScreenToPlan(new PointF(e.Location.X, e.Location.Y));
-                    PointF start = ScreenToPlan(_dragStart);
-                    PointF delta = new PointF(current.X - start.X, current.Y - start.Y);
-
                     Murs mursData = planController.ObtenirMurs();
 
                     List<PointF> perimetre = mursData.Perimetre;
@@ -167,35 +141,26 @@ namespace PROJET_PIIA.View {
 
                     int i1 = _selectedWall;
                     int i2 = (i1 + 1) % perimetre.Count;
-                    PointF p1 = perimetre[i1];
-                    PointF p2 = perimetre[i2];
 
-                    PointF newP1 = new PointF(p1.X + delta.X, p1.Y + delta.Y);
-                    PointF newP2 = new PointF(p2.X + delta.X, p2.Y + delta.Y);
-
+                    PointF newP1 = AddPF(perimetre[i1], delta);
+                    PointF newP2 = AddPF(perimetre[i2], delta);
                     perimetre[i1] = newP1;
                     perimetre[i2] = newP2;
-                    if (i1 == 0)
-                        perimetre[^1] = newP1;
-                    else if (i1 == perimetre.Count - 2)
-                        perimetre[0] = newP2;
-
-                   
+                    if (i1 == 0) perimetre[^1] = newP1;
+                    else if (i1 == perimetre.Count - 2) perimetre[0] = newP2;
                     
                     planController.SetMurs(perimetre);
 
                     List<Meuble> elemsMuraux = mursData.GetElemsMuraux();
                     foreach (Meuble elem in elemsMuraux) {
-                        PointF newpos = new PointF(((PointF)elem.Position).X + delta.X, ((PointF)elem.Position).Y + delta.Y);
-                        mursData.placerElem(elem, newpos);
+                        if (elem.Position is PointF position) {
+                            PointF newpos = AddPF(position, delta);
+                            mursData.placerElem(elem, newpos);
+                        }
                     }
-
-                   
                     _selectedWallPoints1 = (newP1, newP2);
                     _dragStart = e.Location;
-                    
                     break;
-
 
                 case DragMode.None:
                     PointF planPoint = ScreenToPlan(e.Location);
@@ -228,17 +193,17 @@ namespace PROJET_PIIA.View {
                     _dragMode = DragMode.None;
                     break;
                 case DragMode.MoveMeuble:
-                    undoRedoControleur.add(new DeplacementMeuble(_selectedMeuble, (PointF)_selectedMeuble.Position, _dragStart));
+                    undoRedoControleur.Add(new DeplacementMeuble(_selectedMeuble, (PointF)_selectedMeuble.Position, _dragStart));
                     Cursor = Cursors.Default;
                     _dragMode = DragMode.None;
                     break;
                 case DragMode.RotateMeuble:
-                    undoRedoControleur.add(new RotationMeuble(_selectedMeuble, _angleAction));
+                    undoRedoControleur.Add(new RotationMeuble(_selectedMeuble, _angleAction));
                     Cursor = Cursors.Default;
                     _dragMode = DragMode.None;
                     break;
                 case DragMode.MoveWall:
-                    undoRedoControleur.add(new DeplacementMur((_selectedWall, (_selectedWall+1)%planController.ObtenirMurs().Perimetre.Count()) , _selectedWallPoints1, _selectedWallPoints2));
+                    undoRedoControleur.Add(new DeplacementMur((_selectedWall, (_selectedWall+1)%planController.ObtenirMurs().Perimetre.Count()) , _selectedWallPoints1, _selectedWallPoints2));
                     Cursor = Cursors.Default;
                     _dragMode = DragMode.None;
                     break;
@@ -273,6 +238,9 @@ namespace PROJET_PIIA.View {
             PointF center = _selectedMeuble.GetCenter();
             PointF screenCenter = PlanToScreen(center);
 
+            // Get the button position in the meuble's local coordinate system
+            PointF buttonPos = GetDeleteButtonPosition();
+
             // Create a matrix for the transformations
             Matrix matrix = new Matrix();
             matrix.Translate(screenCenter.X, screenCenter.Y);
@@ -285,13 +253,19 @@ namespace PROJET_PIIA.View {
             PointF transformedPoint = points[0];
 
             // Calculate button rectangle in meuble's coordinates
-            float buttonX = _selectedMeuble.Width * (3 / 2) - DeleteButtonSize;
-            float buttonY = -_selectedMeuble.Height * (3 / 2);
+            float buttonX = buttonPos.X - screenCenter.X;
+            float buttonY = buttonPos.Y - screenCenter.Y;
             RectangleF buttonRect = new RectangleF(buttonX, buttonY, DeleteButtonSize, DeleteButtonSize);
 
             // Check if the transformed point is inside the button rectangle
             return buttonRect.Contains(transformedPoint);
         }
+
+        private static PointF SubPF(PointF p1, PointF p2) =>
+            new PointF(p1.X - p2.X, p1.Y - p2.Y);
+
+        private static PointF AddPF(PointF p1, PointF p2) =>
+            new PointF(p1.X + p2.X, p1.Y + p2.Y);
 
     }
 }

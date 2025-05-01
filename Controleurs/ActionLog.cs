@@ -14,8 +14,8 @@ namespace PROJET_PIIA.Controleurs {
     public abstract class ActionLog {
         public PlanAction Action;
 
-        public abstract void undo(PlanControleur plan);
-        public abstract void redo(PlanControleur plan);
+        public abstract void Undo(PlanControleur plan);
+        public abstract void Redo(PlanControleur plan);
     }
 
     public class AjoutMurs : ActionLog {
@@ -28,11 +28,11 @@ namespace PROJET_PIIA.Controleurs {
             this.Action = PlanAction.AjoutMurs;
         }
 
-        public override void undo(PlanControleur p) {
+        public override void Undo(PlanControleur p) {
             p.SetMurs(save);
         }
 
-        public override void redo(PlanControleur p) {
+        public override void Redo(PlanControleur p) {
             p.SetMurs(pointsMurs);
         }
     }
@@ -52,36 +52,12 @@ namespace PROJET_PIIA.Controleurs {
             this.Action = PlanAction.DeplacementMur;
         }
 
-        public override void undo(PlanControleur p) {
-            // grab the current closed-loop list of points:
-            List<PointF> perimetre = p.ObtenirMurs().Perimetre;
+        private void ApplySegment(PlanControleur p, (PointF, PointF) points) {
+            var perimetre = p.ObtenirMurs().Perimetre;
 
-            // restore the two endpoints of the moved segment:
-            perimetre[segmentMur.Item1] = save.Item1;
-            perimetre[segmentMur.Item2] = save.Item2;
+            perimetre[segmentMur.Item1] = points.Item1;
+            perimetre[segmentMur.Item2] = points.Item2;
 
-            // if we just moved point 0 or point (N−1), mirror it on the other end
-            int last = perimetre.Count - 1;
-            if (segmentMur.Item1 == 0 || segmentMur.Item2 == 0) {
-                // moved the “first” point → update the duplicate at the end
-                perimetre[last] = perimetre[0];
-            } else if (segmentMur.Item1 == last || segmentMur.Item2 == last) {
-                // moved the duplicate endpoint → update the “first” point
-                perimetre[0] = perimetre[last];
-            }
-
-            p.SetMurs(perimetre);
-        }
-
-        public override void redo(PlanControleur p) {
-            // grab the current closed-loop list of points:
-            List<PointF> perimetre = p.ObtenirMurs().Perimetre;
-
-            // apply the new positions to that same segment:
-            perimetre[segmentMur.Item1] = segmentPosition.Item1;
-            perimetre[segmentMur.Item2] = segmentPosition.Item2;
-
-            // if we just moved point 0 or point (N−1), mirror it on the other end
             int last = perimetre.Count - 1;
             if (segmentMur.Item1 == 0 || segmentMur.Item2 == 0) {
                 perimetre[last] = perimetre[0];
@@ -91,6 +67,9 @@ namespace PROJET_PIIA.Controleurs {
 
             p.SetMurs(perimetre);
         }
+
+        public override void Undo(PlanControleur p) => ApplySegment(p, save);
+        public override void Redo(PlanControleur p) => ApplySegment(p, segmentPosition);
 
     }
 
@@ -109,12 +88,12 @@ namespace PROJET_PIIA.Controleurs {
             this.Action = PlanAction.DeplacementMeuble;
         }
 
-        public override void undo(PlanControleur p) {
+        public override void Undo(PlanControleur p) {
             p.SupprimerMeuble(objet);
             p.PlaceMeubleAtPosition(objet, save);
         }
 
-        public override void redo(PlanControleur p) {
+        public override void Redo(PlanControleur p) {
             p.SupprimerMeuble(objet);
             p.PlaceMeubleAtPosition(objet, position);
         }
@@ -130,11 +109,11 @@ namespace PROJET_PIIA.Controleurs {
             this.Action = PlanAction.RotationMeuble;
         }
 
-        public override void undo(PlanControleur p) {
+        public override void Undo(PlanControleur p) {
             p.tournerMeuble(objet, -angle, true);
         }
 
-        public override void redo(PlanControleur p) {
+        public override void Redo(PlanControleur p) {
             p.tournerMeuble(objet, angle, true);
         }
     }
@@ -150,12 +129,12 @@ namespace PROJET_PIIA.Controleurs {
             this.Action = PlanAction.SuppressionMeuble;
         }
 
-        public override void undo(PlanControleur p) {
+        public override void Undo(PlanControleur p) {
             p.PlaceMeubleAtPosition(objet, position);
             p.tournerMeuble(objet, angle, true);
         }
 
-        public override void redo(PlanControleur p) {
+        public override void Redo(PlanControleur p) {
             p.SupprimerMeuble(objet);
 
         }
@@ -170,11 +149,11 @@ namespace PROJET_PIIA.Controleurs {
             this.Action = PlanAction.AjoutMeuble;
         }
 
-        public override void undo(PlanControleur p) {
+        public override void Undo(PlanControleur p) {
             p.SupprimerMeuble(objet);
         }
 
-        public override void redo(PlanControleur p) {
+        public override void Redo(PlanControleur p) {
             p.PlaceMeubleAtPosition(objet, position);
         }
     }

@@ -94,6 +94,10 @@ namespace PROJET_PIIA.Controleurs {
             this.plan = plan;
         }
 
+        public bool estDansSalle(Meuble m) {
+            return this.plan.EstDansEspaceDesMurs(m);
+        }
+
 
 
 

@@ -83,7 +83,7 @@ namespace PROJET_PIIA.Model {
 
 
         public void SupprimerMeuble(Meuble m) {
-            Meuble r = findMeuble(m);
+            Meuble? r = findMeuble(m);
             if (r!=null) {
                 Meubles.Remove(r);
             } else {
@@ -123,6 +123,93 @@ namespace PROJET_PIIA.Model {
         }
 
 
+
+        public bool EstDansEspaceDesMurs(Meuble meuble) {
+            if (meuble == null || Murs.Perimetre == null || Murs.Perimetre.Count < 2)
+                return false;
+
+            // Obtenir les coins du meuble avant rotation
+            List<PointF> coins = GetCoins(meuble);
+
+            // Appliquer la rotation du meuble sur ses coins
+            var rotatedCoins = new List<PointF>();
+            foreach (var coin in coins) {
+                rotatedCoins.Add(RotaterPoint(coin, meuble.Position.Value, meuble.Orientation));
+            }
+
+            // Vérifier si chaque coin est dans l'espace défini par les murs
+            foreach (var rotatedCoin in rotatedCoins) {
+                if (!EstPointDansPlan(rotatedCoin)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        // Cette méthode retourne les coins du meuble avant rotation (en prenant en compte les dimensions)
+        private List<PointF> GetCoins(Meuble meuble) {
+            List<PointF> coins = new List<PointF>();
+
+            if (meuble.Position.HasValue) {
+                float x = meuble.Position.Value.X;
+                float y = meuble.Position.Value.Y;
+                float width = meuble.Width;
+                float height = meuble.Height;
+
+                // Coins du meuble (avant rotation)
+                coins.Add(new PointF(x, y)); // Coin supérieur gauche
+                coins.Add(new PointF(x + width, y)); // Coin supérieur droit
+                coins.Add(new PointF(x, y + height)); // Coin inférieur gauche
+                coins.Add(new PointF(x + width, y + height)); // Coin inférieur droit
+            }
+
+            return coins;
+        }
+
+        // Méthode pour appliquer la rotation d'un point autour d'un centre donné
+        private PointF RotaterPoint(PointF point, PointF center, (float, float) orientation) {
+            float radian = (float)Math.Atan2(orientation.Item2, orientation.Item1);
+            float cosAngle = (float)Math.Cos(radian);
+            float sinAngle = (float)Math.Sin(radian);
+
+            float dx = point.X - center.X;
+            float dy = point.Y - center.Y;
+
+            // Rotation en 2D
+            float xRot = center.X + cosAngle * dx - sinAngle * dy;
+            float yRot = center.Y + sinAngle * dx + cosAngle * dy;
+
+            return new PointF(xRot, yRot);
+        }
+
+        // Méthode pour vérifier si un point est à l'intérieur des murs du plan
+        private bool EstPointDansPlan(PointF point) {
+            for (int i = 0; i < Murs.Perimetre.Count; i++) {
+                PointF murStart = Murs.Perimetre[i];
+                PointF murEnd = Murs.Perimetre[(i + 1) % Murs.Perimetre.Count];
+
+                if (!EstPointAVersMurs(point, murStart, murEnd)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // Vérifie si un point est du bon côté d'un segment de mur (en utilisant un produit vectoriel)
+        private bool EstPointAVersMurs(PointF point, PointF murStart, PointF murEnd) {
+            // Calcul de la direction du mur et de la direction du point par rapport à ce mur
+            float dxMur = murEnd.X - murStart.X;
+            float dyMur = murEnd.Y - murStart.Y;
+            float dxPoint = point.X - murStart.X;
+            float dyPoint = point.Y - murStart.Y;
+
+            // Calcul du produit vectoriel (déterminant) pour savoir de quel côté du mur est le point
+            float produitCroise = dxMur * dyPoint - dyMur * dxPoint;
+
+            // Si le produit est positif, le point est à gauche, sinon à droite (on veut les points à gauche des murs)
+            return produitCroise >= 0;
+        }
 
 
 

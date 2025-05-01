@@ -7,75 +7,70 @@ using System.Threading.Tasks;
 using PROJET_PIIA.Model;
 
 namespace PROJET_PIIA.Controleurs {
-    public class UndoRedoControleur {
-        Plan p;
-        PlanControleur planControleur;
-        List<ActionLog> actionLogs;
-        int currentIndex;
-        int currentChainMax;
+    public class UndoRedoControleur(PlanControleur planControleur) {
+        private PlanControleur _planControleur = planControleur;
+        List<ActionLog> _actionLogs = [];
+        int _currentIndex = -1;
+        int currentChainMax = -1;
 
-        public event Action undoRedo = delegate { };
+        public event Action OnActionUndoRedo = delegate { };
 
-        public UndoRedoControleur(PlanControleur planControleur) {
-            this.planControleur = planControleur;
-            actionLogs = new List<ActionLog>();
-            currentIndex = -1;
-            currentChainMax = -1;
-        }
+        public void Add(ActionLog actionLog) {
+            if (actionLog == null) throw new ArgumentNullException(nameof(actionLog));
 
-        public void add(ActionLog actionLog) {
-            if (currentIndex < currentChainMax) {
-                actionLogs[currentIndex + 1] = actionLog;
-
-                if (currentIndex + 1 < actionLogs.Count - 1) {
-                    actionLogs.RemoveRange(currentIndex + 2, actionLogs.Count - currentIndex - 2);
-                }
-            } else {
-                actionLogs.Add(actionLog);
+            // Si on a fait des undo, supprimer tout ce qui suit
+            if (_currentIndex + 1 < _actionLogs.Count) {
+                _actionLogs.RemoveRange(_currentIndex + 1, _actionLogs.Count - (_currentIndex + 1));
             }
 
-            currentIndex++;
-            currentChainMax = currentIndex;
-            Debug.WriteLine(this);
+            _actionLogs.Add(actionLog);
+            _currentIndex++;
 
+            Debug.WriteLine(ToString());
+            OnUndoRedo();
         }
 
-        public bool undo() {
-            
-            if (currentIndex < 0) return false;
-            actionLogs[currentIndex].undo(planControleur);
-            currentIndex--;
-            OnUndoRedo();
-            Debug.WriteLine(this);
-            return true;
-            
-        }
+        public bool Undo() {
+            if (_currentIndex < 0) return false;
 
-        public bool redo() {
-            if (currentIndex >= currentChainMax)
-                return false;
-            currentIndex++;
-            actionLogs[currentIndex].redo(planControleur);
+            _actionLogs[_currentIndex].Undo(_planControleur);
+            _currentIndex--;
+
+            Debug.WriteLine(ToString());
             OnUndoRedo();
-            Debug.WriteLine(this);
             return true;
         }
 
-        public virtual void OnUndoRedo() {
-            undoRedo?.Invoke();
+        public bool Redo() {
+            if (_currentIndex + 1 >= _actionLogs.Count) return false;
+
+            _currentIndex++;
+            _actionLogs[_currentIndex].Redo(_planControleur);
+
+            Debug.WriteLine(ToString());
+            OnUndoRedo();
+            return true;
         }
 
-        
+        private void OnUndoRedo() {
+            OnActionUndoRedo?.Invoke();
+        }
+
+        public bool HasPrevious => _currentIndex >= 0;
+        public bool HasNext => _currentIndex + 1 < _actionLogs.Count;
+
+
+
         public override string ToString() {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("=== Undo/Redo Stack ===");
-            sb.AppendLine($"Current Index: {currentIndex}");
+            sb.AppendLine($"Current Index: {_currentIndex}");
             sb.AppendLine($"Max Index: {currentChainMax}");
             sb.AppendLine("Actions:");
 
-            for (int i = 0; i < actionLogs.Count; i++) {
-                var log = actionLogs[i];
-                string prefix = i == currentIndex ? "►" : " ";
+            for (int i = 0; i < _actionLogs.Count; i++) {
+                var log = _actionLogs[i];
+                string prefix = i == _currentIndex ? "►" : " ";
                 string state = i <= currentChainMax ? "[Active] " : "[Undone] ";
 
                 string details = "";

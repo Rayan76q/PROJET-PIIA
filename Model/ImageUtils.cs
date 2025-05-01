@@ -22,7 +22,7 @@
                 try {
                     Image img = ImageLoader.GetImage(meuble.ImagePath); 
                     return ResizeImageToMeuble(img, meuble);
-                } catch (Exception) {
+                } catch {
                     return CreateErrorImage(meuble);
                 }
             }

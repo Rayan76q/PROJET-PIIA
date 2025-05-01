@@ -15,6 +15,14 @@ namespace PROJET_PIIA.Extensions {
             return new PointF(p.X + dx, p.Y + dy);
         }
 
+        public static PointF Add(this PointF point1, PointF point2) {
+            return new PointF(point1.X + point2.X, point1.Y + point2.Y);
+        }
+
+        //public static PointF Subtract(this PointF point1, PointF point2) {
+        //    return new PointF(point1.X - point2.X, point1.Y - point2.Y);
+        //}
+
         // Conversion en Size
         //public static Size ToSize(this PointF p) {
         //    return new Size(p.X, p.Y);

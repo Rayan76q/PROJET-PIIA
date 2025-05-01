@@ -37,6 +37,7 @@ namespace PROJET_PIIA.View {
 
         ModeControler modeControler;
         AccountController compteControleur;
+        UndoRedoControleur urctr;
         private SidePanelMeuble MeubleSidePanel;
         private MurSidePanel MurSidePanel;
         private UserControl _currentEditor;
@@ -49,7 +50,7 @@ namespace PROJET_PIIA.View {
             compteControleur.SetMainView(this);
             //ctrg = new ControleurMainView(m);
             var pctr = new PlanControleur(m);
-            var urctr = new UndoRedoControleur(pctr);
+            urctr = new UndoRedoControleur(pctr);
             planView = new PlanView(pctr, urctr);
 
             MeubleSidePanel = new SidePanelMeuble(m);
@@ -61,6 +62,7 @@ namespace PROJET_PIIA.View {
             spliterSidePlan.Panel2.Controls.Add(planView);
             modeControler.ModeChangedActions += SwitchSidePanel;
             signupMenuItem.Click += SignupMenuItem_Click;
+            urctr.OnActionUndoRedo += onActionDone;
 
             p = m.planActuel;
 
@@ -122,12 +124,10 @@ namespace PROJET_PIIA.View {
             signupMenuItem = new ToolStripMenuItem();
             spliterSidePlan = new SplitContainer();
             modeSelector1 = new ModeSelector();
-            label1 = new Label();
-            labelsurface = new Label();
             zoombar = new TrackBar();
             showgrid = new Button();
-            Redo = new Button();
-            Undo = new Button();
+            ButtonRedo = new Button();
+            ButtonUndo = new Button();
             toggleButton = new Button();
             fontDialog1 = new FontDialog();
             mainToolStrip.SuspendLayout();
@@ -144,77 +144,77 @@ namespace PROJET_PIIA.View {
             mainToolStrip.Location = new Point(0, 0);
             mainToolStrip.Name = "mainToolStrip";
             mainToolStrip.RenderMode = ToolStripRenderMode.System;
-            mainToolStrip.Size = new Size(987, 28);
+            mainToolStrip.Size = new Size(1128, 35);
             mainToolStrip.TabIndex = 0;
             // 
             // appNameLabel
             // 
             appNameLabel.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             appNameLabel.Name = "appNameLabel";
-            appNameLabel.Size = new Size(65, 25);
+            appNameLabel.Size = new Size(85, 32);
             appNameLabel.Text = "PLANCHA!";
             // 
             // newButton
             // 
             newButton.Name = "newButton";
-            newButton.Size = new Size(59, 25);
+            newButton.Size = new Size(72, 32);
             newButton.Text = "Nouveau";
             // 
             // loadButton
             // 
             loadButton.Name = "loadButton";
-            loadButton.Size = new Size(53, 25);
+            loadButton.Size = new Size(65, 32);
             loadButton.Text = "Charger";
             loadButton.Click += loadButton_Click;
             // 
             // modifyButton
             // 
             modifyButton.Name = "modifyButton";
-            modifyButton.Size = new Size(56, 25);
+            modifyButton.Size = new Size(70, 32);
             modifyButton.Text = "Modifier";
             modifyButton.Click += modifyButton_Click;
             // 
             // searchToolBox
             // 
             searchToolBox.Name = "searchToolBox";
-            searchToolBox.Size = new Size(100, 28);
+            searchToolBox.Size = new Size(114, 35);
             // 
             // searchButton
             // 
             searchButton.Name = "searchButton";
-            searchButton.Size = new Size(23, 25);
+            searchButton.Size = new Size(34, 32);
             searchButton.Text = "🔍";
             // 
             // downloadButton
             // 
             downloadButton.Name = "downloadButton";
-            downloadButton.Size = new Size(23, 25);
+            downloadButton.Size = new Size(29, 32);
             downloadButton.Text = "⬇";
             downloadButton.Click += downloadButton_Click;
             // 
             // shareButton
             // 
             shareButton.Name = "shareButton";
-            shareButton.Size = new Size(23, 25);
+            shareButton.Size = new Size(29, 32);
             shareButton.Text = "↗";
             // 
             // commentButton
             // 
             commentButton.Name = "commentButton";
-            commentButton.Size = new Size(23, 25);
+            commentButton.Size = new Size(34, 32);
             commentButton.Text = "💬";
             // 
             // emailButton
             // 
             emailButton.Name = "emailButton";
-            emailButton.Size = new Size(23, 25);
+            emailButton.Size = new Size(34, 32);
             emailButton.Text = "✉";
             // 
             // rightAlignSeparator
             // 
             rightAlignSeparator.Alignment = ToolStripItemAlignment.Right;
             rightAlignSeparator.Name = "rightAlignSeparator";
-            rightAlignSeparator.Size = new Size(6, 28);
+            rightAlignSeparator.Size = new Size(6, 35);
             // 
             // avatarButton
             // 
@@ -223,41 +223,41 @@ namespace PROJET_PIIA.View {
             avatarButton.DropDownItems.AddRange(new ToolStripItem[] { loginMenuItem, signupMenuItem });
             avatarButton.Font = new Font("Segoe UI", 12F);
             avatarButton.Name = "avatarButton";
-            avatarButton.Size = new Size(45, 25);
+            avatarButton.Size = new Size(49, 32);
             avatarButton.Text = "👤";
             avatarButton.ToolTipText = "Account options";
             // 
             // loginMenuItem
             // 
             loginMenuItem.Name = "loginMenuItem";
-            loginMenuItem.Size = new Size(180, 26);
+            loginMenuItem.Size = new Size(168, 32);
             loginMenuItem.Text = "Login";
             loginMenuItem.Click += LoginMenuItem_Click;
             // 
             // signupMenuItem
             // 
             signupMenuItem.Name = "signupMenuItem";
-            signupMenuItem.Size = new Size(180, 26);
+            signupMenuItem.Size = new Size(168, 32);
             signupMenuItem.Text = "Sign Up";
             // 
             // spliterSidePlan
             // 
             spliterSidePlan.Dock = DockStyle.Fill;
-            spliterSidePlan.Location = new Point(0, 28);
+            spliterSidePlan.Location = new Point(0, 35);
+            spliterSidePlan.Margin = new Padding(3, 4, 3, 4);
             spliterSidePlan.Name = "spliterSidePlan";
             // 
             // spliterSidePlan.Panel2
             // 
             spliterSidePlan.Panel2.Controls.Add(modeSelector1);
-            spliterSidePlan.Panel2.Controls.Add(label1);
-            spliterSidePlan.Panel2.Controls.Add(labelsurface);
             spliterSidePlan.Panel2.Controls.Add(zoombar);
             spliterSidePlan.Panel2.Controls.Add(showgrid);
-            spliterSidePlan.Panel2.Controls.Add(Redo);
-            spliterSidePlan.Panel2.Controls.Add(Undo);
+            spliterSidePlan.Panel2.Controls.Add(ButtonRedo);
+            spliterSidePlan.Panel2.Controls.Add(ButtonUndo);
             spliterSidePlan.Panel2.Controls.Add(toggleButton);
-            spliterSidePlan.Size = new Size(987, 437);
-            spliterSidePlan.SplitterDistance = 244;
+            spliterSidePlan.Size = new Size(1128, 585);
+            spliterSidePlan.SplitterDistance = 278;
+            spliterSidePlan.SplitterWidth = 5;
             spliterSidePlan.TabIndex = 1;
             spliterSidePlan.TabStop = false;
             // 
@@ -265,46 +265,24 @@ namespace PROJET_PIIA.View {
             // 
             modeSelector1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             modeSelector1.BackColor = Color.LightGray;
-            modeSelector1.Location = new Point(554, 394);
-            modeSelector1.Margin = new Padding(3, 2, 3, 2);
+            modeSelector1.Location = new Point(633, 527);
             modeSelector1.Modes.Add("Murage");
             modeSelector1.Modes.Add("Meublage");
             modeSelector1.Name = "modeSelector1";
             modeSelector1.SelectedIndex = 0;
-            modeSelector1.Size = new Size(163, 26);
+            modeSelector1.Size = new Size(186, 35);
             modeSelector1.TabIndex = 12;
             modeSelector1.Load += modeSelector1_Load;
             modeSelector1.Click += modeSelector1_Click;
             // 
-            // label1
-            // 
-            label1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            label1.AutoSize = true;
-            label1.Location = new Point(543, 28);
-            label1.Name = "label1";
-            label1.Size = new Size(36, 15);
-            label1.TabIndex = 8;
-            label1.Text = "utile :";
-            // 
-            // labelsurface
-            // 
-            labelsurface.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            labelsurface.AutoSize = true;
-            labelsurface.Location = new Point(543, 14);
-            labelsurface.Name = "labelsurface";
-            labelsurface.Size = new Size(65, 15);
-            labelsurface.TabIndex = 7;
-            labelsurface.Text = "Superficie :";
-            // 
             // zoombar
             // 
             zoombar.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            zoombar.Location = new Point(3, 378);
-            zoombar.Margin = new Padding(3, 2, 3, 2);
+            zoombar.Location = new Point(3, 506);
             zoombar.Maximum = 300;
             zoombar.Minimum = 10;
             zoombar.Name = "zoombar";
-            zoombar.Size = new Size(131, 45);
+            zoombar.Size = new Size(150, 56);
             zoombar.TabIndex = 5;
             zoombar.TickFrequency = 10;
             zoombar.Value = 100;
@@ -314,10 +292,9 @@ namespace PROJET_PIIA.View {
             // 
             showgrid.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             showgrid.Font = new Font("Segoe UI", 18F, FontStyle.Bold);
-            showgrid.Location = new Point(673, 349);
-            showgrid.Margin = new Padding(3, 2, 3, 2);
+            showgrid.Location = new Point(769, 467);
             showgrid.Name = "showgrid";
-            showgrid.Size = new Size(44, 38);
+            showgrid.Size = new Size(50, 51);
             showgrid.TabIndex = 4;
             showgrid.Text = "⊞";
             showgrid.UseVisualStyleBackColor = true;
@@ -325,34 +302,31 @@ namespace PROJET_PIIA.View {
             // 
             // Redo
             // 
-            Redo.Location = new Point(68, 5);
-            Redo.Margin = new Padding(3, 2, 3, 2);
-            Redo.Name = "Redo";
-            Redo.Size = new Size(44, 38);
-            Redo.TabIndex = 2;
-            Redo.Text = "↪";
-            Redo.UseVisualStyleBackColor = true;
-            Redo.Click += Redo_Click;
+            ButtonRedo.Location = new Point(78, 7);
+            ButtonRedo.Name = "Redo";
+            ButtonRedo.Size = new Size(50, 51);
+            ButtonRedo.TabIndex = 2;
+            ButtonRedo.Text = "↪";
+            ButtonRedo.UseVisualStyleBackColor = true;
+            ButtonRedo.Click += Redo_Click;
             // 
             // Undo
             // 
-            Undo.Location = new Point(3, 5);
-            Undo.Margin = new Padding(3, 2, 3, 2);
-            Undo.Name = "Undo";
-            Undo.Size = new Size(44, 38);
-            Undo.TabIndex = 1;
-            Undo.Text = "↩";
-            Undo.UseVisualStyleBackColor = true;
-            Undo.Click += Undo_Click;
+            ButtonUndo.Location = new Point(3, 7);
+            ButtonUndo.Name = "Undo";
+            ButtonUndo.Size = new Size(50, 51);
+            ButtonUndo.TabIndex = 1;
+            ButtonUndo.Text = "↩";
+            ButtonUndo.UseVisualStyleBackColor = true;
+            ButtonUndo.Click += Undo_Click;
             // 
             // toggleButton
             // 
             toggleButton.Anchor = AnchorStyles.Left;
             toggleButton.CausesValidation = false;
-            toggleButton.Location = new Point(3, 188);
-            toggleButton.Margin = new Padding(3, 2, 3, 2);
+            toggleButton.Location = new Point(3, 252);
             toggleButton.Name = "toggleButton";
-            toggleButton.Size = new Size(28, 76);
+            toggleButton.Size = new Size(32, 101);
             toggleButton.TabIndex = 0;
             toggleButton.Text = "<";
             toggleButton.UseVisualStyleBackColor = true;
@@ -360,12 +334,11 @@ namespace PROJET_PIIA.View {
             // 
             // MainView
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(987, 465);
+            ClientSize = new Size(1128, 620);
             Controls.Add(spliterSidePlan);
             Controls.Add(mainToolStrip);
-            Margin = new Padding(3, 2, 3, 2);
             Name = "MainView";
             Text = "Kitchen Design App";
             mainToolStrip.ResumeLayout(false);
@@ -394,12 +367,10 @@ namespace PROJET_PIIA.View {
         }
         private SplitContainer spliterSidePlan;
         private FontDialog fontDialog1;
-        private Button Redo;
-        private Button Undo;
+        private Button ButtonRedo;
+        private Button ButtonUndo;
         private Button showgrid;
         private TrackBar zoombar;
-        private Label labelsurface;
-        private Label label1;
         private Button toggleButton;
 
 
@@ -628,6 +599,10 @@ namespace PROJET_PIIA.View {
             }
         }
 
+        void onActionDone() {
+            this.ButtonUndo.Enabled = urctr.HasPrevious;
+            this.ButtonRedo.Enabled = urctr.HasNext;
+        }
        
     }
 }
