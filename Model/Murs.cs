@@ -315,34 +315,29 @@ namespace PROJET_PIIA.Model {
 
         public void placerElem(Meuble e, PointF planPt) {
             try {
-                // Check if this is a dragging operation - in this case, just update the position
-                // This preserves the ability to freely move furniture with the mouse
                 if (e.Position != null && elemsMuraux.Contains(e)) {
                     e.Position = planPt;
                     return;
                 }
 
-                // Initial placement - stick to wall
+                
                 int closestSegmentIndex = PointExtensions.TrouverSegmentProche(planPt, Perimetre);
                 if (closestSegmentIndex != -1) {
                     PointF segmentStart = Perimetre[closestSegmentIndex];
                     PointF segmentEnd = Perimetre[(closestSegmentIndex + 1) % Perimetre.Count];
                     PointF closestProjection = PointExtensions.ProjectPointOntoSegment(planPt, (segmentStart, segmentEnd));
 
-                    // Calculate wall direction and angle
                     float dx = segmentEnd.X - segmentStart.X;
                     float dy = segmentEnd.Y - segmentStart.Y;
                     float angle = (float)(Math.Atan2(dy, dx) * 180 / Math.PI);
                     e.tourner(angle, true);
 
-                    // Calculate normal vector (perpendicular to wall, pointing inward)
                     float normalX = -dy;
                     float normalY = dx;
                     float normalLength = (float)Math.Sqrt(normalX * normalX + normalY * normalY);
                     normalX /= normalLength;
                     normalY /= normalLength;
 
-                    // Check if normal points inside or outside - flip if needed
                     PointF testPoint = new PointF(
                         closestProjection.X + normalX,
                         closestProjection.Y + normalY
@@ -354,46 +349,35 @@ namespace PROJET_PIIA.Model {
                     }
 
                     
-                        // For furniture, we need to account for its dimensions and top-left position
-                        // Calculate where to place the element so its closest edge is against the wall
-
-                        // First determine which edge will be against the wall based on rotation
                         float angleRad = angle * (float)Math.PI / 180f;
                         float sin = (float)Math.Sin(angleRad);
                         float cos = (float)Math.Cos(angleRad);
 
-                        // Offset needed to align the furniture with the wall
                         float offsetX = 0;
                         float offsetY = 0;
 
-                        // Handle different wall orientations
                         if (Math.Abs(sin) > Math.Abs(cos)) {
-                            // Wall is more vertical
+                            //mur vertical
                             angle += 90;
                             if (sin > 0) {
-                                // Wall is facing right, so place left edge of furniture against wall
                                 offsetX = -e.Width;
                                 offsetY = 0;
                                 
                             } else {
-                                // Wall is facing left, so place right edge of furniture against wall
                                 offsetX = 0;
                                 offsetY = 0;
                             }
                         } else {
-                            // Wall is more horizontal
+                            // mur horizontal
                             if (cos > 0) {
-                                // Wall is facing down, so place top edge of furniture against wall
                                 offsetX = 0;
                                 offsetY = 0;
                             } else {
-                                // Wall is facing up, so place bottom edge of furniture against wall
                                 offsetX = 0;
                                 offsetY = -e.Height;
                             }
                         }
 
-                        // Calculate final position
                         e.Position = new PointF(
                             closestProjection.X + offsetX,
                             closestProjection.Y + offsetY
@@ -416,19 +400,16 @@ namespace PROJET_PIIA.Model {
             }
         }
 
-        // Helper method to determine if a point is inside the perimeter
         private bool IsPointInsidePerimeter(PointF point) {
             int crossings = 0;
             for (int i = 0; i < Perimetre.Count; i++) {
                 PointF p1 = Perimetre[i];
                 PointF p2 = Perimetre[(i + 1) % Perimetre.Count];
 
-                // Check if point is on an edge
                 if (IsPointOnSegment(point, p1, p2)) {
-                    return true; // Point is on the perimeter
+                    return true; 
                 }
 
-                // Ray-casting algorithm
                 if (((p1.Y <= point.Y) && (p2.Y > point.Y)) || ((p1.Y > point.Y) && (p2.Y <= point.Y))) {
                     float intersectX = p1.X + (point.Y - p1.Y) * (p2.X - p1.X) / (p2.Y - p1.Y);
                     if (point.X < intersectX) {
@@ -437,15 +418,12 @@ namespace PROJET_PIIA.Model {
                 }
             }
 
-            // Odd number of crossings means inside
             return (crossings % 2 != 0);
         }
 
-        // Helper method to check if a point is on a line segment
         private bool IsPointOnSegment(PointF point, PointF segStart, PointF segEnd) {
-            float tolerance = 0.001f; // Adjust as needed
+            float tolerance = 0.001f; 
 
-            // Use your existing DistancePointToSegment method
             float distanceToSegment = PointExtensions.DistancePointSegment(point, segStart, segEnd);
             return distanceToSegment < tolerance;
         }

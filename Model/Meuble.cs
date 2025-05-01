@@ -124,7 +124,7 @@ namespace PROJET_PIIA.Model {
         }
 
         public bool ChevaucheMur(Murs murs) {
-            // Wall elements (doors and windows) should never collide with walls
+            //pas de collision pour les muraux
             if (IsMural || IsPorte || IsFenetre) return false;
 
             if (!Position.HasValue) return false;
