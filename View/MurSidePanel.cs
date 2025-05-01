@@ -10,16 +10,21 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using PROJET_PIIA.Controleurs;
 using PROJET_PIIA.Model;
+using PROJET_PIIA.Extensions;
 
 namespace PROJET_PIIA.View {
     public partial class MurSidePanel : UserControl {
 
         MurSidePanelControler ctr;
+        private Button porteButton;
+        private Button fenetreButton;
+
         public MurSidePanel(Modele m, PlanView pv, PlanControleur pctr) {
             ctr = new MurSidePanelControler(m, pv);
             InitializeComponent();
             InitializePresets();
             InitializeAreaScaling();
+            InitializeOuverturesButtons();
             pctr.PlanChanged += updateSupeficie;
             updateSupeficie();
         }
@@ -67,8 +72,63 @@ namespace PROJET_PIIA.View {
             this.Invalidate();
         }
 
+        private void InitializeOuverturesButtons() {
+            // Create a groupbox for wall openings
+            GroupBox ouverturesGroup = new GroupBox {
+                Text = "Ouvertures",
+                Dock = DockStyle.Bottom,
+                Height = 100,
+                Padding = new Padding(5),
+            };
+
+            // Create the door button
+            porteButton = new Button {
+                Text = "🚪 Porte",
+                Size = new Size(120, 60),
+                Location = new Point(10, 20),
+                Cursor = Cursors.Hand,
+                TextImageRelation = TextImageRelation.ImageBeforeText,
+                ImageAlign = ContentAlignment.MiddleLeft,
+                BackColor = Color.LightBlue
+            };
+
+            // Create the window button
+            fenetreButton = new Button {
+                Text = "🪟 Fenêtre",
+                Size = new Size(120, 60),
+                Location = new Point(140, 20),
+                Cursor = Cursors.Hand,
+                TextImageRelation = TextImageRelation.ImageBeforeText,
+                ImageAlign = ContentAlignment.MiddleLeft,
+                BackColor = Color.LightCyan
+            };
+
+            // Create a door object for drag and drop
+            porteButton.MouseDown += (sender, e) => {
+                if (e.Button == MouseButtons.Left) {
+                    Meuble porte = ElemMurFactory.CreatePorte();
+                    porteButton.DoDragDrop(porte, DragDropEffects.Copy);
+                }
+            };
+
+            // Create a window object for drag and drop
+            fenetreButton.MouseDown += (sender, e) => {
+                if (e.Button == MouseButtons.Left) {
+                    Meuble fenetre = ElemMurFactory.CreateFenetre();
+                    fenetreButton.DoDragDrop(fenetre, DragDropEffects.Copy);
+                }
+            };
+
+            // Add the buttons to the group
+            ouverturesGroup.Controls.Add(porteButton);
+            ouverturesGroup.Controls.Add(fenetreButton);
+
+            // Add the group to the form
+            this.Controls.Add(ouverturesGroup);
+        }
+
         private void InitializeAreaScaling() {
-            
+
             Button applyAreaButton = new Button {
                 Text = "✓",
                 Size = new Size(30, searchBox.Height),
@@ -79,7 +139,7 @@ namespace PROJET_PIIA.View {
             applyAreaButton.Click += ApplyAreaButton_Click;
             splitContainer1.Panel1.Controls.Add(applyAreaButton);
 
-            
+
             searchBox.KeyDown += (sender, e) => {
                 if (e.KeyCode == Keys.Enter) {
                     ApplyAreaButton_Click(sender, e);

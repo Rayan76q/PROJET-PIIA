@@ -1,10 +1,13 @@
-﻿namespace PROJET_PIIA.Extensions {
+﻿using System.Numerics;
+using PROJET_PIIA.Model;
+
+namespace PROJET_PIIA.Extensions {
     public static class PointExtensions {
         // merci chat gpt pour tout ces petits tricks (Connais tu Jésus ?)
 
         // Calcule la distance entre deux points
         public static float DistanceTo(this PointF p1, PointF p2) {
-            (float dx, float dy)= (p2.X - p1.X, p2.Y - p1.Y);
+            (float dx, float dy) = (p2.X - p1.X, p2.Y - p1.Y);
             return (float)Math.Sqrt(dx * dx + dy * dy);
         }
 
@@ -17,10 +20,10 @@
         //    return new Size(p.X, p.Y);
         //}
 
-/*        public static float distance(PointF p1, PointF p2) {
-            (float dx, float dy) = (p1.X - p2.X, p1.Y - p2.Y);
-            return (float)Math.Sqrt(dx * dx + dy * dy);
-        }*/
+        /*        public static float distance(PointF p1, PointF p2) {
+                    (float dx, float dy) = (p1.X - p2.X, p1.Y - p2.Y);
+                    return (float)Math.Sqrt(dx * dx + dy * dy);
+                }*/
 
         public static bool is_valid(this PointF p) {
             return !float.IsNaN(p.X) && !float.IsNaN(p.Y)
@@ -64,17 +67,27 @@
         public static int TrouverSegmentProche(this PointF sourisPlan, List<PointF> perimetre, float seuilProximité = 10f) {
             if (perimetre == null || perimetre.Count < 2) return -1;
 
-            for (int i = 0; i < perimetre.Count; i++) {
-                PointF p1 = perimetre[i];
-                PointF p2 = perimetre[(i + 1) % perimetre.Count];
+            float closestDistance = float.MaxValue;
+            int closestSegmentIndex = -1;
+            PointF closestProjection = PointF.Empty;
 
-                float distance = sourisPlan.DistancePointSegment(p1, p2);
-                if (distance < seuilProximité) {
-                    return i;
+            // Find closest wall segment
+            for (int i = 0; i < perimetre.Count; i++) {
+                PointF start = perimetre[i];
+                PointF end = perimetre[(i + 1) % perimetre.Count];
+
+                // Project the point onto the current segment
+                PointF projection = sourisPlan.ProjectPointOntoSegment((start, end));
+                float distance = sourisPlan.DistanceTo(projection);
+
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestSegmentIndex = i;
+                    closestProjection = projection;
                 }
             }
 
-            return -1;
+            return closestSegmentIndex;
         }
 
         public static PointF FindCenterPoint(List<PointF> points) {
@@ -105,5 +118,21 @@
 
             return scaledPoints;
         }
+        // Project point onto a segment (already in your code)
+        public static PointF ProjectPointOntoSegment(this PointF point, (PointF Start, PointF End) segment) {
+            Vector2 aToB = segment.End.Subtract(segment.Start);
+            Vector2 aToP = point.Subtract(segment.Start);
+            float t = Vector2.Dot(aToP, aToB) / aToB.LengthSquared();
+            t = Math.Clamp(t, 0, 1);
+            return segment.Start.Add(aToB.Multiply(t));
+        }
+
+
+        // Vector helpers (already in your code)
+        public static Vector2 Subtract(this PointF a, PointF b) => new Vector2(a.X - b.X, a.Y - b.Y);
+        public static PointF Add(this PointF a, Vector2 b) => new PointF(a.X + b.X, a.Y + b.Y);
+        public static Vector2 Multiply(this Vector2 v, float scalar) => new Vector2(v.X * scalar, v.Y * scalar);
     }
+
 }
+

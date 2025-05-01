@@ -1,16 +1,17 @@
-﻿using PROJET_PIIA.Extensions;
+﻿using PROJET_PIIA.Controleurs;
+using PROJET_PIIA.Extensions;
+using System.Diagnostics;
+using System.Drawing;
+using System.Numerics;
 
 namespace PROJET_PIIA.Model {
 
     public class Murs {
-
-        
-        List<ElemMur> elemsmuraux;
+        List<Meuble> elemsMuraux; // Changed from ElemMur to Meuble
         public List<PointF> Perimetre { get; set; }
 
-        
         public Murs() {
-            List<PointF> points = new ();
+            List<PointF> points = new();
 
             //put something if you wanna test a special shape
             //points.Add(new (100, 10));   // sommet 1
@@ -25,7 +26,7 @@ namespace PROJET_PIIA.Model {
             //points.Add(new (80, 70));   // creux 5
 
             this.Perimetre = points;
-            this.elemsmuraux = new List<ElemMur>();
+            this.elemsMuraux = new List<Meuble>();
         }
 
         public Murs(List<PointF> perimetre) {
@@ -33,12 +34,10 @@ namespace PROJET_PIIA.Model {
             //    throw new ArgumentOutOfRangeException("Le périmètre doit contenir au moins 3 points.");
 
             //if (checkMurs(perimetre))
-                //throw new ArgumentOutOfRangeException("Les mures s'intersectent, impossible de générer la cuisine.");
+            //throw new ArgumentOutOfRangeException("Les mures s'intersectent, impossible de générer la cuisine.");
             this.Perimetre = perimetre;
-            this.elemsmuraux = new List<ElemMur>();
+            this.elemsMuraux = new List<Meuble>();
         }
-
-
 
         public static bool checkMurs(List<PointF> points) {
             for (int i = 0; i < points.Count - 1; i++) {
@@ -58,7 +57,6 @@ namespace PROJET_PIIA.Model {
             return false;
         }
 
-       
         public static bool SegmentsIntersect(PointF p1, PointF q1, PointF p2, PointF q2) {
             int o1 = Orientation(p1, q1, p2);
             int o2 = Orientation(p1, q1, q2);
@@ -110,8 +108,13 @@ namespace PROJET_PIIA.Model {
             return Math.Abs(area) / 2;
         }
 
-        /// Renvoie l'indice du segment où la porte est placée et la position normalisée (t) de la porte dans ce segment.
-        public (int segmentIndex, float t) getSegmentForElem(ElemMur e) {
+        /// Renvoie l'indice du segment où l'élément est placé et la position normalisée (t) de l'élément dans ce segment.
+        public (int segmentIndex, float t) getSegmentForElem(Meuble e) {
+            // Check if the element is a wall element (door or window)
+            if (!e.IsMural || (!e.IsPorte && !e.IsFenetre)) {
+                throw new ArgumentException("L'élément n'est pas un élément mural (porte ou fenêtre).");
+            }
+
             float globalOffset = e.DistPos;
             float current = 0;
             for (int i = 0; i < Perimetre.Count; i++) {
@@ -120,18 +123,18 @@ namespace PROJET_PIIA.Model {
                 float segmentLength = a.DistanceTo(b);
 
                 if (globalOffset <= current + segmentLength) {
-                    // position localisée de la porte sur le segment
+                    // position localisée de l'élément sur le segment
                     float localOffset = globalOffset - current;
                     float t = localOffset / segmentLength;
-                    if(t > 1)
+                    if (t > 1)
                         throw new ArgumentException("L'element est trop large pour le Mur qui est censé l'abriter.");
-                    float endOffset = globalOffset + e.Largeur; // bout de la porte/fenetre
+                    float endOffset = globalOffset + e.Width; // bout de l'élément
 
-                    // si la porte dépasse la fin du segment
+                    // si l'élément dépasse la fin du segment
                     if (endOffset > current + segmentLength) {
-                        // Si oui, on ajuste la position de la porte pour la mettre à la fin du segment
-                        globalOffset = current + segmentLength - e.Largeur;
-                        t = (segmentLength - e.Largeur) / segmentLength;
+                        // Si oui, on ajuste la position de l'élément pour le mettre à la fin du segment
+                        globalOffset = current + segmentLength - e.Width;
+                        t = (segmentLength - e.Width) / segmentLength;
                     }
                     return (i, t);
                 }
@@ -156,14 +159,13 @@ namespace PROJET_PIIA.Model {
                     // position sur le segment
                     float x = a.X + t * (b.X - a.X);
                     float y = a.Y + t * (b.Y - a.Y);
-                    return new Point((int)x, (int)y);
+                    return new PointF(x, y);
                 }
                 current += segmentLength;
             }
             PointF last = Perimetre.Last();
             return new PointF(last.X, last.Y);
         }
-
 
         public List<(PointF, PointF)> GetSegments() {
             var segments = new List<(PointF, PointF)>();
@@ -173,59 +175,57 @@ namespace PROJET_PIIA.Model {
             return segments;
         }
 
-        public void addElemMur(ElemMur e) {
-            (int, float) pos = getSegmentForElem(e);
-
-            if (pos == (Perimetre.Count - 1, 0)) {  //check si le dernier segment peut accueillir l'elem
-                if (Perimetre.Last().DistanceTo(Perimetre[0]) <= e.Largeur) {
-                    throw new ArgumentException("La porte ou la fenêtre ne peut pas être placée car trop large.");
-                } else {
-                    elemsmuraux.Add(e);
-                }
-            } 
-            else {
-                elemsmuraux.Add(e);
+        // Method to add a mural element (door or window)
+        public void addElemMur(Meuble e) {
+            // Check if the element is a wall element
+            if (!e.IsMural) {
+                throw new ArgumentException("L'élément n'est pas un élément mural (porte ou fenêtre).");
             }
 
 
+
+            (int segmentIndex, float t) = getSegmentForElem(e);
+
+            if (segmentIndex == Perimetre.Count - 1 && t == 0) {  //check si le dernier segment peut accueillir l'elem
+                if (Perimetre.Last().DistanceTo(Perimetre[0]) <= e.Width) {
+                    throw new ArgumentException("L'élément ne peut pas être placé car trop large.");
+                } else {
+                    // Check if the element overlaps with existing wall elements
+                    if (elemsMuraux.Any(em => em != e && em.IsMural && ((em.IsPorte || em.IsFenetre)) &&
+                                          e.ChevaucheMeuble(em))) {
+                        throw new ArgumentException("L'élément chevauche un autre élément mural existant.");
+                    }
+
+                    elemsMuraux.Add(e);
+                }
+            } else {
+                // Check if the element overlaps with existing wall elements
+                if (elemsMuraux.Any(em => em != e && em.IsMural && ((em.IsPorte || em.IsFenetre)) &&
+                                      e.ChevaucheMeuble(em))) {
+                    throw new ArgumentException("L'élément chevauche un autre élément mural existant.");
+                }
+
+                elemsMuraux.Add(e);
+            }
         }
 
-        public void supprimeElemMur(ElemMur e) {
-            elemsmuraux.Remove(e);
+        public void supprimeElemMur(Meuble e) {
+            elemsMuraux.Remove(e);
         }
 
+        // Get all mural elements 
+        public List<Meuble> GetElemsMuraux() {
+            return elemsMuraux.Where(e => e.IsMural || (e.IsPorte || e.IsFenetre)).ToList();
+        }
 
-        //C'est pour les élongations
-        public void ModifierSegment(int indexSegment, float distance) {
-            if (indexSegment < 0 || indexSegment >= Perimetre.Count)
-                throw new ArgumentOutOfRangeException(nameof(indexSegment));
+        // Get only doors
+        public List<Meuble> GetPortes() {
+            return elemsMuraux.Where(e => e.IsPorte).ToList();
+        }
 
-            PointF a = Perimetre[indexSegment];
-            PointF b = Perimetre[(indexSegment + 1) % Perimetre.Count];
-
-            // Vecteur du segment
-            float dx = b.X - a.X;
-            float dy = b.Y - a.Y;
-
-            // Normale (orthogonale) - on inverse dx/dy et on change un signe
-            float nx = -dy;
-            float ny = dx;
-
-            // Normalisation
-            float length = MathF.Sqrt(nx * nx + ny * ny);
-            nx /= length;
-            ny /= length;
-
-            // Appliquer le déplacement le long de la normale
-            Point newA = new Point((int)(a.X + nx * distance), (int)(a.Y + ny * distance));
-            Point newB = new Point((int)(b.X + nx * distance), (int)(b.Y + ny * distance));
-
-            Perimetre[indexSegment] = newA;
-            Perimetre[(indexSegment + 1) % Perimetre.Count] = newB;
-
-            // (optionnel) throw si les murs s'intersectent
-            if (Murs.checkMurs(Perimetre))
-                throw new ArgumentException("La modification crée des intersections entre murs.");
+        // Get only windows
+        public List<Meuble> GetFenetres() {
+            return elemsMuraux.Where(e => e.IsFenetre).ToList();
         }
 
 
@@ -236,19 +236,151 @@ namespace PROJET_PIIA.Model {
             string segmentsStr = string.Join("\n  ", GetSegments()
                 .Select((seg, i) => $"Segment {i}: {seg.Item1} -> {seg.Item2}"));
 
-            string elemsStr = elemsmuraux.Count > 0
-                ? string.Join("\n  ", elemsmuraux.Select((e, i) => $"{i}: {e}"))
+            string elemsStr = elemsMuraux.Count > 0
+                ? string.Join("\n  ", elemsMuraux
+                    .Where(e => e.IsMural && (e.IsPorte || e.IsFenetre))
+                    .Select((e, i) => $"{i}: {e}"))
                 : "Aucun élément mural.";
 
             return $"MURS DEBUG:\n" +
                    $"- Périmètre ({Perimetre.Count} points): [{pointsStr}]\n" +
                    $"- Segments:\n  {segmentsStr}\n" +
-                   $"- Éléments muraux ({elemsmuraux.Count}):\n  {elemsStr}";
+                   $"- Éléments muraux ({elemsMuraux.Count(e => e.IsMural && (e.IsPorte || e.IsFenetre))}):\n  {elemsStr}";
+        }
+
+        public void UpdateElementPositions() {
+            // Recalculate positions for all wall elements
+
+            foreach (var elem in elemsMuraux) {
+                if (elem.IsMural) {
+                    try {
+                        // Get the position on the updated wall
+                        PointF newPosition = GetPositionForOffset(elem.DistPos);
+
+                        // If it's a door or window, position it on the wall
+                        if (elem.IsPorte || elem.IsFenetre || elem.IsMural) {
+                            // Get segment details
+                            (int segmentIndex, float t) = getSegmentForElem(elem);
+                            PointF segmentStart = Perimetre[segmentIndex];
+                            PointF segmentEnd = Perimetre[(segmentIndex + 1) % Perimetre.Count];
+
+                            // Calculate angle to align with the wall segment direction
+                            float dx = segmentEnd.X - segmentStart.X;
+                            float dy = segmentEnd.Y - segmentStart.Y;
+                            float angle = (float)(Math.Atan2(dy, dx) * 180 / Math.PI);
+
+                            // Update element position and orientation
+                            elem.Position = newPosition;
+                            elem.tourner(angle, true);
+                        }
+                    } catch (ArgumentException ex) {
+                        // Log error or handle exceptions
+                        System.Diagnostics.Debug.WriteLine($"Error updating element position: {ex.Message}");
+                    }
+                }
+            }
         }
 
 
 
+        public float GetOffsetForPosition(PointF position, float epsilon = 1e-2f) {
+            float cumulative = 0f;
+
+            for (int i = 0; i < Perimetre.Count; i++) {
+                var a = Perimetre[i];
+                var b = Perimetre[(i + 1) % Perimetre.Count];
+
+                // Vector from A to B and A to the query point
+                float vx = b.X - a.X, vy = b.Y - a.Y;
+                float wx = position.X - a.X, wy = position.Y - a.Y;
+
+                float segLenSq = vx * vx + vy * vy;
+                if (segLenSq < 1e-9f) {
+                    // Degenerate segment, skip
+                    continue;
+                }
+
+                // Project W onto V, parameterized by t in [0,1]
+                float t = (vx * wx + vy * wy) / segLenSq;
+
+                // Check if projection lies on the segment (with tolerance)
+                if (t >= -epsilon && t <= 1 + epsilon) {
+                    // Compute the closest point on AB
+                    t = Math.Clamp(t, 0f, 1f);
+                    var projX = a.X + t * vx;
+                    var projY = a.Y + t * vy;
+
+                    // Check distance from actual point to projection
+                    var dx = position.X - projX;
+                    var dy = position.Y - projY;
+                    if (dx * dx + dy * dy <= epsilon * epsilon) {
+                        // It's on this segment: return cumulative length + local offset
+                        float segmentLength = (float)Math.Sqrt(segLenSq);
+                        return cumulative + t * segmentLength;
+                    }
+                }
+
+                cumulative += (float)Math.Sqrt(segLenSq);
+            }
+
+            throw new ArgumentException("La position n'appartient à aucun segment du mur.");
+        }
+
+      
+        public Murs Clone() {
+            // 1) Copy perimeter points
+            var perimeterCopy = Perimetre
+                .Select(p => new PointF(p.X, p.Y))
+                .ToList();
+
+            // 2) Create the new Murs with that perimeter
+            var copy = new Murs(perimeterCopy);
+
+            // 3) Copy over the meubles
+            //    If you want a deep‐copy of each Meuble, replace `e` with e.Clone()
+            foreach (var e in elemsMuraux)
+                copy.elemsMuraux.Add(e);
+
+            return copy;
+        }
+        
+
+        public void placerElem(Meuble e,PointF planPt) {
+            try {
+                int closestSegmentIndex = PointExtensions.TrouverSegmentProche(planPt, Perimetre);
+
+                PointF Start = Perimetre[closestSegmentIndex];
+                PointF End = Perimetre[(closestSegmentIndex + 1) % Perimetre.Count];
+                PointF closestProjection = PointExtensions.ProjectPointOntoSegment(planPt, (Start, End));
+
+                if (closestSegmentIndex != -1) {
+
+                    PointF segmentStart = Perimetre[closestSegmentIndex];
+                    PointF segmentEnd = Perimetre[(closestSegmentIndex + 1) % Perimetre.Count];
+                    float segmentLength = segmentStart.DistanceTo(segmentEnd);
+
+                    // Calculate angle to align with the wall segment direction
+                    float dx = segmentEnd.X - segmentStart.X;
+                    float dy = segmentEnd.Y - segmentStart.Y;
+                    float angle = (float)(Math.Atan2(dy, dx) * 180 / Math.PI);
+                    e.tourner(angle, true);
+
+                    // Set the actual position for visual display
+                    e.Position = closestProjection;
+                    e.DistPos = GetOffsetForPosition(closestProjection);
+
+                    if (!elemsMuraux.Contains(e)) {
+                        Debug.WriteLine(e.Nom);
+                        addElemMur(e);
+                    }
+
+                } 
+            } catch (ArgumentException ex) {
+                Debug.WriteLine($"Placement failed: {ex.Message}");
+                return;
+            }
+        }
+
+
     }
-
-
 }

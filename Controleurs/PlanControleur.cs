@@ -57,7 +57,15 @@ namespace PROJET_PIIA.Controleurs {
         }
 
         public void SetMurs(List<PointF> points) {
-            plan.Murs = new Murs(points);
+            Murs murs = plan.Murs;
+            if (points.Count < 3) return;
+
+            List<PointF> oldPoints = new List<PointF>(murs.Perimetre);
+            murs.Perimetre = points;
+
+            // Remove this line to prevent redundant updates
+            // murs.UpdateElementPositions();
+
             OnPlanChanged();
         }
 
@@ -85,6 +93,8 @@ namespace PROJET_PIIA.Controleurs {
             
             this.plan = plan;
         }
+
+
 
 
     }

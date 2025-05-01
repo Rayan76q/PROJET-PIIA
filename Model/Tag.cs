@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
@@ -36,7 +37,13 @@ namespace PROJET_PIIA.Model {
         Mural,
 
         [Display(Name = "Sol")]
-        Sol
+        Sol,
+
+        [Description("Porte")]
+        Porte,
+        [Description("Fenêtre")]
+        Fenetre,
+       
     }
 
     public static class TagExtensions {

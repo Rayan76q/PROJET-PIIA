@@ -42,8 +42,13 @@ namespace PROJET_PIIA.Model {
 
 
         public void PlacerMeuble(Meuble meuble, PointF position) { 
-            meuble.Position = position;
-            Meubles.Add(meuble);
+            
+            if (meuble.IsMural) {
+                Murs.placerElem(meuble, position);
+            } else {
+                meuble.Position = position;
+            }
+                Meubles.Add(meuble);
         }
 
 

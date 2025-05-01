@@ -1,4 +1,6 @@
-﻿using PROJET_PIIA.Controleurs;
+﻿using System.Diagnostics;
+using System.Drawing;
+using PROJET_PIIA.Controleurs;
 using PROJET_PIIA.Extensions;
 using PROJET_PIIA.Model;
 
@@ -101,6 +103,7 @@ namespace PROJET_PIIA.View {
         }
 
         private void PlanView_DragOver(object? sender, DragEventArgs e) {
+            
             if (e.Data != null && e.Data.GetDataPresent(typeof(Meuble))) {
                 //Meuble? meuble = e.Data.GetData(typeof(Meuble)) as Meuble;
                 e.Effect = DragDropEffects.Copy;
@@ -108,20 +111,35 @@ namespace PROJET_PIIA.View {
                 e.Effect = DragDropEffects.None;
         }
 
+        // In PlanView.cs, update the PlanView_DragDrop method to properly handle all mural furniture
         private void PlanView_DragDrop(object? sender, DragEventArgs e) {
             if (e.Data != null && e.Data.GetDataPresent(typeof(Meuble))) {
-                Meuble? meuble = e.Data.GetData(typeof(Meuble)) as Meuble;
-                if (meuble != null) {
-                    PointF clientPoint = this.PointToClient(new Point(e.X, e.Y));
-                    PointF planPoint = ScreenToPlan(clientPoint);
-                    planPoint.X -= (int)(meuble.Dimensions.Item1 / 2);
-                    planPoint.Y -= (int)(meuble.Dimensions.Item2 / 2);
+                var original = e.Data.GetData(typeof(Meuble)) as Meuble;
+                if (original == null) return;
 
-                    Meuble meubleCopie = meuble.Copier(false);
-                    planController.PlaceMeubleAtPosition(meubleCopie, planPoint);
-                    undoRedoControleur.add(new AjoutMeuble(meubleCopie, planPoint));
+                // Get drop position in plan coordinates
+                PointF clientPt = this.PointToClient(new Point(e.X, e.Y));
+                PointF planPt = ScreenToPlan(clientPt);
+
+                Meuble copie = original.Copier(false);
+
+                // Handle all mural elements (not just doors/windows)
+                if (copie.IsMural) {
+                    Murs murs = planController.ObtenirMurs();
+                    if (murs != null && murs.Perimetre.Count >= 2) {
+                        planController.PlaceMeubleAtPosition(copie, planPt);
+                    }
+                    
+                } else {
+                    // Center non-mural elements
+                    planPt.X -= copie.Width / 2;
+                    planPt.Y -= copie.Height / 2;
+                    copie.Position = planPt;
+                    planController.PlaceMeubleAtPosition(copie, planPt);
                 }
 
+                // Register undo and refresh
+                undoRedoControleur.add(new AjoutMeuble(copie, planPt));
                 this.Invalidate();
             }
         }
@@ -266,41 +284,50 @@ namespace PROJET_PIIA.View {
 
         private void DrawMeuble(Graphics g, Meuble meuble) {
             if (meuble == null || meuble.Position == null) return;
-
             var state = g.Save();
             PointF p = meuble.Position.Value;
             PointF screenPos = PlanToScreen(p);
             PointF center = meuble.GetCenter();
             PointF screenCenter = PlanToScreen(center);
-
             var pen = GetMeubleBorderStyle(meuble);
-
             using (pen)
             using (Font font = new Font("Arial", 8)) {
-
                 try {
                     g.TranslateTransform(screenCenter.X, screenCenter.Y);
                     g.RotateTransform(meuble.getAngle());
-
                     PointF draw = new(-meuble.Width / 2, -meuble.Height / 2);
-                    Image img = ImageLoader.GetImageOfMeuble(meuble);
-                    g.DrawImage(img, draw.X, draw.Y, meuble.Width, meuble.Height);
+
+                    // Check if meuble is a door or window
+                    bool isPorteOrFenetre = meuble.IsPorte || meuble.IsFenetre ||
+                                          meuble.GetType().Name.Contains("Porte") ||
+                                          meuble.GetType().Name.Contains("Fenetre");
+
+                    if (isPorteOrFenetre) {
+                        // Draw as a white line
+                        using (Pen redPen = new Pen(Color.Red, 3)) {
+                            // For doors and windows, draw as a line spanning the width or height
+                            // depending on orientation (use width as it's likely the longer dimension)
+                            g.DrawLine(redPen, draw.X, draw.Y + meuble.Height / 2,
+                                       draw.X + meuble.Width, draw.Y + meuble.Height / 2);
+                        }
+                    } else {
+                        // Regular furniture rendering with image
+                        Image img = ImageLoader.GetImageOfMeuble(meuble);
+                        g.DrawImage(img, draw.X, draw.Y, meuble.Width, meuble.Height);
+                    }
 
                     // 🎯 Overlay status : selection / collision
                     bool isSelected = _selectedMeuble == meuble;
                     bool isColliding = meuble.CheckMeubleCollision(planController.ObtenirMeublePlacé(), planController.ObtenirMurs());
-
                     if (isColliding || isSelected) {
                         Color overlayColor = isColliding ? Color.FromArgb(100, Color.Red) : Color.FromArgb(100, Color.Green);
                         using SolidBrush overlay = new SolidBrush(overlayColor);
                         g.FillRectangle(overlay, draw.X, draw.Y, meuble.Width, meuble.Height);
                     }
-
                     g.DrawRectangle(pen, draw.X, draw.Y, meuble.Width, meuble.Height);
                 } finally {
                     g.Restore(state);
                 }
-
                 // nom du meuble
                 if (!string.IsNullOrEmpty(meuble.Nom)) {
                     g.DrawString(meuble.Nom, font, Brushes.Black, screenPos.X, screenPos.Y - 15);
