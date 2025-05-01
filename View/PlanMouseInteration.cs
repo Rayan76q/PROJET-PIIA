@@ -126,6 +126,11 @@ namespace PROJET_PIIA.View {
                             planDansPoint.X - _meubleOffset.X,
                             planDansPoint.Y - _meubleOffset.Y
                         );
+
+                        if (_selectedMeuble.IsMural) {
+                            Murs murs = planController.ObtenirMurs();
+                            murs.placerElem(_selectedMeuble, (PointF)_selectedMeuble.Position);
+                        }
                         this.Cursor = Cursors.Hand;
                         Invalidate();
                     }
@@ -139,7 +144,7 @@ namespace PROJET_PIIA.View {
                             e.Location.X - screenCenter.X
                         );
                         float angleDelta = (currentAngle - _initialMouseAngle) * (180f / (float)Math.PI);
-                        _selectedMeuble.tourner(angleDelta, false); //todo
+                        _selectedMeuble.tourner(angleDelta, false); 
                         _angleAction = angleDelta;
                         _initialMouseAngle = currentAngle;
 
