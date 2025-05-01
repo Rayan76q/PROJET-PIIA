@@ -203,6 +203,7 @@ namespace PROJET_PIIA.View {
                     (int, int) seg = (_selectedWall, (_selectedWall+1)%planController.ObtenirMurs().Perimetre.Count());
                     PointF p1 = planController.ObtenirMurs().Perimetre[seg.Item1];
                     PointF p2 = planController.ObtenirMurs().Perimetre[seg.Item2];
+                    planController.
                     g.DrawLine(new Pen(Color.Green, 3), PlanToScreen(p1), PlanToScreen(p2));
                 }
             }

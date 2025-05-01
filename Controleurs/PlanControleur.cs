@@ -98,7 +98,10 @@ namespace PROJET_PIIA.Controleurs {
             return this.plan.EstDansEspaceDesMurs(m);
         }
 
-
+        public bool escequelesmursecroisent() {
+            this.plan.chec
+            return true;
+        }
 
 
     }

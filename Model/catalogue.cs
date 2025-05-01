@@ -52,9 +52,7 @@ namespace PROJET_PIIA.Model {
                 89.99f,
                 "Évier de cuisine inox",
                 "Images/evier.png",
-
-                (80, 50)
-                ,
+                (80, 50),
                 -1
             ));
 

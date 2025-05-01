@@ -147,7 +147,7 @@ namespace PROJET_PIIA.Model {
             return true;
         }
 
-        // Cette méthode retourne les coins du meuble avant rotation (en prenant en compte les dimensions)
+       
         private List<PointF> GetCoins(Meuble meuble) {
             List<PointF> coins = new List<PointF>();
 
@@ -156,12 +156,10 @@ namespace PROJET_PIIA.Model {
                 float y = meuble.Position.Value.Y;
                 float width = meuble.Width;
                 float height = meuble.Height;
-
-                // Coins du meuble (avant rotation)
-                coins.Add(new PointF(x, y)); // Coin supérieur gauche
-                coins.Add(new PointF(x + width, y)); // Coin supérieur droit
-                coins.Add(new PointF(x, y + height)); // Coin inférieur gauche
-                coins.Add(new PointF(x + width, y + height)); // Coin inférieur droit
+                coins.Add(new PointF(x, y)); 
+                coins.Add(new PointF(x + width, y));
+                coins.Add(new PointF(x, y + height)); 
+                coins.Add(new PointF(x + width, y + height));
             }
 
             return coins;

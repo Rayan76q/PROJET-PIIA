@@ -58,8 +58,8 @@ namespace PROJET_PIIA.Model {
             float width,
             float height,
             (float, float) orientation,
-            bool isPorte = false,
-            bool isFenetre = false,
+            bool isPorte,
+            bool isFenetre,
             float distPos = 0
         ) {
             ImagePath = imagePath;
