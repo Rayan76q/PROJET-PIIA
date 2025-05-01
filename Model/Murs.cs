@@ -315,10 +315,7 @@ namespace PROJET_PIIA.Model {
 
         public void placerElem(Meuble e, PointF planPt) {
             try {
-                if (e.Position != null && elemsMuraux.Contains(e)) {
-                    e.Position = planPt;
-                    return;
-                }
+                
 
                 
                 int closestSegmentIndex = PointExtensions.TrouverSegmentProche(planPt, Perimetre);

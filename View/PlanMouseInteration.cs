@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using PROJET_PIIA.Controleurs;
-using PROJET_PIIA.Extensions;
 using PROJET_PIIA.Model;
 
 namespace PROJET_PIIA.View {
@@ -41,7 +35,7 @@ namespace PROJET_PIIA.View {
                     _selectedMeuble = meuble;
                     _dragMode = DragMode.MoveMeuble;
                     _dragStart = e.Location;
-                    
+
                     PointF p = meuble.Position.Value;
                     _meubleOffset = new PointF(
                         planPoint.X - p.X,
@@ -66,12 +60,12 @@ namespace PROJET_PIIA.View {
                         return;
                     }
 
-                        PointF mousePos = new PointF(e.X, e.Y);
-                        // Check if the click was on the delete button
-                        if (IsPointOverDeleteButton(mousePos)) {
-                            SupprimeMeubleSelection();
-                            return;
-                        }
+                    PointF mousePos = new PointF(e.X, e.Y);
+                    // Check if the click was on the delete button
+                    if (IsPointOverDeleteButton(mousePos)) {
+                        SupprimeMeubleSelection();
+                        return;
+                    }
                 } else {
                     int segmentIndex = planController.FindMurAtPoint(planPoint);
                     if (segmentIndex != -1) {
@@ -107,7 +101,7 @@ namespace PROJET_PIIA.View {
 
                 case DragMode.MoveMeuble:
                     if (_selectedMeuble != null && _selectedMeuble.Position != null) {
-                        _selectedMeuble.Position = SubPF(planDansPoint,  _meubleOffset);
+                        _selectedMeuble.Position = SubPF(planDansPoint, _meubleOffset);
                         if (_selectedMeuble.IsMural) {
                             Murs murs = planController.ObtenirMurs();
                             murs.placerElem(_selectedMeuble, (PointF)_selectedMeuble.Position);
@@ -124,7 +118,7 @@ namespace PROJET_PIIA.View {
                             e.Location.X - screenCenter.X
                         );
                         float angleDelta = (currentAngle - _initialMouseAngle) * (180f / (float)Math.PI);
-                        _selectedMeuble.tourner(angleDelta, false); 
+                        _selectedMeuble.tourner(angleDelta, false);
                         _angleAction = angleDelta;
                         _initialMouseAngle = currentAngle;
                     }
@@ -148,15 +142,12 @@ namespace PROJET_PIIA.View {
                     perimetre[i2] = newP2;
                     if (i1 == 0) perimetre[^1] = newP1;
                     else if (i1 == perimetre.Count - 2) perimetre[0] = newP2;
-                    
-                    planController.SetMurs(perimetre);
+
 
                     List<Meuble> elemsMuraux = mursData.GetElemsMuraux();
                     foreach (Meuble elem in elemsMuraux) {
-                        if (elem.Position is PointF position) {
-                            PointF newpos = AddPF(position, delta);
-                            mursData.placerElem(elem, newpos);
-                        }
+                        PointF newpos = AddPF((PointF)elem.Position, delta);
+                        mursData.placerElem(elem, newpos);
                     }
                     _selectedWallPoints1 = (newP1, newP2);
                     _dragStart = e.Location;
@@ -185,7 +176,7 @@ namespace PROJET_PIIA.View {
                 }
             }
 
-            
+
 
             switch (_dragMode) {
                 case DragMode.Pan:
@@ -203,7 +194,7 @@ namespace PROJET_PIIA.View {
                     _dragMode = DragMode.None;
                     break;
                 case DragMode.MoveWall:
-                    undoRedoControleur.Add(new DeplacementMur((_selectedWall, (_selectedWall+1)%planController.ObtenirMurs().Perimetre.Count()) , _selectedWallPoints1, _selectedWallPoints2));
+                    undoRedoControleur.Add(new DeplacementMur((_selectedWall, (_selectedWall + 1) % planController.ObtenirMurs().Perimetre.Count()), _selectedWallPoints1, _selectedWallPoints2));
                     Cursor = Cursors.Default;
                     _dragMode = DragMode.None;
                     break;
