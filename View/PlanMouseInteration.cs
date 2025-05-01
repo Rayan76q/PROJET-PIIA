@@ -180,7 +180,6 @@ namespace PROJET_PIIA.View {
                     planController.SetMurs(perimetre);
 
                     List<Meuble> elemsMuraux = mursData.GetElemsMuraux();
-
                     foreach (Meuble elem in elemsMuraux) {
                         PointF newpos = new PointF(((PointF)elem.Position).X + delta.X, ((PointF)elem.Position).Y + delta.Y);
                         mursData.placerElem(elem, newpos);

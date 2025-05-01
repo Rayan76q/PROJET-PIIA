@@ -175,39 +175,7 @@ namespace PROJET_PIIA.Model {
             return segments;
         }
 
-        // Method to add a mural element (door or window)
-        public void addElemMur(Meuble e) {
-            // Check if the element is a wall element
-            if (!e.IsMural) {
-                throw new ArgumentException("L'élément n'est pas un élément mural (porte ou fenêtre).");
-            }
-
-
-
-            (int segmentIndex, float t) = getSegmentForElem(e);
-
-            if (segmentIndex == Perimetre.Count - 1 && t == 0) {  //check si le dernier segment peut accueillir l'elem
-                if (Perimetre.Last().DistanceTo(Perimetre[0]) <= e.Width) {
-                    throw new ArgumentException("L'élément ne peut pas être placé car trop large.");
-                } else {
-                    // Check if the element overlaps with existing wall elements
-                    if (elemsMuraux.Any(em => em != e && em.IsMural && ((em.IsPorte || em.IsFenetre)) &&
-                                          e.ChevaucheMeuble(em))) {
-                        throw new ArgumentException("L'élément chevauche un autre élément mural existant.");
-                    }
-
-                    elemsMuraux.Add(e);
-                }
-            } else {
-                // Check if the element overlaps with existing wall elements
-                if (elemsMuraux.Any(em => em != e && em.IsMural && ((em.IsPorte || em.IsFenetre)) &&
-                                      e.ChevaucheMeuble(em))) {
-                    throw new ArgumentException("L'élément chevauche un autre élément mural existant.");
-                }
-
-                elemsMuraux.Add(e);
-            }
-        }
+     
 
         public void supprimeElemMur(Meuble e) {
             elemsMuraux.Remove(e);
@@ -385,11 +353,7 @@ namespace PROJET_PIIA.Model {
                         normalY = -normalY;
                     }
 
-                    // Handle placement based on element type
-                    if (e.IsPorte || e.IsFenetre) {
-                        // Doors and windows go directly on the wall
-                        e.Position = closestProjection;
-                    } else {
+                    
                         // For furniture, we need to account for its dimensions and top-left position
                         // Calculate where to place the element so its closest edge is against the wall
 
@@ -434,15 +398,17 @@ namespace PROJET_PIIA.Model {
                             closestProjection.X + offsetX,
                             closestProjection.Y + offsetY
                         );
-                    }
+                    
 
                     e.DistPos = GetOffsetForPosition(closestProjection);
                     e.tourner(angle, false);
 
                     if (!elemsMuraux.Contains(e)) {
                         Debug.WriteLine(e.Nom);
-                        addElemMur(e);
+                        elemsMuraux.Add(e);
                     }
+
+                    Debug.WriteLine(this);
                 }
             } catch (ArgumentException ex) {
                 Debug.WriteLine($"Placement failed: {ex.Message}");
