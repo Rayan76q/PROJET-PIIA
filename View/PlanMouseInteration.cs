@@ -69,26 +69,26 @@ namespace PROJET_PIIA.View {
                         _dragStart = e.Location;
                         PointF center = PlanToScreen(GetMeubleCenter());
                         PointF p = new(e.Location.X - center.X, e.Location.Y - center.Y);
-                        _initialMouseAngle = (float)Math.Atan2(p.Y,p.X);
+                        _initialMouseAngle = (float)Math.Atan2(p.Y, p.X);
 
                         this.Cursor = Cursors.Hand;
                         return;
                     }
-                }
+                } else {
+                    int segmentIndex = planController.FindMurAtPoint(planPoint);
+                    if (segmentIndex != -1) {
+                        _selectedWall = segmentIndex;
+                        List<PointF> perimetre = planController.ObtenirMurs().Perimetre;
+                        int i1 = _selectedWall;
+                        int i2 = (i1 + 1) % perimetre.Count;
+                        PointF p1 = perimetre[i1];
+                        PointF p2 = perimetre[i2];
+                        _selectedWallPoints2 = (p1, p2);
 
-                int segmentIndex = planController.FindMurAtPoint(planPoint);
-                if (segmentIndex != -1) {
-                    _selectedWall = segmentIndex;
-                    List<PointF> perimetre = planController.ObtenirMurs().Perimetre;
-                    int i1 = _selectedWall;
-                    int i2 = (i1 + 1) % perimetre.Count;
-                    PointF p1 = perimetre[i1];
-                    PointF p2 = perimetre[i2];
-                    _selectedWallPoints2 = (p1, p2);
-                    
-                    _dragMode = DragMode.MoveWall;
-                    _dragStart = e.Location;
-                    this.Cursor = Cursors.Hand;
+                        _dragMode = DragMode.MoveWall;
+                        _dragStart = e.Location;
+                        this.Cursor = Cursors.Hand;
+                    }
                 }
 
 
