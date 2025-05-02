@@ -243,9 +243,8 @@ namespace PROJET_PIIA.Model {
 
         public bool MursSeCroisent() {
             var perimetre = Murs?.Perimetre;
-            if (perimetre == null || perimetre.Count < 4)  // Moins de 2 murs => jamais croisés
+            if (perimetre == null || perimetre.Count < 4)
                 return false;
-
             for (int i = 0; i < perimetre.Count; i++) {
                 PointF p1 = perimetre[i];
                 PointF p2 = perimetre[(i + 1) % perimetre.Count];
@@ -253,13 +252,9 @@ namespace PROJET_PIIA.Model {
                 for (int j = i + 1; j < perimetre.Count; j++) {
                     PointF q1 = perimetre[j];
                     PointF q2 = perimetre[(j + 1) % perimetre.Count];
-
-                    // Ignore les murs consécutifs ou ceux qui partagent un point
                     if (SegmentsOntUnPointEnCommun(p1, p2, q1, q2))
                         continue;
-
                     if (SegmentsSeCroisent(p1, p2, q1, q2)) {
-                        Debug.WriteLine($"Intersection trouvée entre les murs {i}-{(i + 1) % perimetre.Count} et {j}-{(j + 1) % perimetre.Count}");
                         return true;
                     }
                 }
