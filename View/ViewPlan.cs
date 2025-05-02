@@ -193,17 +193,17 @@ namespace PROJET_PIIA.View {
 
             // dessin des murs
             List<PointF> points = planController.ObtenirMurs().Perimetre;
+            var c = (planController.escequelesmursecroisent()) ? Pens.Red : Pens.Blue;
             if (points.Count > 1) {
                 for (int i = 0; i < points.Count - 1; i++) {
-                    g.DrawLine(Pens.Blue, PlanToScreen(points[i]), PlanToScreen(points[i + 1]));
+                    g.DrawLine(c, PlanToScreen(points[i]), PlanToScreen(points[i + 1]));
                 }
-                g.DrawLine(Pens.Blue, PlanToScreen(points.Last()), PlanToScreen(points.First()));
+                g.DrawLine(c, PlanToScreen(points.Last()), PlanToScreen(points.First()));
 
                 if (_selectedWall != -1) {
                     (int, int) seg = (_selectedWall, (_selectedWall+1)%planController.ObtenirMurs().Perimetre.Count());
                     PointF p1 = planController.ObtenirMurs().Perimetre[seg.Item1];
                     PointF p2 = planController.ObtenirMurs().Perimetre[seg.Item2];
-                    planController.
                     g.DrawLine(new Pen(Color.Green, 3), PlanToScreen(p1), PlanToScreen(p2));
                 }
             }

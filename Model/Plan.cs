@@ -82,6 +82,7 @@ namespace PROJET_PIIA.Model {
         }
 
 
+
         public void SupprimerMeuble(Meuble m) {
             Meuble? r = findMeuble(m);
             if (r!=null) {
@@ -209,6 +210,63 @@ namespace PROJET_PIIA.Model {
             return produitCroise >= 0;
         }
 
+        private bool SegmentsSeCroisent(PointF p1, PointF p2, PointF q1, PointF q2) {
+            // Fonction pour calculer l'orientation
+            int Orientation(PointF a, PointF b, PointF c) {
+                float val = (b.Y - a.Y) * (c.X - b.X) - (b.X - a.X) * (c.Y - b.Y);
+                if (val == 0) return 0;  // colinéaire
+                return (val > 0) ? 1 : 2;  // horaire ou anti-horaire
+            }
+
+            bool SurSegment(PointF a, PointF b, PointF c) {
+                return b.X <= Math.Max(a.X, c.X) && b.X >= Math.Min(a.X, c.X) &&
+                       b.Y <= Math.Max(a.Y, c.Y) && b.Y >= Math.Min(a.Y, c.Y);
+            }
+
+            int o1 = Orientation(p1, p2, q1);
+            int o2 = Orientation(p1, p2, q2);
+            int o3 = Orientation(q1, q2, p1);
+            int o4 = Orientation(q1, q2, p2);
+
+            // Cas général
+            if (o1 != o2 && o3 != o4)
+                return true;
+
+            // Cas spéciaux (colinéarité)
+            if (o1 == 0 && SurSegment(p1, q1, p2)) return true;
+            if (o2 == 0 && SurSegment(p1, q2, p2)) return true;
+            if (o3 == 0 && SurSegment(q1, p1, q2)) return true;
+            if (o4 == 0 && SurSegment(q1, p2, q2)) return true;
+
+            return false;
+        }
+
+        public bool MursSeCroisent() {
+            return false;
+            var perimetre = Murs?.Perimetre;
+            if (perimetre == null || perimetre.Count < 4)  // Moins de 2 murs => jamais croisés
+                return false;
+
+            for (int i = 0; i < perimetre.Count; i++) {
+                PointF p1 = perimetre[i];
+                PointF p2 = perimetre[(i + 1) % perimetre.Count];
+
+                for (int j = i + 1; j < perimetre.Count; j++) {
+                    // Ignore les murs consécutifs
+                    if (j == i || (j + 1) % perimetre.Count == i || (i + 1) % perimetre.Count == j)
+                        continue;
+
+                    PointF q1 = perimetre[j];
+                    PointF q2 = perimetre[(j + 1) % perimetre.Count];
+
+                    if (SegmentsSeCroisent(p1, p2, q1, q2)) {
+                        Debug.WriteLine($"Intersection trouvée entre les murs {i}-{(i + 1) % perimetre.Count} et {j}-{(j + 1) % perimetre.Count}");
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
 
 
     }

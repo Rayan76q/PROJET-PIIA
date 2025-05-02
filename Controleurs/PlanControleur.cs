@@ -99,8 +99,7 @@ namespace PROJET_PIIA.Controleurs {
         }
 
         public bool escequelesmursecroisent() {
-            this.plan.chec
-            return true;
+            return this.plan.MursSeCroisent();
         }
 
 
