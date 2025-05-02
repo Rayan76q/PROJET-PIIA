@@ -60,7 +60,6 @@ namespace PROJET_PIIA.View {
             registerButton = new Button();
             label2 = new Label();
             connectButton = new Button();
-            forgotPasswordText = new Button();
             label1 = new Label();
             panel.SuspendLayout();
             boxPanel.SuspendLayout();
@@ -76,7 +75,6 @@ namespace PROJET_PIIA.View {
             panel.Controls.Add(registerButton);
             panel.Controls.Add(label2);
             panel.Controls.Add(connectButton);
-            panel.Controls.Add(forgotPasswordText);
             panel.Controls.Add(label1);
             panel.Location = new Point(12, 12);
             panel.Name = "panel";
@@ -151,6 +149,7 @@ namespace PROJET_PIIA.View {
             registerButton.FlatAppearance.BorderSize = 0;
             registerButton.FlatStyle = FlatStyle.Flat;
             registerButton.Font = new Font("Segoe UI", 9F, FontStyle.Italic | FontStyle.Underline, GraphicsUnit.Point, 0);
+            registerButton.ForeColor = Color.Transparent;
             registerButton.Location = new Point(428, 469);
             registerButton.Name = "registerButton";
             registerButton.Size = new Size(61, 24);
@@ -163,10 +162,10 @@ namespace PROJET_PIIA.View {
             // 
             label2.Anchor = AnchorStyles.None;
             label2.AutoSize = true;
-            label2.Font = new Font("Segoe UI", 21.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label2.Font = new Font("Segoe UI", 21.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label2.Location = new Point(275, 162);
             label2.Name = "label2";
-            label2.Size = new Size(180, 40);
+            label2.Size = new Size(194, 40);
             label2.TabIndex = 5;
             label2.Text = "Se connecter";
             // 
@@ -184,21 +183,6 @@ namespace PROJET_PIIA.View {
             connectButton.Text = "Se connecter";
             connectButton.UseVisualStyleBackColor = false;
             connectButton.Click += connectButton_Click_1;
-            // 
-            // forgotPasswordText
-            // 
-            forgotPasswordText.Anchor = AnchorStyles.None;
-            forgotPasswordText.BackColor = Color.FromArgb(0, 0, 0, 0);
-            forgotPasswordText.Cursor = Cursors.Hand;
-            forgotPasswordText.FlatAppearance.BorderSize = 0;
-            forgotPasswordText.FlatStyle = FlatStyle.Flat;
-            forgotPasswordText.Font = new Font("Segoe UI", 9F, FontStyle.Italic | FontStyle.Underline, GraphicsUnit.Point, 0);
-            forgotPasswordText.Location = new Point(282, 358);
-            forgotPasswordText.Name = "forgotPasswordText";
-            forgotPasswordText.Size = new Size(121, 24);
-            forgotPasswordText.TabIndex = 3;
-            forgotPasswordText.Text = "Mot de passe oublié";
-            forgotPasswordText.UseVisualStyleBackColor = false;
             // 
             // label1
             // 
@@ -262,7 +246,6 @@ namespace PROJET_PIIA.View {
         private Panel boxPanel;
         private Label label3;
         private Label errorText;
-        private Button forgotPasswordText;
 
         private void textPassword_TextChanged(object sender, EventArgs e) {
 

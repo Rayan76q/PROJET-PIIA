@@ -22,6 +22,7 @@ namespace PROJET_PIIA.View {
         private readonly System.Windows.Forms.Timer shakeTimer;
         private readonly int shakeTotalSteps = 10;
         private Point originalBoxLocation;
+        private Label label1;
         private int shakeStep;
 
         public SignupView(AccountController controller) {
@@ -53,14 +54,16 @@ namespace PROJET_PIIA.View {
             loginLinkButton = new Button();
             labelTitle = new Label();
             registerButton = new Button();
-
+            label1 = new Label();
             panel.SuspendLayout();
             boxPanel.SuspendLayout();
             SuspendLayout();
-
+            // 
             // panel
+            // 
             panel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             panel.BackColor = SystemColors.ActiveBorder;
+            panel.Controls.Add(label1);
             panel.Controls.Add(errorText);
             panel.Controls.Add(boxPanel);
             panel.Controls.Add(labelSubtitle);
@@ -71,19 +74,21 @@ namespace PROJET_PIIA.View {
             panel.Name = "panel";
             panel.Size = new Size(823, 552);
             panel.TabIndex = 1;
-
+            // 
             // errorText
+            // 
             errorText.Anchor = AnchorStyles.None;
             errorText.AutoSize = true;
             errorText.ForeColor = Color.Firebrick;
             errorText.Location = new Point(279, 250);
             errorText.Name = "errorText";
-            errorText.Size = new Size(242, 15);
+            errorText.Size = new Size(252, 15);
             errorText.TabIndex = 9;
             errorText.Text = "Veuillez remplir tous les champs correctement.";
             errorText.Visible = false;
-
+            // 
             // boxPanel
+            // 
             boxPanel.Anchor = AnchorStyles.None;
             boxPanel.BackColor = Color.DimGray;
             boxPanel.Controls.Add(txtUsername);
@@ -93,8 +98,9 @@ namespace PROJET_PIIA.View {
             boxPanel.Name = "boxPanel";
             boxPanel.Size = new Size(258, 120);
             boxPanel.TabIndex = 8;
-
+            // 
             // txtUsername
+            // 
             txtUsername.Anchor = AnchorStyles.None;
             txtUsername.Cursor = Cursors.IBeam;
             txtUsername.Font = new Font("Segoe UI", 9.75F, FontStyle.Italic);
@@ -103,8 +109,9 @@ namespace PROJET_PIIA.View {
             txtUsername.PlaceholderText = "Nom d'utilisateur";
             txtUsername.Size = new Size(239, 25);
             txtUsername.TabIndex = 0;
-
+            // 
             // txtPassword
+            // 
             txtPassword.Anchor = AnchorStyles.None;
             txtPassword.Cursor = Cursors.IBeam;
             txtPassword.Font = new Font("Segoe UI", 9.75F, FontStyle.Italic);
@@ -114,8 +121,9 @@ namespace PROJET_PIIA.View {
             txtPassword.PlaceholderText = "Mot de passe";
             txtPassword.Size = new Size(239, 25);
             txtPassword.TabIndex = 1;
-
+            // 
             // txtConfirmPassword
+            // 
             txtConfirmPassword.Anchor = AnchorStyles.None;
             txtConfirmPassword.Cursor = Cursors.IBeam;
             txtConfirmPassword.Font = new Font("Segoe UI", 9.75F, FontStyle.Italic);
@@ -125,42 +133,47 @@ namespace PROJET_PIIA.View {
             txtConfirmPassword.PlaceholderText = "Confirmez le mot de passe";
             txtConfirmPassword.Size = new Size(239, 25);
             txtConfirmPassword.TabIndex = 2;
-
+            // 
             // labelSubtitle
+            // 
             labelSubtitle.Anchor = AnchorStyles.None;
             labelSubtitle.AutoSize = true;
             labelSubtitle.Location = new Point(274, 474);
             labelSubtitle.Name = "labelSubtitle";
-            labelSubtitle.Size = new Size(142, 15);
+            labelSubtitle.Size = new Size(152, 15);
             labelSubtitle.TabIndex = 7;
             labelSubtitle.Text = "Vous avez déjà un compte ?";
-
+            // 
             // loginLinkButton
+            // 
             loginLinkButton.Anchor = AnchorStyles.None;
             loginLinkButton.BackColor = Color.FromArgb(0, 0, 0, 0);
             loginLinkButton.Cursor = Cursors.Hand;
             loginLinkButton.FlatAppearance.BorderSize = 0;
             loginLinkButton.FlatStyle = FlatStyle.Flat;
             loginLinkButton.Font = new Font("Segoe UI", 9F, FontStyle.Italic | FontStyle.Underline, GraphicsUnit.Point, 0);
-            loginLinkButton.Location = new Point(416, 469);
+            loginLinkButton.ForeColor = Color.Transparent;
+            loginLinkButton.Location = new Point(432, 469);
             loginLinkButton.Name = "loginLinkButton";
             loginLinkButton.Size = new Size(80, 24);
             loginLinkButton.TabIndex = 6;
             loginLinkButton.Text = "Se connecter";
             loginLinkButton.UseVisualStyleBackColor = false;
             loginLinkButton.Click += loginLinkButton_Click;
-
+            // 
             // labelTitle
+            // 
             labelTitle.Anchor = AnchorStyles.None;
             labelTitle.AutoSize = true;
-            labelTitle.Font = new Font("Segoe UI", 21.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            labelTitle.Font = new Font("Segoe UI", 21.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             labelTitle.Location = new Point(275, 162);
             labelTitle.Name = "labelTitle";
-            labelTitle.Size = new Size(165, 40);
+            labelTitle.Size = new Size(143, 40);
             labelTitle.TabIndex = 5;
             labelTitle.Text = "S'inscrire";
-
+            // 
             // registerButton
+            // 
             registerButton.Anchor = AnchorStyles.None;
             registerButton.BackColor = SystemColors.ActiveCaption;
             registerButton.Cursor = Cursors.Hand;
@@ -173,8 +186,20 @@ namespace PROJET_PIIA.View {
             registerButton.Text = "S'inscrire";
             registerButton.UseVisualStyleBackColor = false;
             registerButton.Click += registerButton_Click;
-
+            // 
+            // label1
+            // 
+            label1.Anchor = AnchorStyles.None;
+            label1.AutoSize = true;
+            label1.Font = new Font("Haettenschweiler", 72F, FontStyle.Italic, GraphicsUnit.Point, 0);
+            label1.Location = new Point(261, 61);
+            label1.Name = "label1";
+            label1.Size = new Size(283, 101);
+            label1.TabIndex = 10;
+            label1.Text = "PlanCha!";
+            // 
             // SignupView
+            // 
             ClientSize = new Size(847, 576);
             Controls.Add(panel);
             Name = "SignupView";
@@ -208,8 +233,10 @@ namespace PROJET_PIIA.View {
         }
 
         private void loginLinkButton_Click(object sender, EventArgs e) {
-            this.DialogResult = DialogResult.Cancel;
+            this.Hide();
             this.Close();
+            this.DialogResult = DialogResult.Cancel;
+           
 
             // Open login dialog
             using (LoginView loginDialog = new LoginView(accountController)) {
