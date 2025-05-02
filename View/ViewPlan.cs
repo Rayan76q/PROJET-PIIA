@@ -13,25 +13,14 @@ namespace PROJET_PIIA.View {
         private const int DeleteButtonSize = 16;
 
 
-        //private List<(PointF Start, PointF End)> _lignes = new();
-        //private PointF? _currentStart = null; // point de départ d'une ligne en cours
-        //private PointF _mousePosition;
-
-        //private int? segmentProche = null;
-        //private bool _resizing = false;
-        //private int? _segmentResize = null;
-        //private PointF _resizeStart;
-
-        // Properties for meuble interactions
         private Meuble? _selectedMeuble = null;
         private int _selectedWall = -1;
-        //private bool _movingMeuble = false;
         private PointF _meubleOffset;
 
         internal PlanControleur planController;
         private UndoRedoControleur undoRedoControleur;
 
-        private float _initialMouseAngle = 0f;  // The angle from the meuble's center to the mouse at rotation start.
+        private float _initialMouseAngle = 0f;  
 
 
         enum DragMode {
@@ -41,7 +30,7 @@ namespace PROJET_PIIA.View {
             RotateMeuble,
             MoveMeuble,
             MoveWall
-            // … à étendre
+            
         }
 
         private PointF PlanToScreen(PointF p) =>
@@ -90,7 +79,6 @@ namespace PROJET_PIIA.View {
         }
 
 
-        // Handle drag operations
         private void PlanView_DragEnter(object? sender, DragEventArgs e) {
             if (e.Data != null && e.Data.GetDataPresent(typeof(Meuble))) {
                 e.Effect = DragDropEffects.Copy;
@@ -114,13 +102,11 @@ namespace PROJET_PIIA.View {
                 var original = e.Data.GetData(typeof(Meuble)) as Meuble;
                 if (original == null) return;
 
-                // Get drop position in plan coordinates
                 PointF clientPt = this.PointToClient(new Point(e.X, e.Y));
                 PointF planPt = ScreenToPlan(clientPt);
 
                 Meuble copie = original.Copier(false);
 
-                // Handle all mural elements (not just doors/windows)
                 if (copie.IsMural) {
                     Murs murs = planController.ObtenirMurs();
                     if (murs != null && murs.Perimetre.Count >= 2) {
@@ -128,14 +114,12 @@ namespace PROJET_PIIA.View {
                     }
                     
                 } else {
-                    // Center non-mural elements
                     planPt.X -= copie.Width / 2;
                     planPt.Y -= copie.Height / 2;
                     copie.Position = planPt;
                     planController.PlaceMeubleAtPosition(copie, planPt);
                 }
 
-                // Register undo and refresh
                 undoRedoControleur.Add(new AjoutMeuble(copie, planPt));
                 this.Invalidate();
             }
@@ -302,13 +286,11 @@ namespace PROJET_PIIA.View {
                     float pixelHeight = meuble.Height * scale;
                     PointF draw = new(-pixelWidth / 2, -pixelHeight / 2);
 
-                    // Check if meuble is a door or window
                     bool isPorteOrFenetre = meuble.IsPorte || meuble.IsFenetre ||
                                           meuble.GetType().Name.Contains("Porte") ||
                                           meuble.GetType().Name.Contains("Fenetre");
 
                     if (isPorteOrFenetre) {
-                        // Draw as a white line
                         using (Pen redPen = new Pen(Color.Red, 3)) {
                             // For doors and windows, draw as a line spanning the width or height
                             // depending on orientation (use width as it's likely the longer dimension)
@@ -316,11 +298,9 @@ namespace PROJET_PIIA.View {
                                        draw.X + meuble.Width, draw.Y + meuble.Height / 2);
                         }
                     } else {
-                        // Meuble ordinaire                        
                         Image img = ImageLoader.GetImageOfMeuble(meuble);
                         g.DrawImage(img, draw.X, draw.Y, pixelWidth, pixelHeight);
 
-                        // Overlay status : selection / collision
                         bool isSelected = _selectedMeuble == meuble;
                         bool isColliding = meuble.CheckMeubleCollision(planController.ObtenirMeublePlacé(), planController.ObtenirMurs());
                         using SolidBrush overlay = new SolidBrush(Color.FromArgb(100, pen.Color));

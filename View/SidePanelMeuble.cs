@@ -25,9 +25,8 @@ namespace PROJET_PIIA.View {
             layout.Controls.Add(filterPanel1, 0, 1);
             filterPanel1.Dock = DockStyle.Fill;
             update_meubles();
-            flowLayoutPanel1.VerticalScroll.Visible = true; // metre via designer ?
+            flowLayoutPanel1.VerticalScroll.Visible = true; 
 
-            //pas du tout une entourloupe
             buttonFiltre_Click(null, null);
             buttonFiltre_Click(null, null);
         }

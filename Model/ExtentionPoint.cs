@@ -3,7 +3,7 @@ using PROJET_PIIA.Model;
 
 namespace PROJET_PIIA.Extensions {
     public static class PointExtensions {
-        // merci chat gpt pour tout ces petits tricks (Connais tu Jésus ?)
+       
 
         // Calcule la distance entre deux points
         public static float DistanceTo(this PointF p1, PointF p2) {
@@ -19,19 +19,7 @@ namespace PROJET_PIIA.Extensions {
             return new PointF(point1.X + point2.X, point1.Y + point2.Y);
         }
 
-        //public static PointF Subtract(this PointF point1, PointF point2) {
-        //    return new PointF(point1.X - point2.X, point1.Y - point2.Y);
-        //}
-
-        // Conversion en Size
-        //public static Size ToSize(this PointF p) {
-        //    return new Size(p.X, p.Y);
-        //}
-
-        /*        public static float distance(PointF p1, PointF p2) {
-                    (float dx, float dy) = (p1.X - p2.X, p1.Y - p2.Y);
-                    return (float)Math.Sqrt(dx * dx + dy * dy);
-                }*/
+        
 
         public static bool is_valid(this PointF p) {
             return !float.IsNaN(p.X) && !float.IsNaN(p.Y)
@@ -79,12 +67,10 @@ namespace PROJET_PIIA.Extensions {
             int closestSegmentIndex = -1;
             PointF closestProjection = PointF.Empty;
 
-            // Find closest wall segment
             for (int i = 0; i < perimetre.Count; i++) {
                 PointF start = perimetre[i];
                 PointF end = perimetre[(i + 1) % perimetre.Count];
 
-                // Project the point onto the current segment
                 PointF projection = sourisPlan.ProjectPointOntoSegment((start, end));
                 float distance = sourisPlan.DistanceTo(projection);
 
@@ -126,7 +112,6 @@ namespace PROJET_PIIA.Extensions {
 
             return scaledPoints;
         }
-        // Project point onto a segment (already in your code)
         public static PointF ProjectPointOntoSegment(this PointF point, (PointF Start, PointF End) segment) {
             Vector2 aToB = segment.End.Subtract(segment.Start);
             Vector2 aToP = point.Subtract(segment.Start);
@@ -136,7 +121,6 @@ namespace PROJET_PIIA.Extensions {
         }
 
 
-        // Vector helpers (already in your code)
         public static Vector2 Subtract(this PointF a, PointF b) => new Vector2(a.X - b.X, a.Y - b.Y);
         public static PointF Add(this PointF a, Vector2 b) => new PointF(a.X + b.X, a.Y + b.Y);
         public static Vector2 Multiply(this Vector2 v, float scalar) => new Vector2(v.X * scalar, v.Y * scalar);

@@ -7,34 +7,20 @@ using System.Numerics;
 namespace PROJET_PIIA.Model {
 
     public class Murs {
-        List<Meuble> elemsMuraux; // Changed from ElemMur to Meuble
+        List<Meuble> elemsMuraux; 
         public List<PointF> Perimetre { get; set; }
 
         public Murs() {
             List<PointF> points = new();
 
-            //put something if you wanna test a special shape
-            //points.Add(new (100, 10));   // sommet 1
-            //points.Add(new (120, 70));  // creux 1
-            //points.Add(new (180, 70));  // sommet 2
-            //points.Add(new (130, 110)); // creux 2
-            //points.Add(new (150, 170)); // sommet 3
-            //points.Add(new (100, 130)); // creux 3
-            //points.Add(new (50, 170));  // sommet 4
-            //points.Add(new (70, 110));  // creux 4
-            //points.Add(new (20, 70));   // sommet 5
-            //points.Add(new (80, 70));   // creux 5
+           
 
             this.Perimetre = points;
             this.elemsMuraux = new List<Meuble>();
         }
 
         public Murs(List<PointF> perimetre) {
-            //if(perimetre.Count < 3)
-            //    throw new ArgumentOutOfRangeException("Le périmètre doit contenir au moins 3 points.");
-
-            //if (checkMurs(perimetre))
-            //throw new ArgumentOutOfRangeException("Les mures s'intersectent, impossible de générer la cuisine.");
+           
             this.Perimetre = perimetre;
             this.elemsMuraux = new List<Meuble>();
         }
@@ -181,17 +167,14 @@ namespace PROJET_PIIA.Model {
             elemsMuraux.Remove(e);
         }
 
-        // Get all mural elements 
         public List<Meuble> GetElemsMuraux() {
             return elemsMuraux.Where(e => e.IsMural || (e.IsPorte || e.IsFenetre)).ToList();
         }
 
-        // Get only doors
         public List<Meuble> GetPortes() {
             return elemsMuraux.Where(e => e.IsPorte).ToList();
         }
 
-        // Get only windows
         public List<Meuble> GetFenetres() {
             return elemsMuraux.Where(e => e.IsFenetre).ToList();
         }
@@ -217,32 +200,25 @@ namespace PROJET_PIIA.Model {
         }
 
         public void UpdateElementPositions() {
-            // Recalculate positions for all wall elements
 
             foreach (var elem in elemsMuraux) {
                 if (elem.IsMural) {
                     try {
-                        // Get the position on the updated wall
                         PointF newPosition = GetPositionForOffset(elem.DistPos);
 
-                        // If it's a door or window, position it on the wall
                         if (elem.IsPorte || elem.IsFenetre || elem.IsMural) {
-                            // Get segment details
                             (int segmentIndex, float t) = getSegmentForElem(elem);
                             PointF segmentStart = Perimetre[segmentIndex];
                             PointF segmentEnd = Perimetre[(segmentIndex + 1) % Perimetre.Count];
 
-                            // Calculate angle to align with the wall segment direction
                             float dx = segmentEnd.X - segmentStart.X;
                             float dy = segmentEnd.Y - segmentStart.Y;
                             float angle = (float)(Math.Atan2(dy, dx) * 180 / Math.PI);
 
-                            // Update element position and orientation
                             elem.Position = newPosition;
                             elem.tourner(angle, true);
                         }
                     } catch (ArgumentException ex) {
-                        // Log error or handle exceptions
                         System.Diagnostics.Debug.WriteLine($"Error updating element position: {ex.Message}");
                     }
                 }
@@ -258,31 +234,24 @@ namespace PROJET_PIIA.Model {
                 var a = Perimetre[i];
                 var b = Perimetre[(i + 1) % Perimetre.Count];
 
-                // Vector from A to B and A to the query point
                 float vx = b.X - a.X, vy = b.Y - a.Y;
                 float wx = position.X - a.X, wy = position.Y - a.Y;
 
                 float segLenSq = vx * vx + vy * vy;
                 if (segLenSq < 1e-9f) {
-                    // Degenerate segment, skip
                     continue;
                 }
 
-                // Project W onto V, parameterized by t in [0,1]
                 float t = (vx * wx + vy * wy) / segLenSq;
 
-                // Check if projection lies on the segment (with tolerance)
                 if (t >= -epsilon && t <= 1 + epsilon) {
-                    // Compute the closest point on AB
                     t = Math.Clamp(t, 0f, 1f);
                     var projX = a.X + t * vx;
                     var projY = a.Y + t * vy;
 
-                    // Check distance from actual point to projection
                     var dx = position.X - projX;
                     var dy = position.Y - projY;
                     if (dx * dx + dy * dy <= epsilon * epsilon) {
-                        // It's on this segment: return cumulative length + local offset
                         float segmentLength = (float)Math.Sqrt(segLenSq);
                         return cumulative + t * segmentLength;
                     }
@@ -296,16 +265,12 @@ namespace PROJET_PIIA.Model {
 
       
         public Murs Clone() {
-            // 1) Copy perimeter points
             var perimeterCopy = Perimetre
                 .Select(p => new PointF(p.X, p.Y))
                 .ToList();
 
-            // 2) Create the new Murs with that perimeter
             var copy = new Murs(perimeterCopy);
 
-            // 3) Copy over the meubles
-            //    If you want a deep‐copy of each Meuble, replace `e` with e.Clone()
             foreach (var e in elemsMuraux)
                 copy.elemsMuraux.Add(e);
 

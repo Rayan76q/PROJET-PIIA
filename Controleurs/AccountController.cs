@@ -30,14 +30,11 @@ namespace PROJET_PIIA.Controleurs {
         // ================ Login/Logout Functionality ================
 
         public bool Login(string username, string password) {
-            // Check if any account matches the provided credentials
             foreach (Compte compte in Compte.comptes.Values) {
                 if (compte.Name == username && compte.Password == password) {
-                    // Set this account as the active account
                     _modele.compteActuel = compte;
                     compte.Connected = true;
 
-                    // Notify subscribers that account state has changed
                     AccountStateChanged?.Invoke();
                     return true;
                 }
@@ -48,7 +45,7 @@ namespace PROJET_PIIA.Controleurs {
         public void Logout() {
             if (_modele.compteActuel != null) {
                 _modele.compteActuel.Connected = false;
-                _modele.compteActuel = new Compte(); // Create a new default guest account
+                _modele.compteActuel = new Compte(); 
                 AccountStateChanged?.Invoke();
             }
         }
@@ -56,7 +53,6 @@ namespace PROJET_PIIA.Controleurs {
         // ================ Registration Functionality ================
 
         public bool RegisterAccount(string username, string password, string confirmPassword) {
-            // Validate inputs
             if (string.IsNullOrWhiteSpace(username)) {
                 MessageBox.Show("Le nom d'utilisateur ne peut pas être vide.", "Erreur d'inscription",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -75,7 +71,6 @@ namespace PROJET_PIIA.Controleurs {
                 return false;
             }
 
-            // Check if username is available
             if (!Compte.nomDispo(username)) {
                 MessageBox.Show("Ce nom d'utilisateur est déjà pris.", "Erreur d'inscription",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -83,14 +78,11 @@ namespace PROJET_PIIA.Controleurs {
             }
 
             try {
-                // Create new account
                 Compte newAccount = new Compte(username, password);
 
-                // Auto-login the new user
                 _modele.compteActuel = newAccount;
                 newAccount.Connected = true;
 
-                // Notify subscribers that account state has changed
                 AccountStateChanged?.Invoke();
                 return true;
             } catch (Exception ex) {
@@ -104,7 +96,6 @@ namespace PROJET_PIIA.Controleurs {
 
         public void SavePlan(Plan plan) {
             if (_modele.compteActuel == null) {
-                // If no active account, prompt for login or account creation
                 if (MessageBox.Show("Vous devez être connecté pour sauvegarder un plan. Souhaitez-vous vous connecter ?",
                         "Connexion requise", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
                     ShowLoginDialog();

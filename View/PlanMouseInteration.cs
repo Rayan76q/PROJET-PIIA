@@ -225,30 +225,24 @@ namespace PROJET_PIIA.View {
         private bool IsPointOverDeleteButton(PointF screenPoint) {
             if (_selectedMeuble == null) return false;
 
-            // Get the center of the meuble in screen coordinates
             PointF center = _selectedMeuble.GetCenter();
             PointF screenCenter = PlanToScreen(center);
 
-            // Get the button position in the meuble's local coordinate system
             PointF buttonPos = GetDeleteButtonPosition();
 
-            // Create a matrix for the transformations
             Matrix matrix = new Matrix();
             matrix.Translate(screenCenter.X, screenCenter.Y);
             matrix.Rotate(_selectedMeuble.getAngle());
 
-            // Transform the screen point to the meuble's coordinate system
             PointF[] points = new PointF[] { screenPoint };
             matrix.Invert();
             matrix.TransformPoints(points);
             PointF transformedPoint = points[0];
 
-            // Calculate button rectangle in meuble's coordinates
             float buttonX = buttonPos.X - screenCenter.X;
             float buttonY = buttonPos.Y - screenCenter.Y;
             RectangleF buttonRect = new RectangleF(buttonX, buttonY, DeleteButtonSize, DeleteButtonSize);
 
-            // Check if the transformed point is inside the button rectangle
             return buttonRect.Contains(transformedPoint);
         }
 

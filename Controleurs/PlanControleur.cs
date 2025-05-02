@@ -63,8 +63,6 @@ namespace PROJET_PIIA.Controleurs {
             List<PointF> oldPoints = new List<PointF>(murs.Perimetre);
             murs.Perimetre = points;
 
-            // Remove this line to prevent redundant updates
-            // murs.UpdateElementPositions();
 
             OnPlanChanged();
         }

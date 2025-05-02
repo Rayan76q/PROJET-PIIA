@@ -23,11 +23,9 @@ namespace PROJET_PIIA.Model {
             Nom = string.IsNullOrEmpty(nom) ? "Plan" : nom;
             Murs = murs ?? new Murs();
 
-            // Initialize the collection if null
             if (meubles == null) {
                 Meubles = new List<Meuble>();
             } else {
-                // Important: We need to create a new list here to respect the read-only property
                 Meubles = new List<Meuble>(meubles);
             }
         }
@@ -52,11 +50,9 @@ namespace PROJET_PIIA.Model {
         }
 
 
-        // find a meuble at a specific point
         public Meuble? FindMeubleAtPoint(PointF planPoint) {
             if (Meubles == null || Meubles.Count == 0) return null;
 
-            // Check each meuble in reverse order (so topmost is selected first)
             for (int i = Meubles.Count - 1; i >= 0; i--) {
                 Meuble meuble = Meubles[i];
                 if (meuble.IsPointInMeuble(planPoint)) {
@@ -129,16 +125,13 @@ namespace PROJET_PIIA.Model {
             if (meuble == null || Murs.Perimetre == null || Murs.Perimetre.Count < 2)
                 return false;
 
-            // Obtenir les coins du meuble avant rotation
             List<PointF> coins = GetCoins(meuble);
 
-            // Appliquer la rotation du meuble sur ses coins
             var rotatedCoins = new List<PointF>();
             foreach (var coin in coins) {
                 rotatedCoins.Add(RotaterPoint(coin, meuble.Position.Value, meuble.Orientation));
             }
 
-            // Vérifier si chaque coin est dans l'espace défini par les murs
             foreach (var rotatedCoin in rotatedCoins) {
                 if (!EstPointDansPlan(rotatedCoin)) {
                     return false;
@@ -166,7 +159,6 @@ namespace PROJET_PIIA.Model {
             return coins;
         }
 
-        // Méthode pour appliquer la rotation d'un point autour d'un centre donné
         private PointF RotaterPoint(PointF point, PointF center, (float, float) orientation) {
             float radian = (float)Math.Atan2(orientation.Item2, orientation.Item1);
             float cosAngle = (float)Math.Cos(radian);
@@ -175,14 +167,12 @@ namespace PROJET_PIIA.Model {
             float dx = point.X - center.X;
             float dy = point.Y - center.Y;
 
-            // Rotation en 2D
             float xRot = center.X + cosAngle * dx - sinAngle * dy;
             float yRot = center.Y + sinAngle * dx + cosAngle * dy;
 
             return new PointF(xRot, yRot);
         }
 
-        // Méthode pour vérifier si un point est à l'intérieur des murs du plan
         private bool EstPointDansPlan(PointF point) {
             for (int i = 0; i < Murs.Perimetre.Count; i++) {
                 PointF murStart = Murs.Perimetre[i];
@@ -195,23 +185,18 @@ namespace PROJET_PIIA.Model {
             return true;
         }
 
-        // Vérifie si un point est du bon côté d'un segment de mur (en utilisant un produit vectoriel)
         private bool EstPointAVersMurs(PointF point, PointF murStart, PointF murEnd) {
-            // Calcul de la direction du mur et de la direction du point par rapport à ce mur
             float dxMur = murEnd.X - murStart.X;
             float dyMur = murEnd.Y - murStart.Y;
             float dxPoint = point.X - murStart.X;
             float dyPoint = point.Y - murStart.Y;
 
-            // Calcul du produit vectoriel (déterminant) pour savoir de quel côté du mur est le point
             float produitCroise = dxMur * dyPoint - dyMur * dxPoint;
 
-            // Si le produit est positif, le point est à gauche, sinon à droite (on veut les points à gauche des murs)
             return produitCroise >= 0;
         }
 
         private bool SegmentsSeCroisent(PointF p1, PointF p2, PointF q1, PointF q2) {
-            // Fonction pour calculer l'orientation
             int Orientation(PointF a, PointF b, PointF c) {
                 float val = (b.Y - a.Y) * (c.X - b.X) - (b.X - a.X) * (c.Y - b.Y);
                 if (val == 0) return 0;  // colinéaire

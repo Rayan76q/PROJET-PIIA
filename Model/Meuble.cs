@@ -10,11 +10,10 @@ namespace PROJET_PIIA.Model {
         public string Nom { get; }
         public string? ImagePath = null;
 
-        public bool IsMural = false; // True if the furniture needs to be placed against a wall
-        public bool IsPorte = false; // True if it's a door
-        public bool IsFenetre = false; // True if it's a window
+        public bool IsMural = false; 
+        public bool IsPorte = false; 
+        public bool IsFenetre = false; 
 
-        // Properties for wall elements (doors and windows)
         private float distPos;
         public float DistPos {
             get => distPos;
@@ -149,7 +148,6 @@ namespace PROJET_PIIA.Model {
         }
 
         public bool ChevaucheMeuble(Meuble autre) {
-            // Wall elements don't collide with each other in the same way as regular furniture
             if ((IsMural && (IsPorte || IsFenetre)) || (autre.IsMural && (autre.IsPorte || autre.IsFenetre))) {
                 // If both are wall elements, check if they overlap on the wall
                 if ((IsMural && (IsPorte || IsFenetre)) && (autre.IsMural && (autre.IsPorte || autre.IsFenetre))) {
@@ -202,7 +200,6 @@ namespace PROJET_PIIA.Model {
         }
 
         public float getAngle() {
-            // Handle invalid orientation
             if (Math.Abs(Orientation.Item1) < 0.001f &&
                 Math.Abs(Orientation.Item2) < 0.001f) {
                 return 0f;
@@ -211,16 +208,12 @@ namespace PROJET_PIIA.Model {
             float angleRad = (float)Math.Atan2(Orientation.Item2, Orientation.Item1);
             float angleDeg = angleRad * (180f / (float)Math.PI);
 
-            // Convert to 0-360 range
             if (angleDeg < 0) angleDeg += 360f;
             return angleDeg;
         }
 
-        // Check if a meuble collides with walls or other meubles
         public bool CheckMeubleCollision(List<Meuble> meubles, Murs murs) {
-            // Wall elements have special collision handling
             if (IsMural && (IsPorte || IsFenetre)) {
-                // Check collision with other wall elements only
                 foreach (var otherMeuble in meubles) {
                     if (otherMeuble != this && otherMeuble.IsMural && (otherMeuble.IsPorte || otherMeuble.IsFenetre)) {
                         if (this.ChevaucheMeuble(otherMeuble)) {
@@ -231,7 +224,6 @@ namespace PROJET_PIIA.Model {
                 return false;
             }
 
-            // Regular furniture collision check
             if (this.ChevaucheMur(murs)) {
                 return true;
             }

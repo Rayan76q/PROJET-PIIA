@@ -63,7 +63,7 @@ namespace PROJET_PIIA.Model {
             get => _plans;
         }
 
-        public string Avatar { get; set; } // j'aienvie de dire null par defaut pour etre sur qu'il n'y a pas d'image ?
+        public string Avatar { get; set; } 
 
         public bool Connected {get;set;}
 
@@ -123,14 +123,12 @@ namespace PROJET_PIIA.Model {
 
         public void saveAccount() {
             try {
-                // 1) Build path: [exe]\SavedPlans\accounts.json
                 string exeDir = Application.StartupPath;
                 string savesDir = Path.Combine(exeDir, "SavedPlans");
                 Directory.CreateDirectory(savesDir);
 
                 string registryPath = Path.Combine(savesDir, "accounts.json");
 
-                // 2) Load existing array or create new
                 JArray accountsArray;
                 if (File.Exists(registryPath)) {
                     string existingJson = File.ReadAllText(registryPath, Encoding.UTF8);
@@ -139,7 +137,6 @@ namespace PROJET_PIIA.Model {
                     accountsArray = new JArray();
                 }
 
-                // 3) Check if this compte (by Name) is already in the file
                 bool alreadyRegistered = false;
                 foreach (var token in accountsArray) {
                     if (token.Type == JTokenType.Object &&
@@ -150,11 +147,9 @@ namespace PROJET_PIIA.Model {
                 }
 
                 if (alreadyRegistered) {
-                    // nothing to do
                     return;
                 }
 
-                // 4) Build a minimal JObject for this compte
                 var jo = new JObject {
                     ["Id"] = this.Id,
                     ["Password"] = this.Password,
@@ -163,7 +158,6 @@ namespace PROJET_PIIA.Model {
                     ["Created"] = DateTime.Now.ToString("o")
                 };
 
-                // 5) Append and save
                 accountsArray.Add(jo);
                 File.WriteAllText(registryPath,
                                   accountsArray.ToString(Formatting.Indented),
@@ -196,7 +190,6 @@ namespace PROJET_PIIA.Model {
                 string password = token["Password"]!.Value<string>();
                 string avatar = token["Avatar"]?.Value<string>() ?? DEFAULT_AVATAR;
 
-                // build with private ctor so we don't re‐write to disk or touch 'comptes'
                 var c = new Compte(
                     id,
                     name,
@@ -209,7 +202,6 @@ namespace PROJET_PIIA.Model {
                 dict.Add(id, c);
             }
 
-            // also make sure your static _idCounter continues above the max loaded ID
             if (dict.Count > 0)
                 _idCounter = dict.Keys.Max() + 1;
 
@@ -218,7 +210,6 @@ namespace PROJET_PIIA.Model {
 
 
 
-        // Replace the existing SavePlan and LoadPlans methods in Compte.cs
 
         public void savePlan(Plan plan) {
             try {
@@ -226,36 +217,29 @@ namespace PROJET_PIIA.Model {
                     throw new ArgumentNullException(nameof(plan), "Le plan ne peut pas être null.");
                 }
 
-                // Add plan to the user's plans if it's not already there
                 if (!Plans.Contains(plan)) {
                     Plans.Add(plan);
                 }
 
-                // Use the application's executable directory for reliable file access
                 string executablePath = Application.StartupPath;
                 string userDirectory = Path.Combine(executablePath, "SavedPlans", this.Name);
 
-                // Create directory if it doesn't exist
                 if (!Directory.Exists(userDirectory)) {
                     Directory.CreateDirectory(userDirectory);
                 }
 
-                // Create filename with plan name and timestamp
                 string sanitizedPlanName = string.Join("_", plan.Nom.Split(Path.GetInvalidFileNameChars()));
                 string filename = $"{sanitizedPlanName}_{DateTime.Now:yyyyMMdd_HHmmss}.json";
                 string filePath = Path.Combine(userDirectory, filename);
 
-                // Use the JsonHelper from our new class
                 string planJson = PROJET_PIIA.Helpers.JsonHelper.SerializeObject(plan);
 
-                // Write file using stream to ensure proper closing of resources
                 using (FileStream fs = new FileStream(filePath, FileMode.Create))
                 using (StreamWriter writer = new StreamWriter(fs)) {
                     writer.Write(planJson);
                     writer.Flush();
                 }
 
-                // Optional: You could also update a master list of all saved plans
                 UpdatePlanRegistry(plan, filePath);
             } catch (Exception ex) {
                 MessageBox.Show($"Erreur lors de la sauvegarde du plan: {ex.Message}", "Erreur",
@@ -270,14 +254,12 @@ namespace PROJET_PIIA.Model {
                 string userDirectory = Path.Combine(Application.StartupPath, "SavedPlans", this.Name);
 
                 if (!Directory.Exists(userDirectory)) {
-                    return loadedPlans; // Return empty list if directory doesn't exist
+                    return loadedPlans; 
                 }
 
-                // Get all JSON files in the user's directory
                 string[] planFiles = Directory.GetFiles(userDirectory, "*.json");
                 foreach (string file in planFiles) {
                     try {
-                        // Use our JsonHelper to load the plan
                         Plan loadedPlan = PROJET_PIIA.Helpers.JsonHelper.LoadPlanFromJson(file);
 
                         if (loadedPlan != null) {
@@ -285,7 +267,6 @@ namespace PROJET_PIIA.Model {
                         }
                     } catch (Exception ex) {
                         Debug.WriteLine($"File deserialization error: {ex.Message}");
-                        // Skip files that can't be deserialized
                         continue;
                     }
                 }
@@ -297,32 +278,26 @@ namespace PROJET_PIIA.Model {
             return loadedPlans;
         }
 
-        // Helper method to maintain a registry of all saved plans
         private void UpdatePlanRegistry(Plan plan, string filePath) {
             try {
                 string registryPath = Path.Combine(Application.StartupPath, "SavedPlans", "registry.json");
                 Dictionary<string, List<string>> registry = new Dictionary<string, List<string>>();
 
-                // Load existing registry if it exists
                 if (File.Exists(registryPath)) {
                     string json = File.ReadAllText(registryPath);
                     registry = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(json)
                               ?? new Dictionary<string, List<string>>();
                 }
 
-                // Add or update user's plan list
                 if (!registry.ContainsKey(this.Name)) {
                     registry[this.Name] = new List<string>();
                 }
 
-                // Add the new plan file path to the registry
                 registry[this.Name].Add(filePath);
 
-                // Save the updated registry
                 string updatedJson = JsonConvert.SerializeObject(registry, Newtonsoft.Json.Formatting.Indented);
                 File.WriteAllText(registryPath, updatedJson);
             } catch {
-                // Silently handle registry errors - this is optional functionality
             }
         }
 
