@@ -49,7 +49,7 @@
             flowLayoutPanel1.FlowDirection = FlowDirection.TopDown;
             flowLayoutPanel1.Location = new Point(0, 0);
             flowLayoutPanel1.Name = "flowLayoutPanel1";
-            flowLayoutPanel1.Size = new Size(332, 366);
+            flowLayoutPanel1.Size = new Size(357, 366);
             flowLayoutPanel1.TabIndex = 1;
             // 
             // splitContainer1
@@ -68,7 +68,7 @@
             // splitContainer1.Panel2
             // 
             splitContainer1.Panel2.Controls.Add(flowLayoutPanel1);
-            splitContainer1.Size = new Size(332, 459);
+            splitContainer1.Size = new Size(357, 459);
             splitContainer1.SplitterDistance = 89;
             splitContainer1.TabIndex = 2;
             // 
@@ -102,7 +102,7 @@
             // splittousPorteFenetre
             // 
             splittousPorteFenetre.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            splittousPorteFenetre.IsSplitterFixed = true;
+            splittousPorteFenetre.FixedPanel = FixedPanel.Panel2;
             splittousPorteFenetre.Location = new Point(0, 0);
             splittousPorteFenetre.Name = "splittousPorteFenetre";
             splittousPorteFenetre.Orientation = Orientation.Horizontal;
@@ -115,7 +115,7 @@
             // 
             splittousPorteFenetre.Panel2.Controls.Add(buttonFenetre);
             splittousPorteFenetre.Panel2.Controls.Add(buttonPorte);
-            splittousPorteFenetre.Size = new Size(332, 522);
+            splittousPorteFenetre.Size = new Size(357, 522);
             splittousPorteFenetre.SplitterDistance = 459;
             splittousPorteFenetre.TabIndex = 0;
             splittousPorteFenetre.SplitterMoved += splittousPorteFenetre_SplitterMoved;
@@ -152,7 +152,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(splittousPorteFenetre);
             Name = "MurSidePanel";
-            Size = new Size(332, 522);
+            Size = new Size(357, 522);
             splitContainer1.Panel1.ResumeLayout(false);
             splitContainer1.Panel1.PerformLayout();
             splitContainer1.Panel2.ResumeLayout(false);
