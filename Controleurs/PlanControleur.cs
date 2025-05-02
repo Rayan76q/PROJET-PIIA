@@ -17,7 +17,7 @@ namespace PROJET_PIIA.Controleurs {
 
         public PlanControleur(Modele m) {
             plan = m.planActuel;
-            show_grid = false;
+            show_grid = true;
         }
 
         public List<Meuble> ObtenirMeublePlacé() {
